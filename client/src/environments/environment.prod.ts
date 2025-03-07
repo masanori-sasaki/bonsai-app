@@ -1,4 +1,13 @@
-import { Environment } from './environment';
+// 環境設定の型定義
+export interface Environment {
+  production: boolean;
+  apiUrl: string;
+  cognito?: {
+    userPoolId: string;
+    userPoolWebClientId: string;
+    domain: string;
+  };
+}
 
 export const environment: Environment = {
   production: true,

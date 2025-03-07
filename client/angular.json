@@ -135,5 +135,8 @@
       }
     }
   },
-  "defaultProject": "bonsai-app-client"
+  "defaultProject": "bonsai-app-client",
+  "cli": {
+    "analytics": "85c122e9-0c53-46a0-a0dd-ba3aa0964fe7"
+  }
 }

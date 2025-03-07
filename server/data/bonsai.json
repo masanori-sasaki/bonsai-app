@@ -9,5 +9,16 @@
     "id": "e4718bbf-579e-4cb4-995e-155983a5595a",
     "createdAt": "2025-03-07T06:19:57.693Z",
     "updatedAt": "2025-03-07T06:19:57.693Z"
+  },
+  {
+    "userId": "dev-user-123",
+    "name": "真柏",
+    "species": "真柏",
+    "registrationDate": "2025-03-07T13:25:25.309Z",
+    "history": "2025年1月購入（福袋）",
+    "imageUrls": [],
+    "id": "9a025a35-4839-4846-bf6f-c94f1f507eed",
+    "createdAt": "2025-03-07T13:26:45.743Z",
+    "updatedAt": "2025-03-07T13:26:45.743Z"
   }
 ]
