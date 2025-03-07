@@ -1,0 +1,99 @@
+<div class="work-record-detail-container">
+  <div class="work-record-detail-header">
+    <button class="btn btn-outline-secondary" (click)="goBack()">
+      <i class="fas fa-arrow-left"></i> 戻る
+    </button>
+    <h2 *ngIf="workRecord">{{ workTypeLabels[workRecord.workType] }}の記録</h2>
+    <div class="work-record-actions" *ngIf="workRecord">
+      <button class="btn btn-primary" (click)="editWorkRecord()">
+        <i class="fas fa-edit"></i> 編集
+      </button>
+      <button class="btn btn-danger" (click)="deleteWorkRecord()">
+        <i class="fas fa-trash"></i> 削除
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+
+  <div *ngIf="loading" class="loading-container">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">読み込み中...</span>
+    </div>
+    <p>作業記録を読み込んでいます...</p>
+  </div>
+
+  <div *ngIf="!loading && workRecord && bonsai" class="work-record-detail-content">
+    <div class="bonsai-info" (click)="viewBonsai()">
+      <div class="bonsai-image" *ngIf="bonsai.imageUrls && bonsai.imageUrls.length > 0">
+        <img [src]="bonsai.imageUrls[0]" alt="{{ bonsai.name }}">
+      </div>
+      <div class="bonsai-image no-image" *ngIf="!bonsai.imageUrls || bonsai.imageUrls.length === 0">
+        <i class="fas fa-tree"></i>
+      </div>
+      <div class="bonsai-details">
+        <h3>{{ bonsai.name }}</h3>
+        <p>{{ bonsai.species }}</p>
+      </div>
+      <div class="view-bonsai-link">
+        <i class="fas fa-chevron-right"></i>
+      </div>
+    </div>
+
+    <div class="work-record-info">
+      <div class="info-row">
+        <div class="info-label">作業タイプ</div>
+        <div class="info-value">{{ workTypeLabels[workRecord.workType] }}</div>
+      </div>
+      <div class="info-row">
+        <div class="info-label">作業日</div>
+        <div class="info-value">{{ workRecord.date | date:'yyyy年MM月dd日' }}</div>
+      </div>
+      <div class="info-row">
+        <div class="info-label">作業内容</div>
+        <div class="info-value description-text">{{ workRecord.description }}</div>
+      </div>
+    </div>
+
+    <div class="work-record-images" *ngIf="workRecord.imageUrls && workRecord.imageUrls.length > 0">
+      <h4>作業画像</h4>
+      
+      <div class="image-gallery">
+        <div class="main-image-container">
+          <button class="nav-button prev-button" *ngIf="workRecord.imageUrls.length > 1" (click)="prevImage()">
+            <i class="fas fa-chevron-left"></i>
+          </button>
+          
+          <div class="main-image">
+            <img [src]="workRecord.imageUrls[selectedImageIndex]" alt="作業記録画像">
+          </div>
+          
+          <button class="nav-button next-button" *ngIf="workRecord.imageUrls.length > 1" (click)="nextImage()">
+            <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
+        
+        <div class="thumbnail-images" *ngIf="workRecord.imageUrls.length > 1">
+          <div 
+            *ngFor="let imageUrl of workRecord.imageUrls; let i = index" 
+            class="thumbnail" 
+            [class.active]="i === selectedImageIndex"
+            (click)="selectImage(i)">
+            <img [src]="imageUrl" alt="作業記録画像サムネイル">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="work-record-meta">
+      <div class="meta-item">
+        <span class="meta-label">作成日時:</span>
+        <span class="meta-value">{{ workRecord.createdAt | date:'yyyy年MM月dd日 HH:mm' }}</span>
+      </div>
+      <div class="meta-item" *ngIf="workRecord.updatedAt !== workRecord.createdAt">
+        <span class="meta-label">更新日時:</span>
+        <span class="meta-value">{{ workRecord.updatedAt | date:'yyyy年MM月dd日 HH:mm' }}</span>
+      </div>
+    </div>
+  </div>
+</div>

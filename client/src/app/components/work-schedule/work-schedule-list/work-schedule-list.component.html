@@ -1,0 +1,80 @@
+<div class="work-schedule-list-container">
+  <div class="work-schedule-list-header">
+    <button class="btn btn-outline-secondary" (click)="goBack()">
+      <i class="fas fa-arrow-left"></i> 戻る
+    </button>
+    <h2 *ngIf="bonsai">{{ bonsai.name }} の作業予定</h2>
+    <button class="btn btn-primary" (click)="createWorkSchedule()">
+      <i class="fas fa-plus"></i> 作業予定を追加
+    </button>
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+
+  <div class="filter-container">
+    <div class="filter-toggle">
+      <div class="form-check form-switch">
+        <input 
+          class="form-check-input" 
+          type="checkbox" 
+          id="showCompletedToggle" 
+          [checked]="showCompleted"
+          (change)="toggleShowCompleted()">
+        <label class="form-check-label" for="showCompletedToggle">
+          完了済みを表示
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="loading && workSchedules.length === 0" class="loading-container">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">読み込み中...</span>
+    </div>
+    <p>作業予定を読み込んでいます...</p>
+  </div>
+
+  <div *ngIf="!loading && workSchedules.length === 0" class="empty-state">
+    <div class="empty-state-icon">
+      <i class="fas fa-calendar-alt"></i>
+    </div>
+    <h3>作業予定がありません</h3>
+    <p>「作業予定を追加」ボタンから作業予定を登録してください。</p>
+  </div>
+
+  <div *ngIf="workSchedules.length > 0" class="work-schedule-list">
+    <div *ngFor="let schedule of workSchedules" class="work-schedule-card" (click)="viewWorkSchedule(schedule.id)">
+      <div class="work-schedule-status">
+        <div class="form-check">
+          <input 
+            class="form-check-input" 
+            type="checkbox" 
+            [checked]="schedule.completed"
+            (click)="toggleCompleted(schedule, $event)">
+        </div>
+      </div>
+      <div class="work-schedule-content" [class.completed]="schedule.completed">
+        <div class="work-schedule-header">
+          <div class="work-schedule-type">{{ workTypeLabels[schedule.workType] }}</div>
+          <div class="work-schedule-date">{{ schedule.scheduledDate | date:'yyyy年MM月dd日' }}</div>
+        </div>
+        <div class="work-schedule-description">{{ schedule.description }}</div>
+      </div>
+      <div class="work-schedule-actions">
+        <button class="btn btn-sm btn-outline-danger" (click)="deleteWorkSchedule(schedule.id, $event)">
+          <i class="fas fa-trash"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="hasMore" class="load-more-container">
+    <button 
+      class="btn btn-outline-primary" 
+      [disabled]="loading" 
+      (click)="onLoadMore()">
+      <span *ngIf="loading" class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>
+      もっと読み込む
+    </button>
+  </div>
+</div>

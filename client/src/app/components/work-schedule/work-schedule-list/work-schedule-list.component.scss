@@ -1,0 +1,261 @@
+@import 'src/assets/scss/variables';
+
+.work-schedule-list-container {
+  padding: 20px 0;
+}
+
+.work-schedule-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  
+  h2 {
+    margin: 0;
+    flex-grow: 1;
+    text-align: center;
+  }
+}
+
+.filter-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  background-color: $bg-light;
+  padding: 10px 15px;
+  border-radius: 8px;
+  
+  .filter-label {
+    margin-right: 15px;
+    font-weight: 600;
+    color: $text-medium;
+  }
+  
+  .filter-options {
+    flex-grow: 1;
+    
+    .btn-group {
+      flex-wrap: wrap;
+      
+      .btn {
+        margin-right: 5px;
+        margin-bottom: 5px;
+      }
+    }
+  }
+  
+  .filter-toggle {
+    margin-left: 8px;
+  }
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 0;
+  
+  .spinner-border {
+    margin-bottom: 15px;
+  }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 0;
+  background-color: $bg-light;
+  border-radius: 8px;
+  
+  .empty-state-icon {
+    font-size: 48px;
+    color: $empty-state-icon;
+    margin-bottom: 20px;
+  }
+  
+  h3 {
+    margin-bottom: 10px;
+    color: $text-dark;
+  }
+  
+  p {
+    color: $text-light;
+  }
+}
+
+.work-schedule-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.work-schedule-card {
+  display: flex;
+  flex-direction: column;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px $card-shadow;
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+  background-color: $card-bg;
+  
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+  }
+  
+  .work-schedule-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 15px;
+    background-color: $bg-light;
+    border-bottom: 1px solid $bg-dark;
+    
+    .work-schedule-type {
+      font-weight: 600;
+      color: $text-medium;
+    }
+    
+    .work-schedule-date {
+      font-size: 14px;
+      color: $text-light;
+    }
+  }
+  
+  .work-schedule-content {
+    padding: 15px;
+    
+    .work-schedule-description {
+      margin-bottom: 15px;
+      color: $text-dark;
+      white-space: pre-line;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    
+    .work-schedule-bonsai {
+      display: flex;
+      align-items: center;
+      padding: 0 15px;
+      
+      .bonsai-image {
+        width: 40px;
+        height: 40px;
+        border-radius: 4px;
+        overflow: hidden;
+        margin-right: 10px;
+        
+        img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+      }
+      
+      .bonsai-name {
+        font-weight: 600;
+        color: $text-medium;
+      }
+    }
+  }
+  
+  .work-schedule-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    border-top: 1px solid $bg-dark;
+    
+    .completed-toggle {
+      display: flex;
+      align-items: center;
+      
+      .form-check-input {
+        margin-right: 8px;
+      }
+    }
+    
+    .schedule-actions {
+      display: flex;
+      gap: 10px;
+      
+      button {
+        font-size: 12px;
+      }
+    }
+  }
+}
+
+.load-more-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.alert {
+  margin-bottom: 20px;
+}
+
+@media (max-width: 768px) {
+  .work-schedule-list-header {
+    flex-direction: column;
+    gap: 10px;
+    
+    h2 {
+      margin-bottom: 10px;
+    }
+    
+    button {
+      width: 100%;
+    }
+  }
+  
+  .filter-container {
+    flex-direction: column;
+    align-items: flex-start;
+    
+    .filter-label {
+      margin-bottom: 10px;
+    }
+    
+    .filter-options {
+      width: 100%;
+      
+      .btn-group {
+        display: flex;
+        width: 100%;
+        
+        .btn {
+          flex: 1;
+        }
+      }
+    }
+    
+    .filter-toggle {
+      margin-left: 0;
+      margin-top: 10px;
+      width: 100%;
+    }
+  }
+  
+  .work-schedule-footer {
+    flex-direction: column;
+    gap: 10px;
+    
+    .completed-toggle {
+      margin-bottom: 5px;
+    }
+    
+    .schedule-actions {
+      width: 100%;
+      
+      button {
+        flex: 1;
+      }
+    }
+  }
+}

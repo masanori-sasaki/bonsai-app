@@ -1,0 +1,47 @@
+// Bonsai App テーマカラー変数
+
+// プライマリカラー
+$primary: #2E7D32;       // メインカラー（深い森林緑）
+$primary-light: #4CAF50; // ライトバリエーション（明るい緑）
+$primary-dark: #1B5E20;  // ダークバリエーション（暗い緑）
+
+// アクセントカラー
+$accent: #8BC34A;        // アクセント（ライム緑）
+$accent-light: #F1F8E9;  // 補助色（非常に薄い緑）
+
+// グレースケール
+$text-dark: #212121;     // テキスト（濃）
+$text-medium: #424242;   // テキスト（中）
+$text-light: #757575;    // テキスト（薄）
+$bg-dark: #E0E0E0;       // 背景（濃）
+$bg-light: #F5F5F5;      // 背景（薄）
+$white: #FFFFFF;         // 白
+
+// 状態表示色
+$success: #4CAF50;       // 成功（緑）
+$warning: #FF9800;       // 警告（オレンジ）
+$error: #F44336;         // エラー（赤）
+$info: #2196F3;          // 情報（青）
+
+// コンポーネント固有の色
+$header-bg: $primary;    // ヘッダー背景色
+$header-text: $white;    // ヘッダーテキスト色
+$footer-bg: $bg-light;   // フッター背景色
+$footer-text: $text-light; // フッターテキスト色
+
+$card-bg: $white;        // カード背景色
+$card-border: $bg-dark;  // カード境界線色
+$card-shadow: rgba(0, 0, 0, 0.1); // カード影色
+
+$empty-state-icon: $text-light; // 空の状態アイコン色
+$empty-state-bg: $bg-light;    // 空の状態背景色
+
+$active-tab: $primary;   // アクティブタブ色
+$hover-bg: $accent-light; // ホバー背景色
+
+$icon-color: $primary;   // アイコン色
+$link-color: $primary;   // リンク色
+$link-hover: $primary-dark; // リンクホバー色
+
+$button-primary-bg: $primary; // プライマリボタン背景色
+$button-primary-text: $white; // プライマリボタンテキスト色

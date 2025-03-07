@@ -1,0 +1,52 @@
+<div class="login-container">
+  <div class="login-card">
+    <h2 class="login-title">盆栽管理アプリ</h2>
+    <h3 class="login-subtitle">ログイン</h3>
+    
+    <div *ngIf="error" class="alert alert-danger">{{error}}</div>
+    
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="email">メールアドレス</label>
+        <input
+          type="email"
+          id="email"
+          formControlName="email"
+          class="form-control"
+          [ngClass]="{ 'is-invalid': submitted && f['email'].errors }"
+        />
+        <div *ngIf="submitted && f['email'].errors" class="invalid-feedback">
+          <div *ngIf="f['email'].errors['required']">メールアドレスは必須です</div>
+          <div *ngIf="f['email'].errors['email']">有効なメールアドレスを入力してください</div>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="password">パスワード</label>
+        <input
+          type="password"
+          id="password"
+          formControlName="password"
+          class="form-control"
+          [ngClass]="{ 'is-invalid': submitted && f['password'].errors }"
+        />
+        <div *ngIf="submitted && f['password'].errors" class="invalid-feedback">
+          <div *ngIf="f['password'].errors['required']">パスワードは必須です</div>
+          <div *ngIf="f['password'].errors['minlength']">パスワードは6文字以上必要です</div>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <button [disabled]="loading" class="btn btn-primary btn-block">
+          <span *ngIf="loading" class="spinner-border spinner-border-sm mr-1"></span>
+          ログイン
+        </button>
+      </div>
+      
+      <div class="form-group text-center">
+        <a routerLink="/auth/register" class="btn btn-link">新規登録</a>
+        <a routerLink="/auth/forgot-password" class="btn btn-link">パスワードを忘れた場合</a>
+      </div>
+    </form>
+  </div>
+</div>

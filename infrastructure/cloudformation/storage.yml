@@ -1,0 +1,128 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Bonsai App - Storage Stack (S3 & DynamoDB)'
+
+Parameters:
+  Environment:
+    Type: String
+    Default: dev
+    AllowedValues:
+      - dev
+      - prod
+    Description: Environment name
+
+Resources:
+  # Integrated S3 bucket (frontend and static content)
+  FrontendBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub bonsai-app-${Environment}-${AWS::AccountId}-${AWS::Region}
+      # AccessControl: PublicRead  # For static website hosting (removed due to potential block public access settings)
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: index.html
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders:
+              - '*'
+            AllowedMethods:
+              - GET
+              - PUT
+              - POST
+              - DELETE
+              - HEAD
+            AllowedOrigins:
+              - '*'
+            MaxAge: 3000
+      Tags:
+        - Key: Environment
+          Value: !Ref Environment
+
+  # Bucket policy (allow public access)
+  FrontendBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref FrontendBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal: '*'
+            Action: s3:GetObject
+            Resource: !Sub ${FrontendBucket.Arn}/*
+
+  # DynamoDB table (provisioned capacity)
+  BonsaiTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub BonsaiTable-${Environment}-${AWS::AccountId}
+      BillingMode: PROVISIONED  # Provisioned mode for free tier
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5    # Minimum setting
+        WriteCapacityUnits: 5   # Minimum setting
+      AttributeDefinitions:
+        - AttributeName: PK
+          AttributeType: S
+        - AttributeName: SK
+          AttributeType: S
+        - AttributeName: GSI1PK
+          AttributeType: S
+        - AttributeName: GSI1SK
+          AttributeType: S
+      KeySchema:
+        - AttributeName: PK
+          KeyType: HASH
+        - AttributeName: SK
+          KeyType: RANGE
+      GlobalSecondaryIndexes:
+        - IndexName: GSI1
+          KeySchema:
+            - AttributeName: GSI1PK
+              KeyType: HASH
+            - AttributeName: GSI1SK
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: 5
+            WriteCapacityUnits: 5
+      SSESpecification:
+        SSEEnabled: true  # Server-side encryption
+      Tags:
+        - Key: Environment
+          Value: !Ref Environment
+
+Outputs:
+  FrontendBucketName:
+    Description: S3 bucket for frontend and content hosting
+    Value: !Ref FrontendBucket
+    Export:
+      Name: !Sub ${AWS::StackName}-FrontendBucketName
+
+  FrontendBucketArn:
+    Description: ARN of the S3 bucket
+    Value: !GetAtt FrontendBucket.Arn
+    Export:
+      Name: !Sub ${AWS::StackName}-FrontendBucketArn
+
+  FrontendBucketWebsiteURL:
+    Description: URL of the S3 bucket website
+    Value: !GetAtt FrontendBucket.WebsiteURL
+    Export:
+      Name: !Sub ${AWS::StackName}-FrontendBucketWebsiteURL
+
+  BonsaiTableName:
+    Description: DynamoDB table name
+    Value: !Ref BonsaiTable
+    Export:
+      Name: !Sub ${AWS::StackName}-BonsaiTableName
+
+  BonsaiTableArn:
+    Description: ARN of the DynamoDB table
+    Value: !GetAtt BonsaiTable.Arn
+    Export:
+      Name: !Sub ${AWS::StackName}-BonsaiTableArn

@@ -1,0 +1,39 @@
+name: Build
+
+on:
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  build:
+    name: Build Application
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16.x'
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
+      
+      # Server Build
+      - name: Install server dependencies
+        working-directory: ./server
+        run: npm ci
+      
+      - name: Build server
+        working-directory: ./server
+        run: npm run build
+      
+      # Client Build
+      - name: Install client dependencies
+        working-directory: ./client
+        run: npm ci
+      
+      - name: Build client
+        working-directory: ./client
+        run: npm run build -- --configuration=production

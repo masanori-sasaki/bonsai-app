@@ -1,0 +1,54 @@
+name: Test
+
+on:
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16.x'
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
+      
+      # Server Tests
+      - name: Install server dependencies
+        working-directory: ./server
+        run: npm ci
+      
+      - name: Run server tests
+        working-directory: ./server
+        run: npm test
+      
+      # Client Tests
+      - name: Install client dependencies
+        working-directory: ./client
+        run: npm ci
+      
+      - name: Run client tests
+        working-directory: ./client
+        run: npm test -- --no-watch --no-progress --browsers=ChromeHeadlessCI
+      
+      # Validate CloudFormation
+      - name: Setup AWS CLI
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+      
+      - name: Validate CloudFormation templates
+        run: |
+          for template in infrastructure/cloudformation/*.yml; do
+            echo "Validating $template"
+            aws cloudformation validate-template --template-body file://$template
+          done

@@ -1,0 +1,57 @@
+<div class="bonsai-list-container">
+  <div class="bonsai-list-header">
+    <h2>盆栽一覧</h2>
+    <button class="btn btn-primary" (click)="createNewBonsai()">
+      <i class="fas fa-plus"></i> 新規登録
+    </button>
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+
+  <div *ngIf="loading && bonsaiList.length === 0" class="loading-container">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">読み込み中...</span>
+    </div>
+    <p>盆栽データを読み込んでいます...</p>
+  </div>
+
+  <div *ngIf="!loading && bonsaiList.length === 0" class="empty-state">
+    <div class="empty-state-icon">
+      <i class="fas fa-tree"></i>
+    </div>
+    <h3>盆栽が登録されていません</h3>
+    <p>「新規登録」ボタンから盆栽を登録してください。</p>
+  </div>
+
+  <div *ngIf="bonsaiList.length > 0" class="bonsai-grid">
+    <div *ngFor="let bonsai of bonsaiList" class="bonsai-card" (click)="viewBonsaiDetail(bonsai.id)">
+      <div class="bonsai-card-image">
+        <img *ngIf="bonsai.imageUrls && bonsai.imageUrls.length > 0" [src]="bonsai.imageUrls[0]" alt="{{ bonsai.name }}">
+        <div *ngIf="!bonsai.imageUrls || bonsai.imageUrls.length === 0" class="no-image">
+          <i class="fas fa-tree"></i>
+        </div>
+      </div>
+      <div class="bonsai-card-content">
+        <h3 class="bonsai-name">{{ bonsai.name }}</h3>
+        <p class="bonsai-species">{{ bonsai.species }}</p>
+        <p class="bonsai-date">登録日: {{ bonsai.registrationDate | date:'yyyy年MM月dd日' }}</p>
+        
+        <div class="bonsai-card-actions">
+          <button class="btn btn-sm btn-outline-danger" (click)="deleteBonsai(bonsai.id, $event)">
+            <i class="fas fa-trash"></i> 削除
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="hasMore" class="load-more-container">
+    <button 
+      class="btn btn-outline-primary" 
+      [disabled]="loading" 
+      (click)="onLoadMore()">
+      <span *ngIf="loading" class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>
+      もっと読み込む
+    </button>
+  </div>
+</div>

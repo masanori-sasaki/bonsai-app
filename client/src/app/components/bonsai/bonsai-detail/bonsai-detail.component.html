@@ -1,0 +1,203 @@
+<div class="bonsai-detail-container">
+  <div class="bonsai-detail-header">
+    <button class="btn btn-outline-secondary" (click)="goBack()">
+      <i class="fas fa-arrow-left"></i> 戻る
+    </button>
+    <h2 *ngIf="bonsai && !isEditMode">{{ bonsai.name }}</h2>
+    <h2 *ngIf="bonsai && isEditMode">{{ bonsai.name }} の編集</h2>
+    <div class="bonsai-actions" *ngIf="bonsai && !isEditMode">
+      <button class="btn btn-primary" (click)="editBonsai()">
+        <i class="fas fa-edit"></i> 編集
+      </button>
+      <button class="btn btn-danger" (click)="deleteBonsai()">
+        <i class="fas fa-trash"></i> 削除
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+
+  <div *ngIf="loading" class="loading-container">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">読み込み中...</span>
+    </div>
+    <p>盆栽データを読み込んでいます...</p>
+  </div>
+
+  <div *ngIf="!loading && bonsai" class="bonsai-detail-content">
+    <!-- タブナビゲーション -->
+    <ul class="nav nav-tabs bonsai-tabs">
+      <li class="nav-item">
+        <a class="nav-link" [class.active]="activeTab === 'info'" (click)="changeTab('info')">基本情報</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" [class.active]="activeTab === 'records'" (click)="changeTab('records')">作業記録</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" [class.active]="activeTab === 'schedules'" (click)="changeTab('schedules')">作業予定</a>
+      </li>
+    </ul>
+
+    <!-- 基本情報タブ - 表示モード -->
+    <div class="tab-content" *ngIf="activeTab === 'info' && !isEditMode">
+      <div class="bonsai-info">
+        <div class="bonsai-images" *ngIf="bonsai.imageUrls && bonsai.imageUrls.length > 0">
+          <div class="main-image">
+            <img [src]="bonsai.imageUrls[0]" alt="{{ bonsai.name }}">
+          </div>
+          <div class="thumbnail-images" *ngIf="bonsai.imageUrls.length > 1">
+            <div class="thumbnail" *ngFor="let imageUrl of bonsai.imageUrls.slice(1)">
+              <img [src]="imageUrl" alt="{{ bonsai.name }}">
+            </div>
+          </div>
+        </div>
+        <div class="no-images" *ngIf="!bonsai.imageUrls || bonsai.imageUrls.length === 0">
+          <div class="no-image-placeholder">
+            <i class="fas fa-tree"></i>
+            <p>画像がありません</p>
+          </div>
+        </div>
+
+        <div class="bonsai-info-details">
+          <div class="info-row">
+            <div class="info-label">樹種</div>
+            <div class="info-value">{{ bonsai.species }}</div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">登録日</div>
+            <div class="info-value">{{ bonsai.registrationDate | date:'yyyy年MM月dd日' }}</div>
+          </div>
+          <div class="info-row" *ngIf="bonsai.history">
+            <div class="info-label">来歴</div>
+            <div class="info-value history-text">{{ bonsai.history }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 基本情報タブ - 編集モード -->
+    <div class="tab-content" *ngIf="activeTab === 'info' && isEditMode">
+      <form #bonsaiForm="ngForm" class="bonsai-edit-form">
+        <div class="mb-3">
+          <label for="name" class="form-label">盆栽名</label>
+          <input type="text" class="form-control" id="name" name="name" [(ngModel)]="bonsai.name" required>
+        </div>
+        
+        <div class="mb-3">
+          <label for="species" class="form-label">樹種</label>
+          <input type="text" class="form-control" id="species" name="species" [(ngModel)]="bonsai.species" required>
+        </div>
+        
+        <div class="mb-3">
+          <label for="registrationDate" class="form-label">登録日</label>
+          <input type="date" class="form-control" id="registrationDate" name="registrationDate" 
+                 [ngModel]="bonsai.registrationDate | date:'yyyy-MM-dd'" 
+                 (ngModelChange)="bonsai.registrationDate = $event">
+        </div>
+        
+        <div class="mb-3">
+          <label for="history" class="form-label">来歴</label>
+          <textarea class="form-control" id="history" name="history" rows="4" [(ngModel)]="bonsai.history"></textarea>
+        </div>
+        
+        <div class="mb-3">
+          <label class="form-label">画像</label>
+          <div class="image-upload-container">
+            <!-- 画像プレビュー -->
+            <div class="image-preview" *ngIf="imagePreview">
+              <img [src]="imagePreview" alt="プレビュー">
+              <button type="button" class="btn btn-outline-danger btn-sm" (click)="removeImage()">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+            
+            <!-- 画像がない場合のアップロードUI -->
+            <div class="image-upload" *ngIf="!imagePreview">
+              <label for="imageUpload" class="upload-label">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <span>画像をアップロード</span>
+                <small>JPG, PNG, GIF形式（最大2MB）</small>
+              </label>
+              <input type="file" id="imageUpload" accept="image/jpeg,image/png,image/gif" 
+                     (change)="onImageSelected($event)" style="display: none;">
+            </div>
+          </div>
+          <div *ngIf="uploadError" class="text-danger mt-2">
+            {{ uploadError }}
+          </div>
+          <div *ngIf="isUploading" class="mt-2">
+            <div class="spinner-border spinner-border-sm text-primary" role="status">
+              <span class="visually-hidden">アップロード中...</span>
+            </div>
+            <span class="ms-2">画像をアップロード中...</span>
+          </div>
+        </div>
+        
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" (click)="goBack()">キャンセル</button>
+          <button type="submit" class="btn btn-primary" [disabled]="!bonsaiForm.form.valid" (click)="saveBonsai()">保存</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- 作業記録タブ -->
+    <div class="tab-content" *ngIf="activeTab === 'records'">
+      <div class="tab-header">
+        <h3>作業記録</h3>
+        <button class="btn btn-primary" (click)="createWorkRecord()">
+          <i class="fas fa-plus"></i> 作業記録を追加
+        </button>
+      </div>
+
+      <div class="work-records" *ngIf="bonsai.recentWorks && bonsai.recentWorks.length > 0">
+        <div class="work-record-item" *ngFor="let record of bonsai.recentWorks" (click)="viewWorkRecord(record.id)">
+          <div class="work-record-type">{{ getWorkTypeLabel(record.workType) }}</div>
+          <div class="work-record-date">{{ record.date | date:'yyyy年MM月dd日' }}</div>
+          <div class="work-record-action">
+            <i class="fas fa-chevron-right"></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="empty-records" *ngIf="!bonsai.recentWorks || bonsai.recentWorks.length === 0">
+        <div class="empty-state-icon">
+          <i class="fas fa-clipboard-list"></i>
+        </div>
+        <p>作業記録がありません</p>
+        <button class="btn btn-outline-primary" (click)="createWorkRecord()">
+          最初の作業記録を追加
+        </button>
+      </div>
+    </div>
+
+    <!-- 作業予定タブ -->
+    <div class="tab-content" *ngIf="activeTab === 'schedules'">
+      <div class="tab-header">
+        <h3>作業予定</h3>
+        <button class="btn btn-primary" (click)="createWorkSchedule()">
+          <i class="fas fa-plus"></i> 作業予定を追加
+        </button>
+      </div>
+
+      <div class="work-schedules" *ngIf="bonsai.upcomingWorks && bonsai.upcomingWorks.length > 0">
+        <div class="work-schedule-item" *ngFor="let schedule of bonsai.upcomingWorks" (click)="viewWorkSchedule(schedule.id)">
+          <div class="work-schedule-type">{{ getWorkTypeLabel(schedule.workType) }}</div>
+          <div class="work-schedule-date">{{ schedule.scheduledDate | date:'yyyy年MM月dd日' }}</div>
+          <div class="work-schedule-action">
+            <i class="fas fa-chevron-right"></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="empty-schedules" *ngIf="!bonsai.upcomingWorks || bonsai.upcomingWorks.length === 0">
+        <div class="empty-state-icon">
+          <i class="fas fa-calendar-alt"></i>
+        </div>
+        <p>作業予定がありません</p>
+        <button class="btn btn-outline-primary" (click)="createWorkSchedule()">
+          最初の作業予定を追加
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

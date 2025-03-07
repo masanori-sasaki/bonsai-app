@@ -1,0 +1,244 @@
+@import 'src/assets/scss/variables';
+
+.work-record-detail-container {
+  padding: 20px 0;
+}
+
+.work-record-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  
+  h2 {
+    margin: 0;
+    flex-grow: 1;
+    text-align: center;
+  }
+  
+  .work-record-actions {
+    display: flex;
+    gap: 10px;
+  }
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 0;
+  
+  .spinner-border {
+    margin-bottom: 15px;
+  }
+}
+
+.work-record-detail-content {
+  background-color: $card-bg;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px $card-shadow;
+  padding: 15px;
+}
+
+.bonsai-info-bar {
+  display: flex;
+  align-items: center;
+  padding: 15px;
+  background-color: $bg-light;
+  border-bottom: 1px solid $bg-dark;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  
+  &:hover {
+    background-color: $hover-bg;
+  }
+  
+  .bonsai-image {
+    width: 60px;
+    height: 60px;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-right: 15px;
+    
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .no-image {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      background-color: $bg-dark;
+      color: $text-light;
+      font-size: 24px;
+    }
+  }
+  
+  .bonsai-details {
+    flex-grow: 1;
+    
+    h3 {
+      margin: 0 0 5px 0;
+      font-size: 18px;
+      color: $text-dark;
+    }
+    
+    p {
+      margin: 0;
+      font-size: 14px;
+      color: $text-light;
+    }
+  }
+  
+  .view-bonsai-link {
+    color: $text-light;
+  }
+}
+
+.work-record-info {
+  padding: 20px;
+  
+  .info-row {
+    display: flex;
+    margin-bottom: 15px;
+    
+    .info-label {
+      width: 100px;
+      font-weight: 600;
+      color: $text-medium;
+    }
+    
+    .info-value {
+      flex-grow: 1;
+      color: $text-dark;
+    }
+  }
+  
+  .work-record-description {
+    margin-bottom: 20px;
+    
+    h4 {
+      margin-bottom: 10px;
+      color: $text-dark;
+    }
+    
+    p {
+      white-space: pre-line;
+    }
+  }
+  
+  .work-record-images {
+    h4 {
+      margin-bottom: 15px;
+      color: $text-dark;
+    }
+    
+    .images-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 15px;
+      
+      .image-container {
+        position: relative;
+        border-radius: 8px;
+        overflow: hidden;
+        
+        img {
+          width: 100%;
+          object-fit: contain;
+          border-radius: 8px;
+          background-color: $bg-light;
+        }
+        
+        .image-actions {
+          position: absolute;
+          top: 10px;
+          right: 10px;
+          
+          button {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.8);
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: $text-medium;
+            cursor: pointer;
+            
+            &:hover {
+              background-color: rgba(255, 255, 255, 0.9);
+              color: $text-dark;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+.work-record-meta {
+  padding: 15px 20px;
+  background-color: $bg-light;
+  font-size: 12px;
+  color: $text-light;
+  
+  .meta-item {
+    margin-bottom: 5px;
+  }
+}
+
+.alert {
+  margin-bottom: 20px;
+}
+
+@media (max-width: 768px) {
+  .work-record-detail-header {
+    flex-direction: column;
+    gap: 10px;
+    
+    h2 {
+      margin-bottom: 10px;
+    }
+    
+    .work-record-actions {
+      width: 100%;
+      
+      button {
+        flex: 1;
+      }
+    }
+  }
+  
+  .bonsai-info-bar {
+    flex-direction: column;
+    text-align: center;
+    
+    .bonsai-image {
+      margin-right: 0;
+      margin-bottom: 10px;
+    }
+    
+    .view-bonsai-link {
+      margin-top: 10px;
+    }
+  }
+  
+  .info-row {
+    flex-direction: column;
+    
+    .info-label {
+      width: 100%;
+      margin-bottom: 5px;
+    }
+  }
+  
+  .images-grid {
+    grid-template-columns: 1fr !important;
+  }
+}

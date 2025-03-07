@@ -1,0 +1,79 @@
+<div class="work-record-list-container">
+  <div class="work-record-list-header">
+    <button class="btn btn-outline-secondary" (click)="goBack()">
+      <i class="fas fa-arrow-left"></i> 戻る
+    </button>
+    <h2 *ngIf="bonsai">{{ bonsai.name }} の作業記録</h2>
+    <button class="btn btn-primary" (click)="createWorkRecord()">
+      <i class="fas fa-plus"></i> 作業記録を追加
+    </button>
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+
+  <div class="filter-container">
+    <div class="filter-label">作業タイプでフィルタリング:</div>
+    <div class="filter-options">
+      <div class="btn-group" role="group">
+        <button 
+          *ngFor="let type of workTypes" 
+          class="btn" 
+          [class.btn-primary]="selectedWorkType === type.value"
+          [class.btn-outline-primary]="selectedWorkType !== type.value"
+          (click)="filterByWorkType(type.value)">
+          {{ type.label }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="loading && workRecords.length === 0" class="loading-container">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">読み込み中...</span>
+    </div>
+    <p>作業記録を読み込んでいます...</p>
+  </div>
+
+  <div *ngIf="!loading && workRecords.length === 0" class="empty-state">
+    <div class="empty-state-icon">
+      <i class="fas fa-clipboard-list"></i>
+    </div>
+    <h3>作業記録がありません</h3>
+    <p>「作業記録を追加」ボタンから作業記録を登録してください。</p>
+  </div>
+
+  <div *ngIf="workRecords.length > 0" class="work-record-list">
+    <div *ngFor="let record of workRecords" class="work-record-card" (click)="viewWorkRecord(record.id)">
+      <div class="work-record-header">
+        <div class="work-record-type">{{ workTypeLabels[record.workType] }}</div>
+        <div class="work-record-date">{{ record.date | date:'yyyy年MM月dd日' }}</div>
+      </div>
+      <div class="work-record-content">
+        <div class="work-record-description">{{ record.description }}</div>
+        <div class="work-record-images" *ngIf="record.imageUrls && record.imageUrls.length > 0">
+          <div class="image-thumbnail" *ngFor="let imageUrl of record.imageUrls.slice(0, 3)">
+            <img [src]="imageUrl" alt="作業記録画像">
+          </div>
+          <div class="more-images" *ngIf="record.imageUrls.length > 3">
+            +{{ record.imageUrls.length - 3 }}
+          </div>
+        </div>
+      </div>
+      <div class="work-record-footer">
+        <button class="btn btn-sm btn-outline-danger" (click)="deleteWorkRecord(record.id, $event)">
+          <i class="fas fa-trash"></i> 削除
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="hasMore" class="load-more-container">
+    <button 
+      class="btn btn-outline-primary" 
+      [disabled]="loading" 
+      (click)="onLoadMore()">
+      <span *ngIf="loading" class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>
+      もっと読み込む
+    </button>
+  </div>
+</div>

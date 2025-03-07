@@ -1,0 +1,67 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Bonsai App - Main Stack'
+
+Parameters:
+  Environment:
+    Type: String
+    Default: dev
+    AllowedValues:
+      - dev
+      - prod
+    Description: Environment name
+
+  AdminEmail:
+    Type: String
+    Description: Email address for the admin user
+    Default: admin@example.com
+
+Resources:
+  # Auth Stack (Cognito)
+  AuthStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://bonsai-app-templates-171278323216.s3.ap-northeast-1.amazonaws.com/auth.yml
+      Parameters:
+        Environment: !Ref Environment
+        AdminEmail: !Ref AdminEmail
+
+  # Storage Stack (S3 & DynamoDB)
+  StorageStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://bonsai-app-templates-171278323216.s3.ap-northeast-1.amazonaws.com/storage.yml
+      Parameters:
+        Environment: !Ref Environment
+
+  # API Stack (Lambda Function URL)
+  ApiStack:
+    Type: AWS::CloudFormation::Stack
+    DependsOn:
+      - AuthStack
+      - StorageStack
+    Properties:
+      TemplateURL: https://bonsai-app-templates-171278323216.s3.ap-northeast-1.amazonaws.com/api.yml
+      Parameters:
+        Environment: !Ref Environment
+        CognitoUserPoolArn: !GetAtt AuthStack.Outputs.UserPoolArn
+
+Outputs:
+  ApiEndpoint:
+    Description: Lambda Function URL endpoint
+    Value: !GetAtt ApiStack.Outputs.LambdaFunctionUrl
+
+  FrontendURL:
+    Description: S3 Website URL for the frontend
+    Value: !GetAtt StorageStack.Outputs.FrontendBucketWebsiteURL
+
+  UserPoolId:
+    Description: Cognito User Pool ID
+    Value: !GetAtt AuthStack.Outputs.UserPoolId
+
+  UserPoolClientId:
+    Description: Cognito User Pool Client ID
+    Value: !GetAtt AuthStack.Outputs.UserPoolClientId
+
+  UserPoolDomainName:
+    Description: Cognito User Pool Domain
+    Value: !GetAtt AuthStack.Outputs.UserPoolDomainName

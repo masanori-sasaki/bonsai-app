@@ -1,0 +1,32 @@
+<div class="app-container">
+  <header class="app-header">
+    <div class="container">
+      <div class="header-left">
+        <h1>{{ title }}</h1>
+        <nav>
+          <ul>
+            <li><a routerLink="/">ホーム</a></li>
+            <!-- 他のナビゲーションリンクはここに追加 -->
+          </ul>
+        </nav>
+      </div>
+      <div class="header-actions" *ngIf="isAuthenticated()">
+        <button class="btn btn-outline-secondary" (click)="signOut()">
+          <i class="fas fa-sign-out-alt"></i> サインアウト
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="app-content">
+    <div class="container">
+      <router-outlet></router-outlet>
+    </div>
+  </main>
+
+  <footer class="app-footer">
+    <div class="container">
+      <p>&copy; 2025 Bonsai App. All rights reserved.</p>
+    </div>
+  </footer>
+</div>

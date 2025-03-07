@@ -1,0 +1,114 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Bonsai App - API Stack (Lambda Function URL)'
+
+Parameters:
+  Environment:
+    Type: String
+    Default: dev
+    AllowedValues:
+      - dev
+      - prod
+    Description: Environment name
+
+  CognitoUserPoolArn:
+    Type: String
+    Description: ARN of the Cognito User Pool for authentication
+
+Resources:
+  # Lambda execution role
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: DynamoDBAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:GetItem
+                  - dynamodb:PutItem
+                  - dynamodb:UpdateItem
+                  - dynamodb:DeleteItem
+                  - dynamodb:Query
+                  - dynamodb:Scan
+                Resource:
+                  - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/BonsaiTable-${Environment}-${AWS::AccountId}
+                  - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/BonsaiTable-${Environment}-${AWS::AccountId}/index/*
+        - PolicyName: S3Access
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                  - s3:DeleteObject
+                  - s3:ListBucket
+                Resource:
+                  - !Sub arn:aws:s3:::bonsai-app-${Environment}-${AWS::AccountId}-${AWS::Region}
+                  - !Sub arn:aws:s3:::bonsai-app-${Environment}-${AWS::AccountId}-${AWS::Region}/*
+
+  # Lambda function
+  ApiFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub bonsai-api-${Environment}
+      Handler: index.handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Runtime: nodejs20.x
+      Timeout: 30
+      MemorySize: 128  # Set to minimum memory size
+      Environment:
+        Variables:
+          ENVIRONMENT: !Ref Environment
+          TABLE_NAME: !Sub BonsaiTable-${Environment}-${AWS::AccountId}
+          COGNITO_USER_POOL_ID: !Ref CognitoUserPoolArn
+          FRONTEND_BUCKET_NAME: !Sub bonsai-app-${Environment}-${AWS::AccountId}-${AWS::Region}
+      Code:
+        S3Bucket: !Sub bonsai-app-templates-171278323216
+        S3Key: !Sub ${Environment}/lambda-package.zip
+
+  # Lambda Function URL
+  ApiFunctionUrl:
+    Type: AWS::Lambda::Url
+    Properties:
+      AuthType: NONE  # Authentication is handled within Lambda
+      TargetFunctionArn: !Ref ApiFunction
+      Cors:
+        AllowCredentials: true
+        AllowHeaders: ['*']
+        AllowMethods: ['*']
+        AllowOrigins: ['*']
+        MaxAge: 86400  # 24 hours
+
+  # Lambda Function URL permission
+  ApiFunctionUrlPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunctionUrl
+      FunctionName: !Ref ApiFunction
+      Principal: '*'
+      FunctionUrlAuthType: NONE
+
+Outputs:
+  LambdaFunctionUrl:
+    Description: Lambda Function URL endpoint
+    Value: !GetAtt ApiFunctionUrl.FunctionUrl
+    Export:
+      Name: !Sub ${AWS::StackName}-LambdaFunctionUrl
+
+  LambdaArn:
+    Description: Lambda Function ARN
+    Value: !GetAtt ApiFunction.Arn
+    Export:
+      Name: !Sub ${AWS::StackName}-LambdaArn

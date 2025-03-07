@@ -1,0 +1,105 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+
+jobs:
+  build-test-deploy:
+    name: Build, Test, and Deploy
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16.x'
+      
+      # Server
+      - name: Install server dependencies
+        working-directory: ./server
+        run: npm ci
+      
+      - name: Test server
+        working-directory: ./server
+        run: npm test
+      
+      - name: Build server
+        working-directory: ./server
+        run: npm run build
+      
+      - name: Package Lambda
+        working-directory: ./server
+        run: |
+          npm ci --production
+          cp -r node_modules dist/
+          cd dist
+          zip -r ../lambda-package.zip .
+      
+      # Client
+      - name: Install client dependencies
+        working-directory: ./client
+        run: npm ci
+      
+      - name: Test client
+        working-directory: ./client
+        run: npm test -- --no-watch --no-progress --browsers=ChromeHeadlessCI
+      
+      - name: Build client
+        working-directory: ./client
+        run: npm run build -- --configuration=production
+      
+      # Deploy
+      - name: Setup AWS CLI
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      
+      - name: Set environment based on branch
+        id: set-env
+        run: |
+          if [[ $GITHUB_REF == 'refs/heads/main' ]]; then
+            echo "::set-output name=environment::prod"
+          else
+            echo "::set-output name=environment::dev"
+          fi
+      
+      - name: Deploy CloudFormation stacks
+        run: |
+          ENV=${{ steps.set-env.outputs.environment }}
+          ADMIN_EMAIL=${{ secrets.ADMIN_EMAIL }}
+          
+          # Deploy main stack
+          aws cloudformation deploy \
+            --template-file infrastructure/cloudformation/main.yml \
+            --stack-name bonsai-app-${ENV} \
+            --parameter-overrides \
+              Environment=${ENV} \
+              AdminEmail=${ADMIN_EMAIL} \
+            --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND \
+            --no-fail-on-empty-changeset
+      
+      - name: Get CloudFormation outputs
+        id: cf-outputs
+        run: |
+          ENV=${{ steps.set-env.outputs.environment }}
+          OUTPUTS=$(aws cloudformation describe-stacks --stack-name bonsai-app-${ENV} --query "Stacks[0].Outputs" --output json)
+          echo "::set-output name=frontend-bucket::$(echo $OUTPUTS | jq -r '.[] | select(.OutputKey=="FrontendBucketName") | .OutputValue')"
+          echo "::set-output name=api-function::$(echo $OUTPUTS | jq -r '.[] | select(.OutputKey=="LambdaArn") | .OutputValue')"
+      
+      - name: Deploy Lambda function
+        run: |
+          aws lambda update-function-code \
+            --function-name ${{ steps.cf-outputs.outputs.api-function }} \
+            --zip-file fileb://server/lambda-package.zip
+      
+      - name: Deploy frontend to S3
+        run: |
+          aws s3 sync client/dist/bonsai-app-client s3://${{ steps.cf-outputs.outputs.frontend-bucket }} --delete
