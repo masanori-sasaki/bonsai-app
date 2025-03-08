@@ -70,56 +70,100 @@ export class AuthService {
     // 本番環境ではCognitoを使用
     if (environment.production && environment.cognito) {
       return new Observable<User>(observer => {
-        Auth.signIn(request.email, request.password)
-          .then((cognitoUser: any) => {
-            // Cognitoからユーザー情報を取得
-            const idToken = cognitoUser.signInUserSession.idToken.jwtToken;
-            const accessToken = cognitoUser.signInUserSession.accessToken.jwtToken;
-            const refreshToken = cognitoUser.signInUserSession.refreshToken.token;
-            
-            // ユーザー情報を構築
-            const user: User = {
-              id: cognitoUser.attributes.sub,
-              email: cognitoUser.attributes.email,
-              name: cognitoUser.attributes.name || cognitoUser.attributes.email,
-              createdAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString()
-            };
-            
-            // ローカルストレージに保存
-            localStorage.setItem('idToken', idToken);
-            localStorage.setItem('accessToken', accessToken);
-            localStorage.setItem('refreshToken', refreshToken);
-            localStorage.setItem('user', JSON.stringify(user));
-            
-            // 認証状態を更新
-            this.authStateSubject.next({
-              isAuthenticated: true,
-              user,
-              idToken,
-              accessToken,
-              refreshToken
+        try {
+          Auth.signIn(request.email, request.password)
+            .then((cognitoUser: any) => {
+              console.log('Cognito signIn response:', cognitoUser);
+              
+              // NEW_PASSWORD_REQUIREDチャレンジの処理
+              if (cognitoUser.challengeName === 'NEW_PASSWORD_REQUIRED') {
+                console.log('NEW_PASSWORD_REQUIRED チャレンジが検出されました');
+                
+                // 一時的なユーザー情報を構築
+                const tempUser: any = {
+                  email: request.email,
+                  challengeName: 'NEW_PASSWORD_REQUIRED',
+                  cognitoUser: cognitoUser // 後で完了するために必要
+                };
+                
+                // エラーとして処理するが、特別なフラグを設定
+                const error: any = new Error('新しいパスワードの設定が必要です');
+                error.challengeName = 'NEW_PASSWORD_REQUIRED';
+                error.cognitoUser = cognitoUser;
+                observer.error(error);
+                return;
+              }
+              
+              // 通常のサインインフロー
+              // Cognitoからユーザー情報を取得（nullチェックを追加）
+              if (!cognitoUser) {
+                throw new Error('認証レスポンスが空です');
+              }
+              
+              if (!cognitoUser.signInUserSession) {
+                throw new Error('サインインセッションが見つかりません');
+              }
+              
+              if (!cognitoUser.signInUserSession.idToken || !cognitoUser.signInUserSession.idToken.jwtToken) {
+                throw new Error('IDトークンが見つかりません');
+              }
+              
+              const idToken = cognitoUser.signInUserSession.idToken.jwtToken;
+              const accessToken = cognitoUser.signInUserSession.accessToken?.jwtToken || '';
+              const refreshToken = cognitoUser.signInUserSession.refreshToken?.token || '';
+              
+              // ユーザー属性のnullチェック
+              if (!cognitoUser.attributes) {
+                throw new Error('ユーザー属性が見つかりません');
+              }
+              
+              // ユーザー情報を構築
+              const user: User = {
+                id: cognitoUser.attributes.sub || '',
+                email: cognitoUser.attributes.email || '',
+                name: cognitoUser.attributes.name || cognitoUser.attributes.email || '',
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+              };
+              
+              // ローカルストレージに保存
+              localStorage.setItem('idToken', idToken);
+              localStorage.setItem('accessToken', accessToken);
+              localStorage.setItem('refreshToken', refreshToken);
+              localStorage.setItem('user', JSON.stringify(user));
+              
+              // 認証状態を更新
+              this.authStateSubject.next({
+                isAuthenticated: true,
+                user,
+                idToken,
+                accessToken,
+                refreshToken
+              });
+              
+              observer.next(user);
+              observer.complete();
+            })
+            .catch((error: any) => {
+              console.error('Cognitoサインインエラー:', error);
+              let errorMessage = 'サインインに失敗しました。';
+              
+              if (error.code === 'UserNotFoundException' || error.code === 'NotAuthorizedException') {
+                errorMessage = 'メールアドレスまたはパスワードが正しくありません。';
+              } else if (error.code === 'UserNotConfirmedException') {
+                errorMessage = 'アカウントが確認されていません。確認コードを入力してください。';
+              }
+              
+              observer.error(new Error(errorMessage));
             });
-            
-            observer.next(user);
-            observer.complete();
-          })
-          .catch((error: any) => {
-            console.error('Cognitoサインインエラー:', error);
-            let errorMessage = 'サインインに失敗しました。';
-            
-            if (error.code === 'UserNotFoundException' || error.code === 'NotAuthorizedException') {
-              errorMessage = 'メールアドレスまたはパスワードが正しくありません。';
-            } else if (error.code === 'UserNotConfirmedException') {
-              errorMessage = 'アカウントが確認されていません。確認コードを入力してください。';
-            }
-            
-            observer.error(new Error(errorMessage));
-          });
+        } catch (error) {
+          console.error('Cognito認証処理中の予期せぬエラー:', error);
+          observer.error(new Error('認証処理中にエラーが発生しました。'));
+        }
       });
     } else {
       // 開発環境では簡易的な実装を使用
-      return this.apiService.post<{user: User, tokens: {idToken: string, accessToken: string, refreshToken: string}}>('/auth/login', request)
+      return this.apiService.post<{user: User, tokens: {idToken: string, accessToken: string, refreshToken: string}}>('auth/login', request)
         .pipe(
           map(response => {
             const { user, tokens } = response;
@@ -187,7 +231,7 @@ export class AuthService {
       });
     } else {
       // 開発環境では簡易的な実装
-      return this.apiService.post<void>('/auth/signup', request)
+      return this.apiService.post<void>('auth/signup', request)
         .pipe(
           catchError(error => {
             console.error('サインアップエラー:', error);
@@ -227,7 +271,7 @@ export class AuthService {
       });
     } else {
       // 開発環境では簡易的な実装
-      return this.apiService.post<void>('/auth/confirm-signup', request)
+      return this.apiService.post<void>('auth/confirm-signup', request)
         .pipe(
           catchError(error => {
             console.error('サインアップ確認エラー:', error);
@@ -267,7 +311,7 @@ export class AuthService {
       });
     } else {
       // 開発環境では簡易的な実装
-      return this.apiService.post<void>('/auth/forgot-password', request)
+      return this.apiService.post<void>('auth/forgot-password', request)
         .pipe(
           catchError(error => {
             console.error('パスワードリセット要求エラー:', error);
@@ -307,7 +351,7 @@ export class AuthService {
       });
     } else {
       // 開発環境では簡易的な実装
-      return this.apiService.post<void>('/auth/confirm-forgot-password', request)
+      return this.apiService.post<void>('auth/confirm-forgot-password', request)
         .pipe(
           catchError(error => {
             console.error('パスワードリセット確認エラー:', error);
@@ -348,7 +392,7 @@ export class AuthService {
         });
     } else {
       // 開発環境では簡易的な実装
-      this.apiService.post<void>('/auth/signout', {})
+      this.apiService.post<void>('auth/signout', {})
         .pipe(
           catchError(error => {
             console.error('サインアウトエラー:', error);
@@ -383,7 +427,7 @@ export class AuthService {
    * @returns Observable<User>
    */
   getProfile(): Observable<User> {
-    return this.apiService.get<User>('/profile')
+    return this.apiService.get<User>('profile')
       .pipe(
         catchError(error => {
           console.error('プロファイル取得エラー:', error);
@@ -408,5 +452,86 @@ export class AuthService {
    */
   isAuthenticated(): boolean {
     return this.authStateSubject.value.isAuthenticated;
+  }
+
+  /**
+   * 新しいパスワードを設定（NEW_PASSWORD_REQUIREDチャレンジの完了）
+   * 
+   * @param cognitoUser Cognitoユーザーオブジェクト
+   * @param newPassword 新しいパスワード
+   * @returns Observable<User>
+   */
+  completeNewPasswordChallenge(cognitoUser: any, newPassword: string): Observable<User> {
+    return new Observable<User>(observer => {
+      try {
+        // 必須の属性を設定（必要に応じて変更）
+        const requiredAttributes = {};
+        
+        Auth.completeNewPassword(
+          cognitoUser,
+          newPassword,
+          requiredAttributes
+        )
+          .then((updatedUser: any) => {
+            console.log('パスワード変更完了:', updatedUser);
+            
+            // 再度サインインして正しいトークンを取得
+            Auth.signIn(cognitoUser.username, newPassword)
+              .then((finalUser: any) => {
+                if (!finalUser.signInUserSession || !finalUser.signInUserSession.idToken) {
+                  throw new Error('サインインセッションが見つかりません');
+                }
+                
+                const idToken = finalUser.signInUserSession.idToken.jwtToken;
+                const accessToken = finalUser.signInUserSession.accessToken?.jwtToken || '';
+                const refreshToken = finalUser.signInUserSession.refreshToken?.token || '';
+                
+                // ユーザー情報を構築
+                const user: User = {
+                  id: finalUser.attributes?.sub || '',
+                  email: finalUser.attributes?.email || finalUser.username || '',
+                  name: finalUser.attributes?.name || finalUser.attributes?.email || finalUser.username || '',
+                  createdAt: new Date().toISOString(),
+                  updatedAt: new Date().toISOString()
+                };
+                
+                // ローカルストレージに保存
+                localStorage.setItem('idToken', idToken);
+                localStorage.setItem('accessToken', accessToken);
+                localStorage.setItem('refreshToken', refreshToken);
+                localStorage.setItem('user', JSON.stringify(user));
+                
+                // 認証状態を更新
+                this.authStateSubject.next({
+                  isAuthenticated: true,
+                  user,
+                  idToken,
+                  accessToken,
+                  refreshToken
+                });
+                
+                observer.next(user);
+                observer.complete();
+              })
+              .catch((error: any) => {
+                console.error('パスワード変更後のサインインエラー:', error);
+                observer.error(new Error('パスワード変更後のサインインに失敗しました。'));
+              });
+          })
+          .catch((error: any) => {
+            console.error('パスワード変更エラー:', error);
+            let errorMessage = 'パスワードの変更に失敗しました。';
+            
+            if (error.code === 'InvalidPasswordException') {
+              errorMessage = 'パスワードの要件を満たしていません。';
+            }
+            
+            observer.error(new Error(errorMessage));
+          });
+      } catch (error) {
+        console.error('パスワード変更処理中の予期せぬエラー:', error);
+        observer.error(new Error('パスワード変更処理中にエラーが発生しました。'));
+      }
+    });
   }
 }

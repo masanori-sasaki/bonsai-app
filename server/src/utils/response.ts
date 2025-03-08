@@ -18,9 +18,7 @@ export function createSuccessResponse(data: any, statusCode: number = 200): APIG
   return {
     statusCode,
     headers: {
-      'Content-Type': 'application/json',
-      'Access-Control-Allow-Origin': '*', // CORS対応
-      'Access-Control-Allow-Credentials': true
+      'Content-Type': 'application/json'
     },
     body: JSON.stringify(data)
   };
@@ -39,9 +37,7 @@ export function createErrorResponse(error: Error): APIGatewayProxyResult {
     return {
       statusCode: error.statusCode,
       headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*', // CORS対応
-        'Access-Control-Allow-Credentials': true
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify(error.toResponse())
     };
@@ -51,9 +47,7 @@ export function createErrorResponse(error: Error): APIGatewayProxyResult {
   return {
     statusCode: 500,
     headers: {
-      'Content-Type': 'application/json',
-      'Access-Control-Allow-Origin': '*', // CORS対応
-      'Access-Control-Allow-Credentials': true
+      'Content-Type': 'application/json'
     },
     body: JSON.stringify({
       error: {

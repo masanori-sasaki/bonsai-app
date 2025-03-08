@@ -1,52 +1,109 @@
 <div class="login-container">
   <div class="login-card">
     <h2 class="login-title">盆栽管理アプリ</h2>
-    <h3 class="login-subtitle">ログイン</h3>
     
-    <div *ngIf="error" class="alert alert-danger">{{error}}</div>
+    <!-- 通常のログインフォーム -->
+    <div *ngIf="!showNewPasswordForm">
+      <h3 class="login-subtitle">ログイン</h3>
+      
+      <div *ngIf="error" class="alert alert-danger">{{error}}</div>
+      
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+        <div class="form-group">
+          <label for="email">メールアドレス</label>
+          <input
+            type="email"
+            id="email"
+            formControlName="email"
+            class="form-control"
+            [ngClass]="{ 'is-invalid': submitted && f['email'].errors }"
+          />
+          <div *ngIf="submitted && f['email'].errors" class="invalid-feedback">
+            <div *ngIf="f['email'].errors['required']">メールアドレスは必須です</div>
+            <div *ngIf="f['email'].errors['email']">有効なメールアドレスを入力してください</div>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="password">パスワード</label>
+          <input
+            type="password"
+            id="password"
+            formControlName="password"
+            class="form-control"
+            [ngClass]="{ 'is-invalid': submitted && f['password'].errors }"
+          />
+          <div *ngIf="submitted && f['password'].errors" class="invalid-feedback">
+            <div *ngIf="f['password'].errors['required']">パスワードは必須です</div>
+            <div *ngIf="f['password'].errors['minlength']">パスワードは6文字以上必要です</div>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <button [disabled]="loading" class="btn btn-primary btn-block">
+            <span *ngIf="loading" class="spinner-border spinner-border-sm mr-1"></span>
+            ログイン
+          </button>
+        </div>
+        
+        <div class="form-group text-center">
+          <a routerLink="/auth/register" class="btn btn-link">新規登録</a>
+          <a routerLink="/auth/forgot-password" class="btn btn-link">パスワードを忘れた場合</a>
+        </div>
+      </form>
+    </div>
     
-    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-      <div class="form-group">
-        <label for="email">メールアドレス</label>
-        <input
-          type="email"
-          id="email"
-          formControlName="email"
-          class="form-control"
-          [ngClass]="{ 'is-invalid': submitted && f['email'].errors }"
-        />
-        <div *ngIf="submitted && f['email'].errors" class="invalid-feedback">
-          <div *ngIf="f['email'].errors['required']">メールアドレスは必須です</div>
-          <div *ngIf="f['email'].errors['email']">有効なメールアドレスを入力してください</div>
+    <!-- 新しいパスワード設定フォーム -->
+    <div *ngIf="showNewPasswordForm">
+      <h3 class="login-subtitle">新しいパスワードの設定</h3>
+      
+      <div *ngIf="error" class="alert alert-danger">{{error}}</div>
+      
+      <form [formGroup]="newPasswordForm" (ngSubmit)="onSubmitNewPassword()">
+        <div class="form-group">
+          <label for="newPassword">新しいパスワード</label>
+          <input
+            type="password"
+            id="newPassword"
+            formControlName="newPassword"
+            class="form-control"
+            [ngClass]="{ 'is-invalid': submitted && nf['newPassword'].errors }"
+          />
+          <div *ngIf="submitted && nf['newPassword'].errors" class="invalid-feedback">
+            <div *ngIf="nf['newPassword'].errors['required']">新しいパスワードは必須です</div>
+            <div *ngIf="nf['newPassword'].errors['minlength']">パスワードは8文字以上必要です</div>
+          </div>
+          <small class="form-text text-muted">
+            パスワードは8文字以上で、大文字、小文字、数字、特殊文字を含める必要があります。
+          </small>
         </div>
-      </div>
-      
-      <div class="form-group">
-        <label for="password">パスワード</label>
-        <input
-          type="password"
-          id="password"
-          formControlName="password"
-          class="form-control"
-          [ngClass]="{ 'is-invalid': submitted && f['password'].errors }"
-        />
-        <div *ngIf="submitted && f['password'].errors" class="invalid-feedback">
-          <div *ngIf="f['password'].errors['required']">パスワードは必須です</div>
-          <div *ngIf="f['password'].errors['minlength']">パスワードは6文字以上必要です</div>
+        
+        <div class="form-group">
+          <label for="confirmPassword">パスワード（確認）</label>
+          <input
+            type="password"
+            id="confirmPassword"
+            formControlName="confirmPassword"
+            class="form-control"
+            [ngClass]="{ 'is-invalid': submitted && nf['confirmPassword'].errors }"
+          />
+          <div *ngIf="submitted && nf['confirmPassword'].errors" class="invalid-feedback">
+            <div *ngIf="nf['confirmPassword'].errors['required']">パスワード（確認）は必須です</div>
+            <div *ngIf="nf['confirmPassword'].errors['passwordMismatch']">パスワードが一致しません</div>
+          </div>
         </div>
-      </div>
-      
-      <div class="form-group">
-        <button [disabled]="loading" class="btn btn-primary btn-block">
-          <span *ngIf="loading" class="spinner-border spinner-border-sm mr-1"></span>
-          ログイン
-        </button>
-      </div>
-      
-      <div class="form-group text-center">
-        <a routerLink="/auth/register" class="btn btn-link">新規登録</a>
-        <a routerLink="/auth/forgot-password" class="btn btn-link">パスワードを忘れた場合</a>
-      </div>
-    </form>
+        
+        <div class="form-group">
+          <button [disabled]="loading" class="btn btn-primary btn-block">
+            <span *ngIf="loading" class="spinner-border spinner-border-sm mr-1"></span>
+            パスワードを設定
+          </button>
+        </div>
+        
+        <div class="form-group text-center">
+          <button type="button" class="btn btn-link" (click)="backToLogin()">ログイン画面に戻る</button>
+        </div>
+      </form>
+    </div>
   </div>
 </div>

@@ -7,20 +7,24 @@ import { environment } from './environments/environment';
 
 // AWS Amplifyの設定
 if (environment.production && environment.cognito) {
-  // Amplifyの型定義の問題を回避
-  // @ts-ignore
-  const amplifyConfig = {
-    Auth: {
-      region: 'ap-northeast-1',
-      userPoolId: environment.cognito.userPoolId,
-      userPoolWebClientId: environment.cognito.userPoolWebClientId,
-      authenticationFlowType: 'USER_PASSWORD_AUTH'
-    }
-  };
-  
-  // @ts-ignore
-  Amplify.configure(amplifyConfig);
-  console.log('AWS Amplify initialized with Cognito configuration');
+  try {
+    // Amplifyの型定義の問題を回避
+    // @ts-ignore
+    const amplifyConfig = {
+      Auth: {
+        region: 'ap-northeast-1',
+        userPoolId: environment.cognito.userPoolId,
+        userPoolWebClientId: environment.cognito.userPoolWebClientId,
+        authenticationFlowType: 'USER_PASSWORD_AUTH'
+      }
+    };
+    
+    // @ts-ignore
+    Amplify.configure(amplifyConfig);
+    console.log('AWS Amplify initialized with Cognito configuration:', amplifyConfig);
+  } catch (error) {
+    console.error('AWS Amplify initialization failed:', error);
+  }
 }
 
 if (environment.production) {

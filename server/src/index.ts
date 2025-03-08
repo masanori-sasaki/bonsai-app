@@ -36,9 +36,19 @@ import {
  */
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
-    // リクエストのパスとメソッドを取得
-    const path = event.path;
-    const method = event.httpMethod;
+    // リクエストのパスとメソッドを取得（Lambda Function URLとAPI Gateway両方に対応）
+    let path = event.path;
+    let method = event.httpMethod;
+    
+    // Lambda Function URLの場合
+    if ((event as any).rawPath) {
+      path = (event as any).rawPath;
+    }
+    
+    // Lambda Function URLの場合
+    if ((event as any).requestContext && (event as any).requestContext.http && (event as any).requestContext.http.method) {
+      method = (event as any).requestContext.http.method;
+    }
     
     console.log(`リクエスト: ${method} ${path}`);
     

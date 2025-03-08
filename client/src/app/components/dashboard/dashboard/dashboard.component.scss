@@ -2,6 +2,10 @@
 
 .dashboard-container {
   padding: 20px 0;
+  
+  @media (max-width: 575px) {
+    padding: 10px 0;
+  }
 }
 
 .dashboard-header {
@@ -89,6 +93,16 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 20px;
+  
+  @media (max-width: 575px) {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 15px;
+  }
+  
+  @media (max-width: 400px) {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
 }
 
 .bonsai-card {
@@ -106,10 +120,24 @@
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
   }
   
+  @media (max-width: 575px) {
+    &:hover {
+      transform: translateY(-3px);
+    }
+  }
+  
   .bonsai-card-image {
     height: 150px;
     overflow: hidden;
     background-color: $bg-light;
+    
+    @media (max-width: 575px) {
+      height: 120px;
+    }
+    
+    @media (max-width: 400px) {
+      height: 100px;
+    }
     
     img {
       width: 100%;
@@ -124,23 +152,44 @@
       height: 100%;
       color: $text-light;
       font-size: 48px;
+      
+      @media (max-width: 575px) {
+        font-size: 36px;
+      }
+      
+      @media (max-width: 400px) {
+        font-size: 30px;
+      }
     }
   }
   
   .bonsai-card-content {
     padding: 15px;
     
+    @media (max-width: 575px) {
+      padding: 10px;
+    }
+    
     .bonsai-name {
       font-size: 16px;
       font-weight: 600;
       margin-bottom: 5px;
       color: $text-dark;
+      
+      @media (max-width: 575px) {
+        font-size: 14px;
+        margin-bottom: 3px;
+      }
     }
     
     .bonsai-species {
       font-size: 14px;
       color: $text-light;
       margin: 0;
+      
+      @media (max-width: 575px) {
+        font-size: 12px;
+      }
     }
   }
 }
@@ -170,6 +219,13 @@
     border-radius: 4px;
     overflow: hidden;
     margin-right: 15px;
+    flex-shrink: 0;
+    
+    @media (max-width: 575px) {
+      width: 50px;
+      height: 50px;
+      margin-right: 10px;
+    }
     
     img {
       width: 100%;
@@ -185,25 +241,48 @@
       background-color: $bg-dark;
       color: $text-light;
       font-size: 24px;
+      
+      @media (max-width: 575px) {
+        font-size: 20px;
+      }
     }
   }
   
   .recent-update-content {
     flex-grow: 1;
+    min-width: 0; /* テキストのオーバーフローを防止 */
     
     h3 {
       margin: 0 0 5px 0;
       font-size: 16px;
       color: $text-dark;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      
+      @media (max-width: 575px) {
+        font-size: 14px;
+      }
     }
     
     p {
       margin: 0 0 5px 0;
       font-size: 14px;
       color: $text-light;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      
+      @media (max-width: 575px) {
+        font-size: 12px;
+      }
       
       &.update-time {
         font-size: 12px;
+        
+        @media (max-width: 575px) {
+          font-size: 11px;
+        }
       }
     }
   }
@@ -213,6 +292,15 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
   gap: 15px;
+  
+  @media (max-width: 575px) {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 10px;
+  }
+  
+  @media (max-width: 400px) {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
 .quick-access-card {
@@ -226,6 +314,10 @@
   cursor: pointer;
   transition: background-color 0.2s, transform 0.2s;
   
+  @media (max-width: 575px) {
+    padding: 15px 10px;
+  }
+  
   &:hover {
     background-color: $hover-bg;
     transform: translateY(-3px);
@@ -235,12 +327,21 @@
     font-size: 32px;
     color: $icon-color;
     margin-bottom: 10px;
+    
+    @media (max-width: 575px) {
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
   }
   
   .quick-access-label {
     font-size: 14px;
     color: $text-medium;
     text-align: center;
+    
+    @media (max-width: 575px) {
+      font-size: 12px;
+    }
   }
 }
 
@@ -248,32 +349,51 @@
   margin-bottom: 20px;
 }
 
-@media (max-width: 768px) {
-  .dashboard-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 15px;
+.dashboard-section {
+  background-color: $card-bg;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px $card-shadow;
+  padding: 20px;
+  
+  @media (max-width: 575px) {
+    padding: 15px;
+    border-radius: 6px;
+  }
+  
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
     
-    .user-actions {
-      width: 100%;
+    @media (max-width: 575px) {
+      margin-bottom: 15px;
+    }
+    
+    h2 {
+      margin: 0;
+      color: $text-dark;
       
-      button {
+      @media (max-width: 575px) {
+        font-size: 1.25rem;
+        margin-bottom: 10px;
         width: 100%;
       }
     }
-  }
-  
-  .dashboard-section {
-    .section-header {
-      flex-direction: column;
-      align-items: flex-start;
+    
+    .section-actions {
+      display: flex;
       gap: 10px;
       
-      .section-actions {
+      @media (max-width: 575px) {
         width: 100%;
         
         button {
           flex: 1;
+          padding-left: 5px;
+          padding-right: 5px;
+          font-size: 0.9rem;
         }
       }
     }

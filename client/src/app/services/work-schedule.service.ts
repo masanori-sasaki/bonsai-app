@@ -43,7 +43,7 @@ export class WorkScheduleService {
       params.nextToken = nextToken;
     }
     
-    return this.apiService.get<WorkScheduleListResponse>(`/bonsai/${bonsaiId}/schedules`, params);
+    return this.apiService.get<WorkScheduleListResponse>(`bonsai/${bonsaiId}/schedules`, params);
   }
 
   /**
@@ -53,7 +53,7 @@ export class WorkScheduleService {
    * @returns Observable<WorkSchedule>
    */
   getWorkScheduleDetail(scheduleId: string): Observable<WorkSchedule> {
-    return this.apiService.get<WorkSchedule>(`/schedules/${scheduleId}`);
+    return this.apiService.get<WorkSchedule>(`schedules/${scheduleId}`);
   }
 
   /**
@@ -64,7 +64,7 @@ export class WorkScheduleService {
    * @returns Observable<WorkSchedule>
    */
   createWorkSchedule(bonsaiId: string, data: CreateWorkScheduleRequest): Observable<WorkSchedule> {
-    return this.apiService.post<WorkSchedule>(`/bonsai/${bonsaiId}/schedules`, data);
+    return this.apiService.post<WorkSchedule>(`bonsai/${bonsaiId}/schedules`, data);
   }
 
   /**
@@ -75,7 +75,7 @@ export class WorkScheduleService {
    * @returns Observable<WorkSchedule>
    */
   updateWorkSchedule(scheduleId: string, data: UpdateWorkScheduleRequest): Observable<WorkSchedule> {
-    return this.apiService.put<WorkSchedule>(`/schedules/${scheduleId}`, data);
+    return this.apiService.put<WorkSchedule>(`schedules/${scheduleId}`, data);
   }
 
   /**
@@ -85,6 +85,6 @@ export class WorkScheduleService {
    * @returns Observable<{message: string, id: string}>
    */
   deleteWorkSchedule(scheduleId: string): Observable<{message: string, id: string}> {
-    return this.apiService.delete<{message: string, id: string}>(`/schedules/${scheduleId}`);
+    return this.apiService.delete<{message: string, id: string}>(`schedules/${scheduleId}`);
   }
 }

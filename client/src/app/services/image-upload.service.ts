@@ -50,7 +50,7 @@ export class ImageUploadService {
    * @returns 署名付きURLと公開URL（Observable）
    */
   private getPresignedUrl(fileName: string, fileType: string): Observable<{url: string, publicUrl: string}> {
-    return this.apiService.post<{url: string, publicUrl: string}>('/images/presigned-url', {
+    return this.apiService.post<{url: string, publicUrl: string}>('images/presigned-url', {
       fileName,
       fileType
     });

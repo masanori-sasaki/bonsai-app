@@ -33,7 +33,7 @@ export class BonsaiService {
       params.nextToken = nextToken;
     }
     
-    return this.apiService.get<BonsaiListResponse>('/bonsai', params);
+    return this.apiService.get<BonsaiListResponse>('bonsai', params);
   }
 
   /**
@@ -43,7 +43,7 @@ export class BonsaiService {
    * @returns Observable<BonsaiDetail>
    */
   getBonsaiDetail(bonsaiId: string): Observable<BonsaiDetail> {
-    return this.apiService.get<BonsaiDetail>(`/bonsai/${bonsaiId}`);
+    return this.apiService.get<BonsaiDetail>(`bonsai/${bonsaiId}`);
   }
 
   /**
@@ -53,7 +53,7 @@ export class BonsaiService {
    * @returns Observable<Bonsai>
    */
   createBonsai(data: CreateBonsaiRequest): Observable<Bonsai> {
-    return this.apiService.post<Bonsai>('/bonsai', data);
+    return this.apiService.post<Bonsai>('bonsai', data);
   }
 
   /**
@@ -64,7 +64,7 @@ export class BonsaiService {
    * @returns Observable<Bonsai>
    */
   updateBonsai(bonsaiId: string, data: UpdateBonsaiRequest): Observable<Bonsai> {
-    return this.apiService.put<Bonsai>(`/bonsai/${bonsaiId}`, data);
+    return this.apiService.put<Bonsai>(`bonsai/${bonsaiId}`, data);
   }
 
   /**
@@ -74,6 +74,6 @@ export class BonsaiService {
    * @returns Observable<{message: string, id: string}>
    */
   deleteBonsai(bonsaiId: string): Observable<{message: string, id: string}> {
-    return this.apiService.delete<{message: string, id: string}>(`/bonsai/${bonsaiId}`);
+    return this.apiService.delete<{message: string, id: string}>(`bonsai/${bonsaiId}`);
   }
 }

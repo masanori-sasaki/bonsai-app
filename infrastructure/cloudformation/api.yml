@@ -74,6 +74,8 @@ Resources:
           TABLE_NAME: !Sub BonsaiTable-${Environment}-${AWS::AccountId}
           COGNITO_USER_POOL_ID: !Ref CognitoUserPoolArn
           FRONTEND_BUCKET_NAME: !Sub bonsai-app-${Environment}-${AWS::AccountId}-${AWS::Region}
+          DEPLOYMENT_TIMESTAMP: '#{Timestamp}'  # デプロイ時に置換される値
+      Description: !Sub 'Bonsai App API Lambda Function - Deployed at #{Timestamp}'  # デプロイ時に置換される値
       Code:
         S3Bucket: !Sub bonsai-app-templates-171278323216
         S3Key: !Sub ${Environment}/lambda-package.zip

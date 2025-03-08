@@ -1,324 +1,345 @@
 @import 'src/assets/scss/variables';
+$m:575px;
+@mixin m{@media(max-width:$m){@content}}
 
-.bonsai-detail-container {
-  padding: 20px 0;
+.bonsai-detail-container{
+  padding:20px 0;
+  @include m{padding:10px 0}
 }
 
-.bonsai-detail-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
+.bonsai-detail-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:20px;
+  flex-wrap:wrap;
+  @include m{margin-bottom:15px}
   
-  h2 {
-    margin: 0;
-    flex-grow: 1;
-    text-align: center;
+  h2{
+    margin:0;
+    flex-grow:1;
+    text-align:center;
+    @include m{
+      font-size:1.25rem;
+      width:100%;
+      order:2;
+      margin:10px 0
+    }
   }
   
-  .bonsai-actions {
-    display: flex;
-    gap: 10px;
+  button:first-child{@include m{order:1}}
+  
+  .bonsai-actions{
+    display:flex;
+    gap:10px;
+    @include m{
+      order:3;
+      width:100%;
+      justify-content:flex-end
+    }
   }
 }
 
-.loading-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 40px 0;
-  
-  .spinner-border {
-    margin-bottom: 15px;
-  }
+.bonsai-detail-content{
+  background-color:$card-bg;
+  border-radius:8px;
+  box-shadow:0 2px 8px $card-shadow;
+  overflow:hidden
 }
 
-.bonsai-detail-content {
-  background-color: $card-bg;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px $card-shadow;
-  overflow: hidden;
-}
-
-.bonsai-tabs {
-  background-color: $bg-light;
-  padding: 0 15px;
-  display: flex;
-  list-style: none;
-  border-bottom: 1px solid $bg-dark;
-  margin-bottom: 0;
+.bonsai-tabs{
+  background-color:$bg-light;
+  padding:0 15px;
+  display:flex;
+  list-style:none;
+  border-bottom:1px solid $bg-dark;
+  margin-bottom:0;
+  overflow-x:auto;
+  @include m{padding:0 10px}
   
-  .nav-item {
-    margin-bottom: -1px;
+  .nav-item{
+    margin-bottom:-1px;
+    flex-shrink:0
   }
   
-  .nav-link {
-    cursor: pointer;
-    padding: 15px;
-    color: $text-light;
-    border: none;
-    display: block;
-    text-decoration: none;
+  .nav-link{
+    cursor:pointer;
+    padding:15px;
+    color:$text-light;
+    border:none;
+    display:block;
+    text-decoration:none;
+    white-space:nowrap;
+    @include m{
+      padding:10px;
+      font-size:0.9rem
+    }
     
-    &.active {
-      font-weight: 600;
-      color: $active-tab;
-      position: relative;
-      background-color: $white;
-      border: 1px solid $bg-dark;
-      border-bottom-color: $white;
-      border-radius: 4px 4px 0 0;
+    &.active{
+      font-weight:600;
+      color:$active-tab;
+      position:relative;
+      background-color:$white;
+      border:1px solid $bg-dark;
+      border-bottom-color:$white;
+      border-radius:4px 4px 0 0;
       
-      &::after {
-        content: '';
-        position: absolute;
-        bottom: -1px;
-        left: 0;
-        width: 100%;
-        height: 2px;
-        background-color: $white;
+      &::after{
+        content:'';
+        position:absolute;
+        bottom:-1px;
+        left:0;
+        width:100%;
+        height:2px;
+        background-color:$white
       }
     }
     
-    &:hover:not(.active) {
-      color: $text-medium;
-      background-color: rgba(0, 0, 0, 0.03);
+    &:hover:not(.active){
+      color:$text-medium;
+      background-color:rgba(0,0,0,0.03)
     }
   }
 }
 
-.tab-content {
-  padding: 20px;
+.tab-content{
+  padding:20px;
+  @include m{padding:15px 10px}
 }
 
-.bonsai-info {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+.bonsai-info{
+  display:flex;
+  flex-direction:column;
+  gap:20px;
+  @include m{gap:15px}
   
-  .bonsai-images {
-    .main-image {
-      width: 100%;
-      height: 300px;
-      overflow: hidden;
-      border-radius: 8px;
-      margin-bottom: 10px;
+  .bonsai-images .main-image{
+    width:100%;
+    height:300px;
+    overflow:hidden;
+    border-radius:8px;
+    margin-bottom:10px;
+    @include m{height:200px}
+    
+    img{
+      width:100%;
+      height:100%;
+      object-fit:cover
+    }
+  }
+  
+  .thumbnail-images{
+    display:flex;
+    gap:10px;
+    overflow-x:auto;
+    padding-bottom:10px;
+    
+    .thumbnail{
+      width:80px;
+      height:80px;
+      flex-shrink:0;
+      border-radius:4px;
+      overflow:hidden;
+      @include m{width:60px;height:60px}
       
-      img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
+      img{
+        width:100%;
+        height:100%;
+        object-fit:cover
+      }
+    }
+  }
+  
+  .no-images .no-image-placeholder{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    height:300px;
+    background-color:$bg-light;
+    border-radius:8px;
+    color:$empty-state-icon;
+    
+    i{font-size:64px;margin-bottom:15px}
+    p{font-size:16px}
+  }
+  
+  .bonsai-info-details .info-row{
+    display:flex;
+    margin-bottom:15px;
+    
+    .info-label{
+      width:100px;
+      font-weight:600;
+      color:$text-medium
+    }
+    
+    .info-value{
+      flex-grow:1;
+      color:$text-dark;
+      &.history-text{white-space:pre-line}
+    }
+  }
+}
+
+.tab-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:20px;
+  flex-wrap:wrap;
+  @include m{margin-bottom:15px}
+  
+  h3{
+    margin:0;
+    @include m{
+      font-size:1.1rem;
+      margin-bottom:10px;
+      width:100%
+    }
+  }
+  
+  button{@include m{width:100%}}
+}
+
+.work-records,.work-schedules{
+  .work-record-item,.work-schedule-item{
+    display:flex;
+    align-items:center;
+    padding:15px;
+    border-bottom:1px solid $bg-dark;
+    cursor:pointer;
+    transition:background-color 0.2s;
+    @include m{
+      padding:12px 8px;
+      flex-wrap:wrap
+    }
+    
+    &:hover{background-color:$hover-bg}
+    
+    .work-record-type,.work-schedule-type{
+      width:100px;
+      font-weight:600;
+      color:$text-medium;
+      @include m{
+        width:auto;
+        margin-right:10px
       }
     }
     
-    .thumbnail-images {
-      display: flex;
-      gap: 10px;
-      overflow-x: auto;
-      padding-bottom: 10px;
+    .work-record-date,.work-schedule-date{
+      flex-grow:1;
+      color:$text-light;
+      @include m{font-size:0.9rem}
+    }
+    
+    .work-record-action,.work-schedule-action{color:$text-light}
+  }
+}
+
+.empty-records,.empty-schedules{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:40px 0;
+  
+  .empty-state-icon{
+    font-size:48px;
+    color:$empty-state-icon;
+    margin-bottom:15px
+  }
+  
+  p{
+    color:$text-light;
+    margin-bottom:20px
+  }
+}
+
+.bonsai-edit-form{
+  padding:15px;
+  @include m{padding:10px 5px}
+  
+  .form-label{
+    font-weight:600;
+    color:$text-medium
+  }
+  
+  .image-upload-container{
+    margin-bottom:1rem;
+    
+    .image-preview{
+      position:relative;
+      display:inline-block;
+      margin-bottom:1rem;
+      width:100%;
       
-      .thumbnail {
-        width: 80px;
-        height: 80px;
-        flex-shrink: 0;
-        border-radius: 4px;
-        overflow: hidden;
+      img{
+        max-width:100%;
+        max-height:300px;
+        border-radius:4px;
+        border:1px solid $bg-dark;
+        @include m{max-height:200px}
+      }
+      
+      button{
+        position:absolute;
+        top:5px;
+        right:5px;
+        border-radius:50%;
+        padding:0.25rem 0.5rem;
+        background-color:rgba(255,255,255,0.8)
+      }
+    }
+    
+    .image-upload{
+      border:2px dashed $bg-dark;
+      border-radius:4px;
+      padding:2rem;
+      text-align:center;
+      cursor:pointer;
+      @include m{padding:1.5rem 1rem}
+      
+      &:hover{
+        border-color:$primary;
+        background-color:rgba(0,123,255,0.05)
+      }
+      
+      .upload-label{
+        display:flex;
+        flex-direction:column;
+        align-items:center;
         
-        img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-        }
-      }
-    }
-  }
-  
-  .no-images {
-    .no-image-placeholder {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 300px;
-      background-color: $bg-light;
-      border-radius: 8px;
-      color: $empty-state-icon;
-      
-      i {
-        font-size: 64px;
-        margin-bottom: 15px;
-      }
-      
-      p {
-        font-size: 16px;
-      }
-    }
-  }
-  
-  .bonsai-info-details {
-    .info-row {
-      display: flex;
-      margin-bottom: 15px;
-      
-      .info-label {
-        width: 100px;
-        font-weight: 600;
-        color: $text-medium;
-      }
-      
-      .info-value {
-        flex-grow: 1;
-        color: $text-dark;
-        
-        &.history-text {
-          white-space: pre-line;
-        }
-      }
-    }
-  }
-}
-
-.tab-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-  
-  h3 {
-    margin: 0;
-  }
-}
-
-.work-records, .work-schedules {
-  .work-record-item, .work-schedule-item {
-    display: flex;
-    align-items: center;
-    padding: 15px;
-    border-bottom: 1px solid $bg-dark;
-    cursor: pointer;
-    transition: background-color 0.2s;
-    
-    &:hover {
-      background-color: $hover-bg;
-    }
-    
-    .work-record-type, .work-schedule-type {
-      width: 100px;
-      font-weight: 600;
-      color: $text-medium;
-    }
-    
-    .work-record-date, .work-schedule-date {
-      flex-grow: 1;
-      color: $text-light;
-    }
-    
-    .work-record-action, .work-schedule-action {
-      color: $text-light;
-    }
-  }
-}
-
-.empty-records, .empty-schedules {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 40px 0;
-  
-  .empty-state-icon {
-    font-size: 48px;
-    color: $empty-state-icon;
-    margin-bottom: 15px;
-  }
-  
-  p {
-    color: $text-light;
-    margin-bottom: 20px;
-  }
-}
-
-.alert {
-  margin-bottom: 20px;
-}
-
-// 編集フォームのスタイル
-.bonsai-edit-form {
-  padding: 15px;
-  
-  .form-label {
-    font-weight: 600;
-    color: $text-medium;
-  }
-  
-  // 画像アップロード関連のスタイル
-  .image-upload-container {
-    margin-bottom: 1rem;
-    
-    .image-preview {
-      position: relative;
-      display: inline-block;
-      margin-bottom: 1rem;
-      
-      img {
-        max-width: 100%;
-        max-height: 300px;
-        border-radius: 4px;
-        border: 1px solid $bg-dark;
-      }
-      
-      button {
-        position: absolute;
-        top: 5px;
-        right: 5px;
-        border-radius: 50%;
-        padding: 0.25rem 0.5rem;
-        background-color: rgba(255, 255, 255, 0.8);
-      }
-    }
-    
-    .image-upload {
-      border: 2px dashed $bg-dark;
-      border-radius: 4px;
-      padding: 2rem;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      
-      &:hover {
-        border-color: $primary;
-        background-color: rgba(0, 123, 255, 0.05);
-      }
-      
-      .upload-label {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        cursor: pointer;
-        
-        i {
-          font-size: 2rem;
-          margin-bottom: 0.5rem;
-          color: $text-light;
+        i{
+          font-size:2rem;
+          margin-bottom:0.5rem;
+          color:$text-light
         }
         
-        span {
-          font-size: 1.1rem;
-          margin-bottom: 0.5rem;
+        span{
+          font-size:1.1rem;
+          margin-bottom:0.5rem
         }
         
-        small {
-          color: $text-light;
-        }
+        small{color:$text-light}
       }
     }
   }
   
-  .form-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-    margin-top: 30px;
+  .form-actions{
+    display:flex;
+    justify-content:flex-end;
+    gap:10px;
+    margin-top:30px;
+    
+    @include m{
+      flex-direction:column;
+      margin-top:20px;
+      
+      button{
+        width:100%;
+        margin-bottom:10px
+      }
+    }
   }
 }

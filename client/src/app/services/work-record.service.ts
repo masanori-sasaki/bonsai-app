@@ -43,7 +43,7 @@ export class WorkRecordService {
       params.nextToken = nextToken;
     }
     
-    return this.apiService.get<WorkRecordListResponse>(`/bonsai/${bonsaiId}/records`, params);
+    return this.apiService.get<WorkRecordListResponse>(`bonsai/${bonsaiId}/records`, params);
   }
 
   /**
@@ -53,7 +53,7 @@ export class WorkRecordService {
    * @returns Observable<WorkRecord>
    */
   getWorkRecordDetail(recordId: string): Observable<WorkRecord> {
-    return this.apiService.get<WorkRecord>(`/records/${recordId}`);
+    return this.apiService.get<WorkRecord>(`records/${recordId}`);
   }
 
   /**
@@ -64,7 +64,7 @@ export class WorkRecordService {
    * @returns Observable<WorkRecord>
    */
   createWorkRecord(bonsaiId: string, data: CreateWorkRecordRequest): Observable<WorkRecord> {
-    return this.apiService.post<WorkRecord>(`/bonsai/${bonsaiId}/records`, data);
+    return this.apiService.post<WorkRecord>(`bonsai/${bonsaiId}/records`, data);
   }
 
   /**
@@ -75,7 +75,7 @@ export class WorkRecordService {
    * @returns Observable<WorkRecord>
    */
   updateWorkRecord(recordId: string, data: UpdateWorkRecordRequest): Observable<WorkRecord> {
-    return this.apiService.put<WorkRecord>(`/records/${recordId}`, data);
+    return this.apiService.put<WorkRecord>(`records/${recordId}`, data);
   }
 
   /**
@@ -85,6 +85,6 @@ export class WorkRecordService {
    * @returns Observable<{message: string, id: string}>
    */
   deleteWorkRecord(recordId: string): Observable<{message: string, id: string}> {
-    return this.apiService.delete<{message: string, id: string}>(`/records/${recordId}`);
+    return this.apiService.delete<{message: string, id: string}>(`records/${recordId}`);
   }
 }

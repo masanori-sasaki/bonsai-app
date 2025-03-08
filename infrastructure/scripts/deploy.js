@@ -129,7 +129,8 @@ async function uploadToS3() {
   console.log(`S3バケット ${config.s3Bucket} にアップロードしています...`);
   
   const fileContent = fs.readFileSync(zipPath);
-  const s3Key = `${config.environment}/lambda-package.zip`;
+  const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+  const s3Key = `${config.environment}/lambda-package-${timestamp}.zip`;
   
   const params = {
     Bucket: config.s3Bucket,
@@ -140,6 +141,10 @@ async function uploadToS3() {
   try {
     await s3.upload(params).promise();
     console.log(`アップロード完了: s3://${config.s3Bucket}/${s3Key}`);
+    
+    // グローバル変数に保存して、後でテンプレート更新時に使用
+    global.lambdaPackageS3Key = s3Key;
+    
     return s3Key;
   } catch (error) {
     console.error('S3アップロードエラー:', error);
@@ -154,9 +159,24 @@ async function uploadTemplates() {
   console.log('CloudFormationテンプレートをアップロードしています...');
   
   const templates = ['main.yml', 'api.yml', 'auth.yml', 'storage.yml'];
+  const timestamp = new Date().toISOString();
   
   for (const template of templates) {
-    const fileContent = fs.readFileSync(path.join(templateDir, template));
+    let fileContent = fs.readFileSync(path.join(templateDir, template), 'utf8');
+    
+    // api.ymlの場合、タイムスタンププレースホルダーとLambdaパッケージのS3キーを置換
+    if (template === 'api.yml') {
+      fileContent = fileContent.replace(/#{Timestamp}/g, timestamp);
+      console.log(`テンプレートにタイムスタンプを設定しました: ${timestamp}`);
+      
+      // Lambda パッケージの S3 キーを置換
+      if (global.lambdaPackageS3Key) {
+        // CloudFormation テンプレートの構文に合わせて修正
+        fileContent = fileContent.replace(/S3Key: !Sub \${Environment}\/lambda-package\.zip/, `S3Key: "${global.lambdaPackageS3Key}"`);
+        console.log(`Lambda パッケージの S3 キーを設定しました: ${global.lambdaPackageS3Key}`);
+      }
+    }
+    
     const s3Key = template;
     
     const params = {
