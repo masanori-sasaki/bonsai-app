@@ -93,6 +93,9 @@ tmp/
 .vercel/
 .netlify/
 
+# Lambda packages
+infrastructure/package/*
+
 # Cline用プロンプト
 prompts/
 
@@ -100,5 +103,3 @@ prompts/
 .cache/
 .history/
 .dynamodb/
-
-

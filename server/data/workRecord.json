@@ -1,0 +1,32 @@
+[
+  {
+    "bonsaiId": "e4718bbf-579e-4cb4-995e-155983a5595a",
+    "workType": "pruning",
+    "date": "2025-03-09T00:00:00.000Z",
+    "description": "長寿梅の剪定を行いました。枝の整理と形を整えました。",
+    "imageUrls": [],
+    "id": "6a8ce504-83fe-4f04-b156-80fdd3e8d245",
+    "createdAt": "2025-03-09T12:56:59.855Z",
+    "updatedAt": "2025-03-09T12:56:59.855Z"
+  },
+  {
+    "bonsaiId": "e4718bbf-579e-4cb4-995e-155983a5595a",
+    "workType": "pruning",
+    "date": "2025-03-09T00:00:00.000Z",
+    "description": "111",
+    "imageUrls": [],
+    "id": "291d6f04-9b53-4f10-a239-5c8811ebe73c",
+    "createdAt": "2025-03-09T12:58:05.126Z",
+    "updatedAt": "2025-03-09T12:58:05.126Z"
+  },
+  {
+    "bonsaiId": "e4718bbf-579e-4cb4-995e-155983a5595a",
+    "workType": "pruning",
+    "date": "2025-03-09T00:00:00.000Z",
+    "description": "2209",
+    "imageUrls": [],
+    "id": "c547d44b-b64d-4d1f-b77b-e5193af97693",
+    "createdAt": "2025-03-09T13:09:22.353Z",
+    "updatedAt": "2025-03-09T13:09:22.353Z"
+  }
+]

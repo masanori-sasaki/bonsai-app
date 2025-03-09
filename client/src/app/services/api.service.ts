@@ -25,7 +25,9 @@ export class ApiService {
     };
     // URLの末尾のスラッシュを削除して、正しいパスを構築
     const baseUrl = this.apiUrl.endsWith('/') ? this.apiUrl.slice(0, -1) : this.apiUrl;
-    return this.http.get<T>(`${baseUrl}/api/${path}`, options);
+    // apiUrlに既に/apiが含まれているか確認
+    const apiPath = baseUrl.endsWith('/api') ? path : `api/${path}`;
+    return this.http.get<T>(`${baseUrl}/${apiPath}`, options);
   }
 
   /**
@@ -41,7 +43,9 @@ export class ApiService {
     };
     // URLの末尾のスラッシュを削除して、正しいパスを構築
     const baseUrl = this.apiUrl.endsWith('/') ? this.apiUrl.slice(0, -1) : this.apiUrl;
-    return this.http.post<T>(`${baseUrl}/api/${path}`, body, options);
+    // apiUrlに既に/apiが含まれているか確認
+    const apiPath = baseUrl.endsWith('/api') ? path : `api/${path}`;
+    return this.http.post<T>(`${baseUrl}/${apiPath}`, body, options);
   }
 
   /**
@@ -57,7 +61,9 @@ export class ApiService {
     };
     // URLの末尾のスラッシュを削除して、正しいパスを構築
     const baseUrl = this.apiUrl.endsWith('/') ? this.apiUrl.slice(0, -1) : this.apiUrl;
-    return this.http.put<T>(`${baseUrl}/api/${path}`, body, options);
+    // apiUrlに既に/apiが含まれているか確認
+    const apiPath = baseUrl.endsWith('/api') ? path : `api/${path}`;
+    return this.http.put<T>(`${baseUrl}/${apiPath}`, body, options);
   }
 
   /**
@@ -72,7 +78,9 @@ export class ApiService {
     };
     // URLの末尾のスラッシュを削除して、正しいパスを構築
     const baseUrl = this.apiUrl.endsWith('/') ? this.apiUrl.slice(0, -1) : this.apiUrl;
-    return this.http.delete<T>(`${baseUrl}/api/${path}`, options);
+    // apiUrlに既に/apiが含まれているか確認
+    const apiPath = baseUrl.endsWith('/api') ? path : `api/${path}`;
+    return this.http.delete<T>(`${baseUrl}/${apiPath}`, options);
   }
 
   /**
