@@ -168,6 +168,40 @@ sequenceDiagram
     end
 ```
 
+### 盆栽詳細画面での作業記録タブ表示フロー
+
+```mermaid
+sequenceDiagram
+    actor User as ユーザー
+    participant Client as クライアントアプリ
+    participant Component as 盆栽詳細コンポーネント
+    participant WorkRecordService as 作業記録サービス
+    participant API as API Gateway/Lambda
+    participant DynamoDB as DynamoDB
+    participant Router as Angularルーター
+
+    User->>Component: 作業記録タブをクリック
+    Component->>Component: activeTab = 'records' に設定
+    Component->>WorkRecordService: 作業記録一覧取得リクエスト
+    WorkRecordService->>API: 作業記録一覧取得API呼び出し
+    API->>DynamoDB: 盆栽IDに紐づく作業記録取得
+    DynamoDB->>API: 作業記録一覧
+    API->>WorkRecordService: 作業記録一覧レスポンス
+    WorkRecordService->>Component: 作業記録一覧
+    Component->>Component: 作業記録を日付の降順でソート
+    Component->>User: 作業記録一覧を表示
+    
+    alt 作業記録項目クリック
+        User->>Component: 作業記録項目をクリック
+        Component->>Router: /records/:recordId へのナビゲーション
+        Router->>User: 作業記録詳細画面を表示
+    else 作業記録追加ボタンクリック
+        User->>Component: 作業記録追加ボタンをクリック
+        Component->>Router: /bonsai/:id/records/new へのナビゲーション
+        Router->>User: 作業記録作成画面を表示
+    end
+```
+
 ### 盆栽情報更新フロー
 
 ```mermaid

@@ -91,33 +91,58 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       }
     }
     
-    // 盆栽詳細のエンドポイント
-    const bonsaiDetailMatch = path.match(/^\/api\/bonsai\/([^\/\?]+)/);
-    if (bonsaiDetailMatch) {
-      const bonsaiId = bonsaiDetailMatch[1];
-      console.log('盆栽詳細 bonsaiId:', bonsaiId);
-      event.pathParameters = { ...event.pathParameters, bonsaiId };
-      
-      if (method === 'GET') {
-        return await getBonsaiDetail(event);
-      } else if (method === 'PUT') {
-        return await updateBonsai(event);
-      } else if (method === 'DELETE') {
-        return await deleteBonsai(event);
+    // パスの分類
+    const isRecordsPath = path.endsWith('/records');
+    const isSchedulesPath = path.endsWith('/schedules');
+    const isBonsaiDetailPath = !isRecordsPath && !isSchedulesPath && path.startsWith('/api/bonsai/');
+    
+    // 作業記録一覧のエンドポイント
+    if (isRecordsPath) {
+      const workRecordListMatch = path.match(/^\/api\/bonsai\/([^\/]+)\/records$/);
+      if (workRecordListMatch) {
+        const bonsaiId = workRecordListMatch[1];
+        console.log('作業記録一覧 bonsaiId:', bonsaiId);
+        event.pathParameters = { ...event.pathParameters, bonsaiId };
+        
+        if (method === 'GET') {
+          return await getWorkRecordList(event);
+        } else if (method === 'POST') {
+          return await createWorkRecord(event);
+        }
       }
     }
     
-    // 作業記録一覧のエンドポイント
-    const workRecordListMatch = path.match(/^\/api\/bonsai\/([^\/\?]+)\/records/);
-    if (workRecordListMatch) {
-      const bonsaiId = workRecordListMatch[1];
-      console.log('作業記録一覧 bonsaiId:', bonsaiId);
-      event.pathParameters = { ...event.pathParameters, bonsaiId };
-      
-      if (method === 'GET') {
-        return await getWorkRecordList(event);
-      } else if (method === 'POST') {
-        return await createWorkRecord(event);
+    // 作業予定一覧のエンドポイント
+    else if (isSchedulesPath) {
+      const workScheduleListMatch = path.match(/^\/api\/bonsai\/([^\/]+)\/schedules$/);
+      if (workScheduleListMatch) {
+        const bonsaiId = workScheduleListMatch[1];
+        console.log('作業予定一覧 bonsaiId:', bonsaiId);
+        event.pathParameters = { ...event.pathParameters, bonsaiId };
+        
+        if (method === 'GET') {
+          return await getWorkScheduleList(event);
+        } else if (method === 'POST') {
+          return await createWorkSchedule(event);
+        }
+      }
+    }
+    
+    // 盆栽詳細のエンドポイント
+    else if (isBonsaiDetailPath) {
+      const bonsaiDetailMatch = path.match(/^\/api\/bonsai\/([^\/]+)$/);
+      if (bonsaiDetailMatch) {
+        const bonsaiId = bonsaiDetailMatch[1];
+        console.log('盆栽詳細 bonsaiId:', bonsaiId);
+        event.pathParameters = { ...event.pathParameters, bonsaiId };
+        
+        if (method === 'GET') {
+          return await getBonsaiDetail(event);
+        } else if (method === 'PUT') {
+          return await updateBonsai(event);
+        } else if (method === 'DELETE') {
+          return await deleteBonsai(event);
+        }
       }
     }
     
