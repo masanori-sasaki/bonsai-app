@@ -139,6 +139,35 @@ sequenceDiagram
     Component->>User: 編集可能な盆栽情報を表示
 ```
 
+### 盆栽詳細画面での最新作業記録表示フロー
+
+```mermaid
+sequenceDiagram
+    actor User as ユーザー
+    participant Client as クライアントアプリ
+    participant Component as 盆栽詳細コンポーネント
+    participant API as API Gateway/Lambda
+    participant DynamoDB as DynamoDB
+    participant Router as Angularルーター
+
+    User->>Client: 盆栽詳細画面を表示
+    Client->>API: 盆栽詳細データ取得リクエスト
+    API->>DynamoDB: 盆栽データと関連する作業記録取得
+    DynamoDB->>API: 盆栽データと最新の作業記録
+    API->>Client: 盆栽詳細データ（最新作業記録含む）
+    Client->>Component: 基本情報タブに最新作業記録3件を表示
+    
+    alt 作業記録項目クリック
+        User->>Component: 作業記録項目をクリック
+        Component->>Router: /records/:recordId へのナビゲーション
+        Router->>User: 作業記録詳細画面を表示
+    else 作業記録追加ボタンクリック
+        User->>Component: 作業記録追加ボタンをクリック
+        Component->>Router: /bonsai/:id/records/new へのナビゲーション
+        Router->>User: 作業記録作成画面を表示
+    end
+```
+
 ### 盆栽情報更新フロー
 
 ```mermaid

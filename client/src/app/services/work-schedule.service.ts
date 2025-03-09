@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { ApiService } from './api.service';
 import { 
   WorkSchedule, 
@@ -43,7 +44,28 @@ export class WorkScheduleService {
       params.nextToken = nextToken;
     }
     
-    return this.apiService.get<WorkScheduleListResponse>(`bonsai/${bonsaiId}/schedules`, params);
+    // APIからのレスポンスを処理して、必ずWorkScheduleListResponse型に変換する
+    return this.apiService.get<any>(`bonsai/${bonsaiId}/schedules`, params)
+      .pipe(
+        map((response: any) => {
+          // レスポンスがnullまたはundefinedの場合、空のレスポンスを返す
+          if (!response) {
+            return { items: [] };
+          }
+          
+          // レスポンスがWorkScheduleListResponse型に準拠しているか確認
+          if (!response.items || !Array.isArray(response.items)) {
+            // itemsプロパティがない場合や配列でない場合、空の配列を設定
+            return { 
+              items: [],
+              nextToken: response.nextToken
+            };
+          }
+          
+          // 正常なレスポンスの場合はそのまま返す
+          return response as WorkScheduleListResponse;
+        })
+      );
   }
 
   /**

@@ -43,11 +43,33 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     // Lambda Function URLの場合
     if ((event as any).rawPath) {
       path = (event as any).rawPath;
+      console.log('Lambda Function URL rawPath:', path);
     }
     
     // Lambda Function URLの場合
     if ((event as any).requestContext && (event as any).requestContext.http && (event as any).requestContext.http.method) {
       method = (event as any).requestContext.http.method;
+      console.log('Lambda Function URL method:', method);
+    }
+    
+    // クエリパラメータの処理
+    if (!event.queryStringParameters && (event as any).rawQueryString) {
+      const rawQueryString = (event as any).rawQueryString;
+      console.log('Lambda Function URL rawQueryString:', rawQueryString);
+      
+      // クエリパラメータをパース
+      const queryParams: { [key: string]: string } = {};
+      if (rawQueryString) {
+        rawQueryString.split('&').forEach((param: string) => {
+          const [key, value] = param.split('=');
+          if (key && value) {
+            queryParams[key] = decodeURIComponent(value);
+          }
+        });
+      }
+      
+      // イベントオブジェクトにクエリパラメータを設定
+      event.queryStringParameters = queryParams;
     }
     
     console.log(`リクエスト: ${method} ${path}`);
@@ -70,9 +92,10 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     }
     
     // 盆栽詳細のエンドポイント
-    const bonsaiDetailMatch = path.match(/^\/api\/bonsai\/([^\/]+)$/);
+    const bonsaiDetailMatch = path.match(/^\/api\/bonsai\/([^\/\?]+)/);
     if (bonsaiDetailMatch) {
       const bonsaiId = bonsaiDetailMatch[1];
+      console.log('盆栽詳細 bonsaiId:', bonsaiId);
       event.pathParameters = { ...event.pathParameters, bonsaiId };
       
       if (method === 'GET') {
@@ -85,9 +108,10 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     }
     
     // 作業記録一覧のエンドポイント
-    const workRecordListMatch = path.match(/^\/api\/bonsai\/([^\/]+)\/records$/);
+    const workRecordListMatch = path.match(/^\/api\/bonsai\/([^\/\?]+)\/records/);
     if (workRecordListMatch) {
       const bonsaiId = workRecordListMatch[1];
+      console.log('作業記録一覧 bonsaiId:', bonsaiId);
       event.pathParameters = { ...event.pathParameters, bonsaiId };
       
       if (method === 'GET') {
@@ -98,9 +122,10 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     }
     
     // 作業記録詳細のエンドポイント
-    const workRecordDetailMatch = path.match(/^\/api\/records\/([^\/]+)$/);
+    const workRecordDetailMatch = path.match(/^\/api\/records\/([^\/\?]+)/);
     if (workRecordDetailMatch) {
       const recordId = workRecordDetailMatch[1];
+      console.log('作業記録詳細 recordId:', recordId);
       event.pathParameters = { ...event.pathParameters, recordId };
       
       if (method === 'GET') {
@@ -113,9 +138,11 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     }
     
     // 作業予定一覧のエンドポイント
-    const workScheduleListMatch = path.match(/^\/api\/bonsai\/([^\/]+)\/schedules$/);
+    // クエリパラメータを含まないパスパターンに変更
+    const workScheduleListMatch = path.match(/^\/api\/bonsai\/([^\/\?]+)\/schedules/);
     if (workScheduleListMatch) {
       const bonsaiId = workScheduleListMatch[1];
+      console.log('作業予定一覧 bonsaiId:', bonsaiId);
       event.pathParameters = { ...event.pathParameters, bonsaiId };
       
       if (method === 'GET') {
@@ -126,9 +153,10 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     }
     
     // 作業予定詳細のエンドポイント
-    const workScheduleDetailMatch = path.match(/^\/api\/schedules\/([^\/]+)$/);
+    const workScheduleDetailMatch = path.match(/^\/api\/schedules\/([^\/\?]+)/);
     if (workScheduleDetailMatch) {
       const scheduleId = workScheduleDetailMatch[1];
+      console.log('作業予定詳細 scheduleId:', scheduleId);
       event.pathParameters = { ...event.pathParameters, scheduleId };
       
       if (method === 'GET') {

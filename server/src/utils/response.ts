@@ -15,6 +15,12 @@ import { AppError } from './errors';
  * @returns APIGatewayProxyResult
  */
 export function createSuccessResponse(data: any, statusCode: number = 200): APIGatewayProxyResult {
+  // レスポンスデータをログに出力
+  console.log('APIレスポンス:', {
+    statusCode,
+    data
+  });
+  
   return {
     statusCode,
     headers: {
@@ -33,27 +39,47 @@ export function createSuccessResponse(data: any, statusCode: number = 200): APIG
 export function createErrorResponse(error: Error): APIGatewayProxyResult {
   console.error('エラー:', error);
   
+  let response: APIGatewayProxyResult;
+  
   if (error instanceof AppError) {
-    return {
+    const errorResponse = error.toResponse();
+    
+    // エラーレスポンスをログに出力
+    console.log('APIエラーレスポンス:', {
+      statusCode: error.statusCode,
+      error: errorResponse
+    });
+    
+    response = {
       statusCode: error.statusCode,
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(error.toResponse())
+      body: JSON.stringify(errorResponse)
     };
-  }
-  
-  // 未知のエラーの場合は500エラーを返す
-  return {
-    statusCode: 500,
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
+  } else {
+    // 未知のエラーの場合は500エラーを返す
+    const errorResponse = {
       error: {
         code: 'INTERNAL_ERROR',
         message: 'サーバー内部エラーが発生しました'
       }
-    })
-  };
+    };
+    
+    // エラーレスポンスをログに出力
+    console.log('APIエラーレスポンス:', {
+      statusCode: 500,
+      error: errorResponse
+    });
+    
+    response = {
+      statusCode: 500,
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(errorResponse)
+    };
+  }
+  
+  return response;
 }

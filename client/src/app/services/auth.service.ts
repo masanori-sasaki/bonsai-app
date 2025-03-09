@@ -464,8 +464,10 @@ export class AuthService {
   completeNewPasswordChallenge(cognitoUser: any, newPassword: string): Observable<User> {
     return new Observable<User>(observer => {
       try {
-        // 必須の属性を設定（必要に応じて変更）
-        const requiredAttributes = {};
+        // 必須の属性を設定（nameが必須）- 固定値を使用
+        const requiredAttributes = {
+          name: 'User'
+        };
         
         Auth.completeNewPassword(
           cognitoUser,

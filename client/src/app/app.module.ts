@@ -22,6 +22,7 @@ import { WorkRecordDetailComponent } from './components/work-record/work-record-
 
 // 作業予定関連コンポーネント
 import { WorkScheduleListComponent } from './components/work-schedule/work-schedule-list/work-schedule-list.component';
+import { WorkScheduleDetailComponent } from './components/work-schedule/work-schedule-detail/work-schedule-detail.component';
 import { WorkRecordFormComponent } from './components/work-record/work-record-form/work-record-form.component';
 import { WorkScheduleFormComponent } from './components/work-schedule/work-schedule-form/work-schedule-form.component';
 
@@ -35,6 +36,7 @@ import { WorkScheduleFormComponent } from './components/work-schedule/work-sched
     WorkRecordListComponent,
     WorkRecordDetailComponent,
     WorkScheduleListComponent,
+    WorkScheduleDetailComponent,
     WorkRecordFormComponent,
     WorkScheduleFormComponent
   ],

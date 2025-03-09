@@ -364,8 +364,8 @@ export class WorkScheduleFormComponent implements OnInit {
         .subscribe({
           next: (createdSchedule) => {
             this.saving = false;
-            // 作業予定詳細ページに遷移
-            this.router.navigate(['/schedules', createdSchedule.id]);
+            // 作業予定一覧ページに遷移
+            this.router.navigate(['/bonsai', this.bonsaiId, 'schedules']);
           },
           error: (error) => {
             this.saving = false;
@@ -379,8 +379,8 @@ export class WorkScheduleFormComponent implements OnInit {
         .subscribe({
           next: (updatedSchedule) => {
             this.saving = false;
-            // 作業予定詳細ページに遷移
-            this.router.navigate(['/schedules', this.scheduleId]);
+            // 作業予定一覧ページに遷移
+            this.router.navigate(['/bonsai', this.bonsaiId, 'schedules']);
           },
           error: (error) => {
             this.saving = false;
@@ -448,12 +448,7 @@ export class WorkScheduleFormComponent implements OnInit {
    * キャンセルして前の画面に戻る
    */
   cancel(): void {
-    if (this.isEditMode) {
-      // 編集モードの場合は作業予定詳細ページに戻る
-      this.router.navigate(['/schedules', this.scheduleId]);
-    } else {
-      // 新規作成モードの場合は盆栽詳細ページに戻る
-      this.router.navigate(['/bonsai', this.bonsaiId]);
-    }
+    // 盆栽詳細ページに戻る
+    this.router.navigate(['/bonsai', this.bonsaiId]);
   }
 }

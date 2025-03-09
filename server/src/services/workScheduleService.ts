@@ -34,9 +34,13 @@ export async function listWorkSchedules(
   
   // すべての作業予定を取得
   const allSchedules = await workScheduleStore.getAll();
+  console.log('DynamoDBから取得した作業予定データ:', JSON.stringify(allSchedules, null, 2));
   
   // 盆栽IDに紐づく作業予定をフィルタリング
-  let schedules = allSchedules.filter(schedule => schedule.bonsaiId === bonsaiId);
+  let schedules = allSchedules.filter(schedule => {
+    console.log(`フィルタリング比較: schedule.bonsaiId=${schedule.bonsaiId}, bonsaiId=${bonsaiId}, 一致=${schedule.bonsaiId === bonsaiId}`);
+    return schedule.bonsaiId === bonsaiId;
+  });
   
   // 完了状態でフィルタリング
   if (completed !== undefined) {
@@ -70,8 +74,9 @@ export async function listWorkSchedules(
     responseNextToken = Buffer.from(JSON.stringify(tokenData)).toString('base64');
   }
   
+  // 必ず items が配列であることを保証する
   return {
-    items,
+    items: Array.isArray(items) ? items : [],
     nextToken: responseNextToken
   };
 }

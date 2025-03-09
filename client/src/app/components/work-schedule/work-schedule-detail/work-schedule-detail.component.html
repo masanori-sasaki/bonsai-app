@@ -1,0 +1,107 @@
+<div class="work-schedule-detail-container">
+  <div class="work-schedule-detail-header">
+    <button class="btn btn-outline-secondary" (click)="goBack()">
+      <i class="fas fa-arrow-left"></i> 戻る
+    </button>
+    <h2 *ngIf="workSchedule">{{ workTypeLabels[workSchedule.workType] }}の予定</h2>
+    <div class="work-schedule-actions" *ngIf="workSchedule">
+      <button class="btn btn-primary" (click)="editWorkSchedule()">
+        <i class="fas fa-edit"></i> 編集
+      </button>
+      <button class="btn btn-danger" (click)="deleteWorkSchedule()">
+        <i class="fas fa-trash"></i> 削除
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+
+  <div *ngIf="loading" class="loading-container">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">読み込み中...</span>
+    </div>
+    <p>作業予定を読み込んでいます...</p>
+  </div>
+
+  <div *ngIf="!loading && workSchedule && bonsai" class="work-schedule-detail-content">
+    <div class="bonsai-info" (click)="viewBonsai()">
+      <div class="bonsai-image" *ngIf="bonsai.imageUrls && bonsai.imageUrls.length > 0">
+        <img [src]="bonsai.imageUrls[0]" alt="{{ bonsai.name }}">
+      </div>
+      <div class="bonsai-image no-image" *ngIf="!bonsai.imageUrls || bonsai.imageUrls.length === 0">
+        <i class="fas fa-tree"></i>
+      </div>
+      <div class="bonsai-details">
+        <h3>{{ bonsai.name }}</h3>
+        <p>{{ bonsai.species }}</p>
+      </div>
+      <div class="view-bonsai-link">
+        <i class="fas fa-chevron-right"></i>
+      </div>
+    </div>
+
+    <div class="work-schedule-status">
+      <div class="status-badge" [ngClass]="{'completed': workSchedule.completed, 'pending': !workSchedule.completed}">
+        {{ workSchedule.completed ? '完了' : '未完了' }}
+      </div>
+      <button class="btn" [ngClass]="{'btn-success': !workSchedule.completed, 'btn-secondary': workSchedule.completed}" (click)="toggleCompleted()">
+        <i class="fas" [ngClass]="{'fa-check-circle': !workSchedule.completed, 'fa-undo': workSchedule.completed}"></i>
+        {{ workSchedule.completed ? '未完了に戻す' : '完了にする' }}
+      </button>
+    </div>
+
+    <div class="work-schedule-info">
+      <div class="info-row">
+        <div class="info-label">作業タイプ</div>
+        <div class="info-value">{{ workTypeLabels[workSchedule.workType] }}</div>
+      </div>
+      <div class="info-row">
+        <div class="info-label">予定日</div>
+        <div class="info-value">{{ workSchedule.scheduledDate | date:'yyyy年MM月dd日' }}</div>
+      </div>
+      <div class="info-row" *ngIf="workSchedule.startTime">
+        <div class="info-label">開始時間</div>
+        <div class="info-value">{{ workSchedule.startTime }}</div>
+      </div>
+      <div class="info-row" *ngIf="workSchedule.endTime">
+        <div class="info-label">終了時間</div>
+        <div class="info-value">{{ workSchedule.endTime }}</div>
+      </div>
+      <div class="info-row" *ngIf="workSchedule.isAllDay !== undefined">
+        <div class="info-label">終日</div>
+        <div class="info-value">{{ workSchedule.isAllDay ? 'はい' : 'いいえ' }}</div>
+      </div>
+      <div class="info-row" *ngIf="workSchedule.priority">
+        <div class="info-label">優先度</div>
+        <div class="info-value">
+          <span class="priority-badge" [ngClass]="'priority-' + workSchedule.priority">
+            {{ priorityLabels[workSchedule.priority] }}
+          </span>
+        </div>
+      </div>
+      <div class="info-row" *ngIf="workSchedule.recurrencePattern">
+        <div class="info-label">繰り返し</div>
+        <div class="info-value">{{ getRecurrenceDescription() }}</div>
+      </div>
+      <div class="info-row" *ngIf="workSchedule.reminderDays">
+        <div class="info-label">リマインダー</div>
+        <div class="info-value">{{ workSchedule.reminderDays }}日前</div>
+      </div>
+      <div class="info-row">
+        <div class="info-label">作業内容</div>
+        <div class="info-value description-text">{{ workSchedule.description }}</div>
+      </div>
+    </div>
+
+    <div class="work-schedule-meta">
+      <div class="meta-item">
+        <span class="meta-label">作成日時:</span>
+        <span class="meta-value">{{ workSchedule.createdAt | date:'yyyy年MM月dd日 HH:mm' }}</span>
+      </div>
+      <div class="meta-item" *ngIf="workSchedule.updatedAt !== workSchedule.createdAt">
+        <span class="meta-label">更新日時:</span>
+        <span class="meta-value">{{ workSchedule.updatedAt | date:'yyyy年MM月dd日 HH:mm' }}</span>
+      </div>
+    </div>
+  </div>
+</div>

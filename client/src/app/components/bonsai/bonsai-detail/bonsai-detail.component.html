@@ -67,12 +67,34 @@
             <div class="info-label">登録日</div>
             <div class="info-value">{{ bonsai.registrationDate | date:'yyyy年MM月dd日' }}</div>
           </div>
-          <div class="info-row" *ngIf="bonsai.history">
-            <div class="info-label">来歴</div>
-            <div class="info-value history-text">{{ bonsai.history }}</div>
+        <div class="info-row" *ngIf="bonsai.history">
+          <div class="info-label">来歴</div>
+          <div class="info-value history-text">{{ bonsai.history }}</div>
+        </div>
+
+        <!-- 最新の作業記録3件 -->
+        <div class="info-row recent-works">
+          <div class="info-label">最新の作業記録</div>
+          <div class="info-value">
+            <div class="recent-works-list" *ngIf="bonsai.recentWorks && bonsai.recentWorks.length > 0">
+              <div class="recent-work-item" *ngFor="let record of bonsai.recentWorks.slice(0, 3)" (click)="viewWorkRecord(record.id)">
+                <div class="work-type-badge">{{ getWorkTypeLabel(record.workType) }}</div>
+                <div class="work-date">{{ record.date | date:'yyyy年MM月dd日' }}</div>
+                <div class="work-action">
+                  <i class="fas fa-chevron-right"></i>
+                </div>
+              </div>
+            </div>
+            <div class="no-recent-works" *ngIf="!bonsai.recentWorks || bonsai.recentWorks.length === 0">
+              <p>作業記録がありません</p>
+              <button class="btn btn-sm btn-outline-primary" (click)="createWorkRecord()">
+                作業記録を追加
+              </button>
+            </div>
           </div>
         </div>
       </div>
+    </div>
     </div>
 
     <!-- 基本情報タブ - 編集モード -->

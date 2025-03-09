@@ -12,6 +12,7 @@ import { WorkRecordDetailComponent } from './components/work-record/work-record-
 import { WorkRecordFormComponent } from './components/work-record/work-record-form/work-record-form.component';
 import { WorkScheduleListComponent } from './components/work-schedule/work-schedule-list/work-schedule-list.component';
 import { WorkScheduleFormComponent } from './components/work-schedule/work-schedule-form/work-schedule-form.component';
+import { WorkScheduleDetailComponent } from './components/work-schedule/work-schedule-detail/work-schedule-detail.component';
 
 const routes: Routes = [
   // 認証関連
@@ -76,7 +77,7 @@ const routes: Routes = [
   },
   { 
     path: 'schedules/:id', 
-    component: WorkScheduleListComponent,
+    component: WorkScheduleDetailComponent,
     canActivate: [AuthGuard]
   },
   { 

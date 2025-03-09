@@ -180,6 +180,87 @@ $m:575px;
       &.history-text{white-space:pre-line}
     }
   }
+  
+  // 最新の作業記録スタイル
+  .info-row.recent-works {
+    flex-direction: column;
+    
+    .info-label {
+      width: 100%;
+      margin-bottom: 10px;
+      font-size: 1.05rem;
+    }
+    
+    .info-value {
+      width: 100%;
+    }
+    
+    .recent-works-list {
+      border: 1px solid $bg-dark;
+      border-radius: 6px;
+      overflow: hidden;
+      
+      .recent-work-item {
+        display: flex;
+        align-items: center;
+        padding: 12px 15px;
+        border-bottom: 1px solid $bg-dark;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        
+        &:last-child {
+          border-bottom: none;
+        }
+        
+        &:hover {
+          background-color: $hover-bg;
+        }
+        
+        .work-type-badge {
+          background-color: $primary;
+          color: white;
+          padding: 4px 8px;
+          border-radius: 4px;
+          font-size: 0.85rem;
+          margin-right: 15px;
+          min-width: 60px;
+          text-align: center;
+          
+          @include m {
+            font-size: 0.8rem;
+            padding: 3px 6px;
+            margin-right: 10px;
+            min-width: 50px;
+          }
+        }
+        
+        .work-date {
+          flex-grow: 1;
+          color: $text-medium;
+          
+          @include m {
+            font-size: 0.9rem;
+          }
+        }
+        
+        .work-action {
+          color: $text-light;
+        }
+      }
+    }
+    
+    .no-recent-works {
+      text-align: center;
+      padding: 20px;
+      background-color: $bg-light;
+      border-radius: 6px;
+      
+      p {
+        color: $text-light;
+        margin-bottom: 15px;
+      }
+    }
+  }
 }
 
 .tab-header{

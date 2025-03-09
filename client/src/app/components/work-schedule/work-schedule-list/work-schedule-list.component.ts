@@ -65,6 +65,13 @@ export class WorkScheduleListComponent implements OnInit {
    * 作業予定一覧を読み込む
    */
   loadWorkSchedules(): void {
+    if (!this.bonsaiId) {
+      console.error('盆栽IDが指定されていません');
+      this.error = '盆栽IDが指定されていません。';
+      this.loading = false;
+      return;
+    }
+
     this.loading = true;
     this.workScheduleService.getWorkScheduleList(
       this.bonsaiId,
@@ -74,10 +81,27 @@ export class WorkScheduleListComponent implements OnInit {
     )
       .subscribe({
         next: (response: WorkScheduleListResponse) => {
-          this.workSchedules = [...this.workSchedules, ...response.items];
-          this.nextToken = response.nextToken;
-          this.hasMore = !!response.nextToken;
-          this.loading = false;
+          try {
+            // レスポンスのitemsプロパティが存在し、配列であることを確認
+            const items = response && response.items && Array.isArray(response.items) 
+              ? response.items 
+              : [];
+            
+            // スプレッド演算子を使わずに配列を結合
+            if (items.length > 0) {
+              for (const item of items) {
+                this.workSchedules.push(item);
+              }
+            }
+            
+            this.nextToken = response?.nextToken;
+            this.hasMore = !!this.nextToken;
+          } catch (err) {
+            console.error('レスポンス処理エラー:', err);
+            this.error = 'データの処理中にエラーが発生しました。';
+          } finally {
+            this.loading = false;
+          }
         },
         error: (error) => {
           this.error = '作業予定の取得に失敗しました。';
@@ -156,12 +180,12 @@ export class WorkScheduleListComponent implements OnInit {
   }
 
   /**
-   * 作業予定詳細ページに遷移
+   * 作業予定編集ページに遷移
    * 
    * @param scheduleId 作業予定ID
    */
   viewWorkSchedule(scheduleId: string): void {
-    this.router.navigate(['/schedules', scheduleId]);
+    this.router.navigate(['/schedules', scheduleId, 'edit']);
   }
 
   /**

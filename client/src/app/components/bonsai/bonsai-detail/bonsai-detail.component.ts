@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BonsaiService } from '../../../services/bonsai.service';
+import { WorkRecordService } from '../../../services/work-record.service';
 import { ImageUploadService } from '../../../services/image-upload.service';
 import { BonsaiDetail } from '../../../models/bonsai.model';
 import { WORK_TYPE_LABELS, WorkType } from '../../../models/work-record.model';
@@ -29,6 +30,7 @@ export class BonsaiDetailComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private bonsaiService: BonsaiService,
+    private workRecordService: WorkRecordService,
     private imageUploadService: ImageUploadService
   ) { }
 
@@ -48,6 +50,7 @@ export class BonsaiDetailComponent implements OnInit {
           // 空の盆栽データを作成
           this.bonsai = {
             id: 'new',
+            userId: '', // ユーザーIDを追加（実際の値は保存時に設定される）
             name: '',
             species: '',
             registrationDate: new Date().toISOString(),
@@ -140,7 +143,45 @@ export class BonsaiDetailComponent implements OnInit {
       .subscribe({
         next: (bonsai: BonsaiDetail) => {
           this.bonsai = bonsai;
-          this.loading = false;
+          
+          // recentWorksとupcomingWorksが未定義の場合は空の配列を設定
+          if (!this.bonsai.recentWorks) {
+            this.bonsai.recentWorks = [];
+          }
+          if (!this.bonsai.upcomingWorks) {
+            this.bonsai.upcomingWorks = [];
+          }
+          
+          // 盆栽に関連する作業記録を取得
+          this.workRecordService.getWorkRecordList(this.bonsaiId)
+            .subscribe({
+              next: (response) => {
+          // 作業記録を日付の降順でソート（itemsが存在する場合のみ）
+          const sortedRecords = response.items ? response.items.sort(
+            (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+          ) : [];
+                
+                // 盆栽データに最新の作業記録を設定
+                if (this.bonsai) {
+                  this.bonsai.recentWorks = sortedRecords.map(record => ({
+                    id: record.id,
+                    workType: record.workType,
+                    date: record.date
+                  }));
+                  // recentWorksが未定義の場合は空の配列を設定
+                  if (!this.bonsai.recentWorks) {
+                    this.bonsai.recentWorks = [];
+                  }
+                }
+                
+                this.loading = false;
+              },
+              error: (error) => {
+                console.error('作業記録取得エラー:', error);
+                // 作業記録の取得に失敗しても、盆栽詳細は表示する
+                this.loading = false;
+              }
+            });
         },
         error: (error) => {
           this.error = '盆栽詳細の取得に失敗しました。';
@@ -288,12 +329,12 @@ export class BonsaiDetailComponent implements OnInit {
   }
 
   /**
-   * 作業予定詳細ページに遷移
+   * 作業予定編集ページに遷移
    * 
    * @param scheduleId 作業予定ID
    */
   viewWorkSchedule(scheduleId: string): void {
-    this.router.navigate(['/schedules', scheduleId]);
+    this.router.navigate(['/schedules', scheduleId, 'edit']);
   }
 
   /**

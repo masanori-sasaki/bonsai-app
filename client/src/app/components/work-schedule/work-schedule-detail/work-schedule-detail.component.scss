@@ -1,0 +1,256 @@
+@import 'src/assets/scss/variables';
+
+.work-schedule-detail-container {
+  padding: 20px 0;
+}
+
+.work-schedule-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  
+  h2 {
+    margin: 0;
+    flex-grow: 1;
+    text-align: center;
+  }
+  
+  .work-schedule-actions {
+    display: flex;
+    gap: 10px;
+  }
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 0;
+  
+  .spinner-border {
+    margin-bottom: 15px;
+  }
+}
+
+.work-schedule-detail-content {
+  background-color: $card-bg;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px $card-shadow;
+  padding: 15px;
+}
+
+.bonsai-info {
+  display: flex;
+  align-items: center;
+  padding: 15px;
+  background-color: $bg-light;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  
+  &:hover {
+    background-color: $hover-bg;
+  }
+  
+  .bonsai-image {
+    width: 60px;
+    height: 60px;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-right: 15px;
+    
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+  
+  .bonsai-image.no-image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    background-color: $bg-dark;
+    color: $text-light;
+    font-size: 24px;
+  }
+  
+  .bonsai-details {
+    flex-grow: 1;
+    
+    h3 {
+      margin: 0 0 5px 0;
+      font-size: 18px;
+      color: $text-dark;
+    }
+    
+    p {
+      margin: 0;
+      font-size: 14px;
+      color: $text-light;
+    }
+  }
+  
+  .view-bonsai-link {
+    color: $text-light;
+  }
+}
+
+.work-schedule-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 15px;
+  background-color: $bg-light;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  
+  .status-badge {
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 14px;
+  }
+  
+  .status-badge.completed {
+    background-color: $success;
+    color: $white;
+  }
+  
+  .status-badge.pending {
+    background-color: $warning;
+    color: $white;
+  }
+}
+
+.work-schedule-info {
+  padding: 20px;
+  
+  .info-row {
+    display: flex;
+    margin-bottom: 15px;
+    
+    .info-label {
+      width: 100px;
+      font-weight: 600;
+      color: $text-medium;
+    }
+    
+    .info-value {
+      flex-grow: 1;
+      color: $text-dark;
+    }
+    
+    .info-value.description-text {
+      white-space: pre-line;
+    }
+  }
+  
+  .priority-badge {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  
+  .priority-badge.priority-high {
+    background-color: $error;
+    color: $white;
+  }
+  
+  .priority-badge.priority-medium {
+    background-color: $warning;
+    color: $white;
+  }
+  
+  .priority-badge.priority-low {
+    background-color: $info;
+    color: $white;
+  }
+}
+
+.work-schedule-meta {
+  padding: 15px 20px;
+  background-color: $bg-light;
+  font-size: 12px;
+  color: $text-light;
+  border-radius: 8px;
+  margin-top: 15px;
+  
+  .meta-item {
+    margin-bottom: 5px;
+  }
+  
+  .meta-item:last-child {
+    margin-bottom: 0;
+  }
+  
+  .meta-label {
+    margin-right: 5px;
+    font-weight: 600;
+  }
+}
+
+.alert {
+  margin-bottom: 20px;
+}
+
+@media (max-width: 768px) {
+  .work-schedule-detail-header {
+    flex-direction: column;
+    gap: 10px;
+    
+    h2 {
+      margin-bottom: 10px;
+    }
+    
+    .work-schedule-actions {
+      width: 100%;
+      
+      button {
+        flex: 1;
+      }
+    }
+  }
+  
+  .bonsai-info {
+    flex-direction: column;
+    text-align: center;
+    
+    .bonsai-image {
+      margin-right: 0;
+      margin-bottom: 10px;
+    }
+    
+    .view-bonsai-link {
+      margin-top: 10px;
+    }
+  }
+  
+  .work-schedule-status {
+    flex-direction: column;
+    gap: 10px;
+    
+    .status-badge {
+      align-self: center;
+    }
+    
+    button {
+      width: 100%;
+    }
+  }
+  
+  .info-row {
+    flex-direction: column;
+    
+    .info-label {
+      width: 100%;
+      margin-bottom: 5px;
+    }
+  }
+}
