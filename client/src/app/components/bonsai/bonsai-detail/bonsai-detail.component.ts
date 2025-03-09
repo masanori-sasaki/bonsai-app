@@ -4,7 +4,7 @@ import { BonsaiService } from '../../../services/bonsai.service';
 import { WorkRecordService } from '../../../services/work-record.service';
 import { ImageUploadService } from '../../../services/image-upload.service';
 import { BonsaiDetail } from '../../../models/bonsai.model';
-import { WORK_TYPE_LABELS, WorkType } from '../../../models/work-record.model';
+import { WORK_TYPE_LABELS, WorkType, WorkRecord } from '../../../models/work-record.model';
 
 @Component({
   selector: 'app-bonsai-detail',
@@ -19,6 +19,11 @@ export class BonsaiDetailComponent implements OnInit {
   workTypeLabels = WORK_TYPE_LABELS;
   activeTab = 'info'; // 'info', 'records', 'schedules'
   isEditMode = false;
+  
+  // 作業記録タブ用のプロパティ
+  workRecords: WorkRecord[] = [];
+  workRecordsLoading = false;
+  workRecordsError = '';
 
   // 画像アップロード関連のプロパティ
   imagePreview: string | null = null;
@@ -198,6 +203,38 @@ export class BonsaiDetailComponent implements OnInit {
    */
   changeTab(tabId: string): void {
     this.activeTab = tabId;
+    
+    // 作業記録タブが選択された場合、作業記録一覧を取得
+    if (tabId === 'records' && this.bonsaiId && this.bonsaiId !== 'new') {
+      this.loadWorkRecords();
+    }
+  }
+  
+  /**
+   * 作業記録一覧を取得
+   */
+  loadWorkRecords(): void {
+    if (!this.bonsaiId) return;
+    
+    this.workRecordsLoading = true;
+    this.workRecordsError = '';
+    this.workRecords = [];
+    
+    this.workRecordService.getWorkRecordList(this.bonsaiId)
+      .subscribe({
+        next: (response) => {
+          // 作業記録を日付の降順でソート
+          this.workRecords = response.items ? response.items.sort(
+            (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+          ) : [];
+          this.workRecordsLoading = false;
+        },
+        error: (error) => {
+          this.workRecordsError = '作業記録の取得に失敗しました。';
+          console.error('作業記録取得エラー:', error);
+          this.workRecordsLoading = false;
+        }
+      });
   }
 
   /**
