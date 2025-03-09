@@ -15,6 +15,11 @@ export const WORK_TYPE_LABELS: Record<WorkType, string> = {
 };
 
 /**
+ * 優先度タイプ
+ */
+export type PriorityType = 'high' | 'medium' | 'low';
+
+/**
  * 作業記録モデル
  */
 export interface WorkRecord {
@@ -26,6 +31,13 @@ export interface WorkRecord {
   imageUrls: string[];    // 作業前後の画像URL配列
   createdAt: string;      // ISO 8601形式
   updatedAt: string;      // ISO 8601形式
+  
+  // カレンダー表示用の拡張プロパティ（オプション）
+  startTime?: string;     // 開始時間（HH:mm形式）
+  endTime?: string;       // 終了時間（HH:mm形式）
+  isAllDay?: boolean;     // 終日イベントフラグ
+  priority?: PriorityType; // 優先度（高、中、低）
+  colorCode?: string;     // 表示色（CSS色コード）
 }
 
 /**
@@ -45,6 +57,13 @@ export interface CreateWorkRecordRequest {
   date: string;
   description: string;
   imageUrls?: string[];
+  
+  // カレンダー表示用の拡張プロパティ（オプション）
+  startTime?: string;
+  endTime?: string;
+  isAllDay?: boolean;
+  priority?: PriorityType;
+  colorCode?: string;
 }
 
 /**
@@ -55,4 +74,11 @@ export interface UpdateWorkRecordRequest {
   date?: string;
   description?: string;
   imageUrls?: string[];
+  
+  // カレンダー表示用の拡張プロパティ（オプション）
+  startTime?: string;
+  endTime?: string;
+  isAllDay?: boolean;
+  priority?: PriorityType;
+  colorCode?: string;
 }

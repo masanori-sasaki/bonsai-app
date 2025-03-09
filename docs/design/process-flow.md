@@ -154,7 +154,7 @@ sequenceDiagram
     User->>Client: 編集フォームで盆栽情報を編集
     User->>Client: 画像ファイル選択/変更
     Client->>ImageService: 画像ファイル渡し
-    ImageService->>ImageService: 画像形式検証（JPG/PNG/GIF）
+    ImageService->>ImageService: 画像形式検証（JPG/PNG/GIF/WebP）
     ImageService->>ImageService: 画像リサイズ・圧縮
     ImageService->>Client: 処理済み画像返却
     Client->>Client: 画像プレビュー表示
@@ -194,9 +194,12 @@ sequenceDiagram
     participant DynamoDB as DynamoDB
 
     User->>Client: 作業記録フォーム入力
+    User->>Client: 作業タイプ、日付、内容入力
+    User->>Client: カレンダー機能用の拡張情報入力
+    note right of User: 終日イベントフラグ、開始/終了時間、優先度など
     User->>Client: 画像ファイル選択
     Client->>ImageService: 画像ファイル渡し
-    ImageService->>ImageService: 画像形式検証（JPG/PNG/GIF）
+    ImageService->>ImageService: 画像形式検証（JPG/PNG/GIF/WebP）
     ImageService->>ImageService: 画像リサイズ・圧縮
     ImageService->>Client: 処理済み画像返却
     Client->>Client: 画像プレビュー表示
@@ -211,7 +214,7 @@ sequenceDiagram
         Client->>Client: 公開URLを作業記録データに設定
     end
     
-    Client->>API: 作業記録登録リクエスト
+    Client->>API: 作業記録登録リクエスト（カレンダー拡張情報含む）
     API->>DynamoDB: 盆栽存在確認
     DynamoDB->>API: 盆栽情報
     API->>DynamoDB: 作業記録データ保存
@@ -272,8 +275,15 @@ sequenceDiagram
     participant DynamoDB as DynamoDB
 
     User->>Client: 作業予定フォーム入力
+    User->>Client: 作業タイプ、予定日、内容入力
+    User->>Client: カレンダー機能用の拡張情報入力
+    note right of User: 終日イベントフラグ、開始/終了時間、優先度
+    User->>Client: 繰り返しパターン設定
+    note right of User: 繰り返しタイプ、間隔、終了条件など
+    User->>Client: リマインダー設定
+    note right of User: 何日前に通知するかなど
     Client->>Client: 入力バリデーション
-    Client->>API: 作業予定登録リクエスト
+    Client->>API: 作業予定登録リクエスト（カレンダー拡張情報含む）
     API->>DynamoDB: 盆栽存在確認
     DynamoDB->>API: 盆栽情報
     API->>DynamoDB: 作業予定データ保存

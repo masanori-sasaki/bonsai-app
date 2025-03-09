@@ -90,20 +90,26 @@ export class BonsaiDetailComponent implements OnInit {
     if (input.files && input.files.length > 0) {
       const file = input.files[0];
       
-      // ファイルサイズチェック（クライアント側でも確認）
-      if (file.size > 2 * 1024 * 1024) {
-        this.uploadError = 'ファイルサイズが大きすぎます（最大2MB）';
+      // ファイルサイズチェック（非常に大きなファイルのみ制限）
+      const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+      if (file.size > MAX_FILE_SIZE) {
+        this.uploadError = `ファイルサイズが大きすぎます（最大${MAX_FILE_SIZE / (1024 * 1024)}MB）。より小さいファイルを選択してください。`;
         return;
       }
       
       // ファイル形式チェック
-      if (!['image/jpeg', 'image/png', 'image/gif'].includes(file.type)) {
-        this.uploadError = 'サポートされていない画像形式です（JPG、PNG、GIF形式のみ）';
+      if (!['image/jpeg', 'image/png', 'image/gif', 'image/webp'].includes(file.type)) {
+        this.uploadError = 'サポートされていない画像形式です（JPG、PNG、GIF、WebP形式のみ）';
         return;
       }
       
       this.imageFile = file;
       this.uploadError = null;
+      
+      // 大きなファイルの場合は注意メッセージを表示
+      if (file.size > 2 * 1024 * 1024) {
+        console.log(`大きなファイル（${(file.size / (1024 * 1024)).toFixed(2)}MB）が選択されました。アップロード時に自動的に圧縮されます。`);
+      }
       
       // プレビュー表示
       const reader = new FileReader();

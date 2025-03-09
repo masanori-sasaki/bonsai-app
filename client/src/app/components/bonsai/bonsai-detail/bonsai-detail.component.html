@@ -116,9 +116,10 @@
               <label for="imageUpload" class="upload-label">
                 <i class="fas fa-cloud-upload-alt"></i>
                 <span>画像をアップロード</span>
-                <small>JPG, PNG, GIF形式（最大2MB）</small>
+                <small>JPG, PNG, GIF, WebP形式（最大10MB）</small>
+                <small>※大きな画像は自動的に圧縮されます</small>
               </label>
-              <input type="file" id="imageUpload" accept="image/jpeg,image/png,image/gif" 
+              <input type="file" id="imageUpload" accept="image/jpeg,image/png,image/gif,image/webp" 
                      (change)="onImageSelected($event)" style="display: none;">
             </div>
           </div>

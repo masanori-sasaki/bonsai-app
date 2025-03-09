@@ -1,0 +1,126 @@
+<div class="work-record-form-container">
+  <div class="form-header">
+    <h2 *ngIf="!isEditMode">作業記録の追加</h2>
+    <h2 *ngIf="isEditMode">作業記録の編集</h2>
+    <div *ngIf="bonsai" class="bonsai-info">
+      <span>盆栽: {{ bonsai.name }}</span>
+    </div>
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+
+  <div *ngIf="loading" class="loading-container">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">読み込み中...</span>
+    </div>
+    <p>データを読み込んでいます...</p>
+  </div>
+
+  <form [formGroup]="recordForm" (ngSubmit)="saveWorkRecord()" *ngIf="!loading" class="record-form">
+    <!-- 作業タイプ -->
+    <div class="mb-3">
+      <label for="workType" class="form-label">作業タイプ <span class="required">*</span></label>
+      <select id="workType" formControlName="workType" class="form-select" [class.is-invalid]="recordForm.get('workType')?.invalid && recordForm.get('workType')?.touched">
+        <option *ngFor="let type of workTypes" [value]="type">{{ workTypeLabels[type] }}</option>
+      </select>
+      <div class="invalid-feedback" *ngIf="recordForm.get('workType')?.invalid && recordForm.get('workType')?.touched">
+        作業タイプを選択してください。
+      </div>
+    </div>
+
+    <!-- 作業日 -->
+    <div class="mb-3">
+      <label for="date" class="form-label">作業日 <span class="required">*</span></label>
+      <input type="date" id="date" formControlName="date" class="form-control" [class.is-invalid]="recordForm.get('date')?.invalid && recordForm.get('date')?.touched">
+      <div class="invalid-feedback" *ngIf="recordForm.get('date')?.invalid && recordForm.get('date')?.touched">
+        作業日を入力してください。
+      </div>
+    </div>
+
+    <!-- 終日イベントフラグ（カレンダー機能用） -->
+    <div class="mb-3 form-check">
+      <input type="checkbox" class="form-check-input" id="isAllDay" [checked]="isAllDay" (change)="toggleAllDay()">
+      <label class="form-check-label" for="isAllDay">終日イベント</label>
+    </div>
+
+    <!-- 時間情報（終日イベントでない場合） -->
+    <div class="mb-3 time-inputs" *ngIf="!isAllDay">
+      <div class="row">
+        <div class="col">
+          <label for="startTime" class="form-label">開始時間</label>
+          <input type="time" id="startTime" formControlName="startTime" class="form-control">
+        </div>
+        <div class="col">
+          <label for="endTime" class="form-label">終了時間</label>
+          <input type="time" id="endTime" formControlName="endTime" class="form-control">
+        </div>
+      </div>
+    </div>
+
+    <!-- 作業内容 -->
+    <div class="mb-3">
+      <label for="description" class="form-label">作業内容 <span class="required">*</span></label>
+      <textarea id="description" formControlName="description" class="form-control" rows="4" [class.is-invalid]="recordForm.get('description')?.invalid && recordForm.get('description')?.touched"></textarea>
+      <div class="invalid-feedback" *ngIf="recordForm.get('description')?.invalid && recordForm.get('description')?.touched">
+        作業内容を入力してください。
+      </div>
+    </div>
+
+    <!-- 優先度（カレンダー機能用） -->
+    <div class="mb-3">
+      <label class="form-label">優先度</label>
+      <div class="priority-options">
+        <div class="form-check form-check-inline" *ngFor="let p of priorities">
+          <input class="form-check-input" type="radio" [id]="'priority-' + p.value" formControlName="priority" [value]="p.value">
+          <label class="form-check-label" [for]="'priority-' + p.value">{{ p.label }}</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- 画像アップロード -->
+    <div class="mb-3">
+      <label class="form-label">画像</label>
+      <div class="image-upload-container">
+        <!-- 画像プレビュー -->
+        <div class="image-previews" *ngIf="imagePreviewUrls.length > 0">
+          <div class="image-preview-item" *ngFor="let previewUrl of imagePreviewUrls; let i = index">
+            <img [src]="previewUrl" alt="プレビュー">
+            <button type="button" class="btn btn-outline-danger btn-sm remove-image" (click)="removeImage(i)">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+        
+        <!-- 画像アップロードUI -->
+        <div class="image-upload">
+          <label for="imageUpload" class="upload-label">
+            <i class="fas fa-cloud-upload-alt"></i>
+            <span>画像をアップロード</span>
+            <small>JPG, PNG, GIF, WebP形式（最大10MB）</small>
+            <small>※大きな画像は自動的に圧縮されます</small>
+          </label>
+          <input type="file" id="imageUpload" accept="image/jpeg,image/png,image/gif,image/webp" 
+                 (change)="onImageSelected($event)" style="display: none;" multiple>
+        </div>
+      </div>
+      <div *ngIf="uploadError" class="text-danger mt-2">
+        {{ uploadError }}
+      </div>
+    </div>
+
+    <!-- 保存中の表示 -->
+    <div *ngIf="isUploading || saving" class="uploading-indicator mb-3">
+      <div class="spinner-border spinner-border-sm text-primary" role="status">
+        <span class="visually-hidden">処理中...</span>
+      </div>
+      <span class="ms-2" *ngIf="isUploading">画像をアップロード中...</span>
+      <span class="ms-2" *ngIf="saving && !isUploading">保存中...</span>
+    </div>
+
+    <!-- フォームアクション -->
+    <div class="form-actions">
+      <button type="button" class="btn btn-secondary" (click)="cancel()" [disabled]="saving || isUploading">キャンセル</button>
+      <button type="submit" class="btn btn-primary" [disabled]="recordForm.invalid || saving || isUploading">保存</button>
+    </div>
+  </form>
+</div>

@@ -11,7 +11,14 @@ import { v4 as uuidv4 } from 'uuid';
 import AWS from 'aws-sdk';
 
 // 環境設定
-const IS_LOCAL = process.env.IS_LOCAL === 'true' || !process.env.AWS_LAMBDA_FUNCTION_NAME;
+// 明示的にfalseが設定されている場合はfalse、それ以外はデフォルトでtrue
+const IS_LOCAL = process.env.IS_LOCAL !== 'false' && !process.env.AWS_LAMBDA_FUNCTION_NAME;
+// デバッグ用
+console.log('環境変数の状態:', {
+  IS_LOCAL_ENV: process.env.IS_LOCAL,
+  AWS_LAMBDA_FUNCTION_NAME: process.env.AWS_LAMBDA_FUNCTION_NAME,
+  IS_LOCAL: IS_LOCAL
+});
 const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 
 // DynamoDBの設定

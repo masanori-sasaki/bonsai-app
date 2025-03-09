@@ -43,9 +43,9 @@ export async function generatePresignedUrl(event: APIGatewayProxyEvent): Promise
     }
     
     // サポートする画像形式のみ許可
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
     if (!allowedTypes.includes(data.fileType)) {
-      throw new InvalidRequestError('サポートされていない画像形式です。JPG、PNG、GIF形式のみアップロードできます。');
+      throw new InvalidRequestError('サポートされていない画像形式です。JPG、PNG、GIF、WebP形式のみアップロードできます。');
     }
     
     // ファイル名を安全に処理（拡張子を維持）

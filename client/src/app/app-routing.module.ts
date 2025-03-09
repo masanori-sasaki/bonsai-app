@@ -9,7 +9,9 @@ import { BonsaiListComponent } from './components/bonsai/bonsai-list/bonsai-list
 import { BonsaiDetailComponent } from './components/bonsai/bonsai-detail/bonsai-detail.component';
 import { WorkRecordListComponent } from './components/work-record/work-record-list/work-record-list.component';
 import { WorkRecordDetailComponent } from './components/work-record/work-record-detail/work-record-detail.component';
+import { WorkRecordFormComponent } from './components/work-record/work-record-form/work-record-form.component';
 import { WorkScheduleListComponent } from './components/work-schedule/work-schedule-list/work-schedule-list.component';
+import { WorkScheduleFormComponent } from './components/work-schedule/work-schedule-form/work-schedule-form.component';
 
 const routes: Routes = [
   // 認証関連
@@ -46,8 +48,18 @@ const routes: Routes = [
     canActivate: [AuthGuard]
   },
   { 
+    path: 'bonsai/:id/records/new', 
+    component: WorkRecordFormComponent,
+    canActivate: [AuthGuard]
+  },
+  { 
     path: 'records/:id', 
     component: WorkRecordDetailComponent,
+    canActivate: [AuthGuard]
+  },
+  { 
+    path: 'records/:recordId/edit', 
+    component: WorkRecordFormComponent,
     canActivate: [AuthGuard]
   },
   
@@ -55,6 +67,21 @@ const routes: Routes = [
   { 
     path: 'bonsai/:id/schedules', 
     component: WorkScheduleListComponent,
+    canActivate: [AuthGuard]
+  },
+  { 
+    path: 'bonsai/:id/schedules/new', 
+    component: WorkScheduleFormComponent,
+    canActivate: [AuthGuard]
+  },
+  { 
+    path: 'schedules/:id', 
+    component: WorkScheduleListComponent,
+    canActivate: [AuthGuard]
+  },
+  { 
+    path: 'schedules/:scheduleId/edit', 
+    component: WorkScheduleFormComponent,
     canActivate: [AuthGuard]
   },
   

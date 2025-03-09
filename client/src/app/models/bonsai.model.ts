@@ -3,6 +3,7 @@
  */
 export interface Bonsai {
   id: string;
+  userId: string;         // ユーザーID
   name: string;           // 盆栽の名前
   species: string;        // 樹種
   registrationDate: string; // 登録日（ISO 8601形式）
@@ -16,6 +17,17 @@ export interface Bonsai {
  * 盆栽詳細レスポンス（作業記録と作業予定を含む）
  */
 export interface BonsaiDetail extends Bonsai {
+  workRecords?: {
+    id: string;
+    workType: string;
+    date: string;
+  }[];
+  workSchedules?: {
+    id: string;
+    workType: string;
+    scheduledDate: string;
+  }[];
+  // 後方互換性のために残す
   recentWorks?: {
     id: string;
     workType: string;

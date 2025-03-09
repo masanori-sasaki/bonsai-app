@@ -20,7 +20,7 @@ const config = {
   region: process.env.AWS_REGION || 'ap-northeast-1',
   s3Bucket: process.env.DEPLOYMENT_BUCKET || 'bonsai-app-templates-171278323216',
   stackName: process.env.STACK_NAME || `BonsaiAppStack-${process.env.ENVIRONMENT || 'dev'}`,
-  adminEmail: process.env.ADMIN_EMAIL || 'masanori399@gmail.com'
+  adminEmail: process.env.ADMIN_EMAIL || 'example@example.com'
 };
 
 console.log('デプロイ設定:');

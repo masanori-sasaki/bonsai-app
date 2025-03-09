@@ -211,13 +211,20 @@
   date: string;
   description: string;
   imageFiles?: File[];
+  
+  // カレンダー機能用の拡張プロパティ
+  isAllDay?: boolean;
+  startTime?: string;  // HH:mm形式
+  endTime?: string;    // HH:mm形式
+  priority?: 'high' | 'medium' | 'low';
+  colorCode?: string;  // CSS色コード
 }
 ```
 
 **処理フロー**:
 1. データバリデーション
 2. 画像ファイルがある場合、S3にアップロード
-3. APIを通じてバックエンドに作業記録作成リクエスト送信
+3. カレンダー拡張情報を含めてAPIを通じてバックエンドに作業記録作成リクエスト送信
 4. 成功時：成功メッセージ表示、作業記録一覧の更新
 5. 失敗時：エラーメッセージ表示
 
@@ -236,6 +243,13 @@
   description?: string;
   imageFiles?: File[];
   removeImageUrls?: string[];
+  
+  // カレンダー機能用の拡張プロパティ
+  isAllDay?: boolean;
+  startTime?: string;  // HH:mm形式
+  endTime?: string;    // HH:mm形式
+  priority?: 'high' | 'medium' | 'low';
+  colorCode?: string;  // CSS色コード
 }
 ```
 
@@ -243,7 +257,7 @@
 1. データバリデーション
 2. 新しい画像ファイルがある場合、S3にアップロード
 3. 削除する画像がある場合、S3から削除リクエスト
-4. APIを通じてバックエンドに作業記録更新リクエスト送信
+4. カレンダー拡張情報を含めてAPIを通じてバックエンドに作業記録更新リクエスト送信
 5. 成功時：成功メッセージ表示、作業記録詳細表示の更新
 6. 失敗時：エラーメッセージ表示
 
@@ -281,12 +295,32 @@
   workType: 'pruning' | 'repotting' | 'watering' | 'fertilizing' | 'other';
   scheduledDate: string;
   description: string;
+  
+  // カレンダー機能用の拡張プロパティ
+  isAllDay?: boolean;
+  startTime?: string;  // HH:mm形式
+  endTime?: string;    // HH:mm形式
+  priority?: 'high' | 'medium' | 'low';
+  colorCode?: string;  // CSS色コード
+  
+  // 繰り返しパターン
+  recurrencePattern?: {
+    type: 'none' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'custom';
+    interval: number;
+    endDate?: string;
+    occurrences?: number;
+    weekDays?: number[];
+    monthDay?: number;
+  };
+  
+  // リマインダー
+  reminderDays?: number;  // 予定日の何日前に通知するか
 }
 ```
 
 **処理フロー**:
 1. データバリデーション
-2. APIを通じてバックエンドに作業予定作成リクエスト送信
+2. カレンダー拡張情報、繰り返しパターン、リマインダー設定を含めてAPIを通じてバックエンドに作業予定作成リクエスト送信
 3. 成功時：成功メッセージ表示、作業予定一覧の更新
 4. 失敗時：エラーメッセージ表示
 
@@ -304,12 +338,32 @@
   scheduledDate?: string;
   description?: string;
   completed?: boolean;
+  
+  // カレンダー機能用の拡張プロパティ
+  isAllDay?: boolean;
+  startTime?: string;  // HH:mm形式
+  endTime?: string;    // HH:mm形式
+  priority?: 'high' | 'medium' | 'low';
+  colorCode?: string;  // CSS色コード
+  
+  // 繰り返しパターン
+  recurrencePattern?: {
+    type: 'none' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'custom';
+    interval: number;
+    endDate?: string;
+    occurrences?: number;
+    weekDays?: number[];
+    monthDay?: number;
+  };
+  
+  // リマインダー
+  reminderDays?: number;  // 予定日の何日前に通知するか
 }
 ```
 
 **処理フロー**:
 1. データバリデーション
-2. APIを通じてバックエンドに作業予定更新リクエスト送信
+2. カレンダー拡張情報、繰り返しパターン、リマインダー設定を含めてAPIを通じてバックエンドに作業予定更新リクエスト送信
 3. 成功時：成功メッセージ表示、作業予定一覧の更新
 4. 失敗時：エラーメッセージ表示
 5. 完了に変更された場合、作業記録作成の提案ダイアログを表示

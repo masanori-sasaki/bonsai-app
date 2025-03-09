@@ -14,9 +14,26 @@ sequenceDiagram
 
     User->>Client: 画像ファイル選択
     Client->>ImageService: 画像ファイル渡し
-    ImageService->>ImageService: 画像形式検証（JPG/PNG/GIF）
+    ImageService->>ImageService: 画像形式検証（JPG/PNG/GIF/WebP）
     ImageService->>ImageService: 画像リサイズ（最大1200px）
-    ImageService->>ImageService: 画像圧縮（最大2MB）
+    
+    rect rgb(240, 248, 255)
+        Note over ImageService: 段階的圧縮処理
+        ImageService->>ImageService: 初期品質で圧縮
+        
+        alt 2MB超の場合
+            ImageService->>ImageService: 品質を段階的に下げる
+            
+            alt 品質を下げても2MB超の場合
+                ImageService->>ImageService: WebP形式への変換を試みる
+                
+                alt WebP変換でも2MB超の場合
+                    ImageService->>ImageService: 解像度を縮小して再圧縮
+                end
+            end
+        end
+    end
+    
     ImageService->>Client: 処理済み画像返却
     Client->>Client: プレビュー表示
     
@@ -41,13 +58,18 @@ sequenceDiagram
 ### 圧縮仕様
 - 最大ファイルサイズ: 2MB
 - JPEG圧縮品質: 70%（初期値）
+- WebP圧縮品質: 80%（初期値）
 - PNG/GIF圧縮品質: 90%（初期値）
-- 2MB超の場合、段階的に圧縮品質を下げる
+- 2MB超の場合の段階的圧縮アルゴリズム:
+  1. 品質を段階的に下げる（最低30%まで）
+  2. WebP形式への変換を試みる（ブラウザがサポートしている場合）
+  3. 解像度を縮小（元の75%）して再圧縮
 
 ### サポート形式
 - JPEG/JPG
 - PNG
 - GIF（アニメーションGIFは非推奨）
+- WebP（推奨：より効率的な圧縮が可能）
 
 ## 将来的な拡張性
 

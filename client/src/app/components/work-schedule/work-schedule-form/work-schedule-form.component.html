@@ -1,0 +1,183 @@
+<div class="work-schedule-form-container">
+  <div class="form-header">
+    <h2 *ngIf="!isEditMode">作業予定の追加</h2>
+    <h2 *ngIf="isEditMode">作業予定の編集</h2>
+    <div *ngIf="bonsai" class="bonsai-info">
+      <span>盆栽: {{ bonsai.name }}</span>
+    </div>
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+
+  <div *ngIf="loading" class="loading-container">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">読み込み中...</span>
+    </div>
+    <p>データを読み込んでいます...</p>
+  </div>
+
+  <form [formGroup]="scheduleForm" (ngSubmit)="saveWorkSchedule()" *ngIf="!loading" class="schedule-form">
+    <!-- 作業タイプ -->
+    <div class="mb-3">
+      <label for="workType" class="form-label">作業タイプ <span class="required">*</span></label>
+      <select id="workType" formControlName="workType" class="form-select" [class.is-invalid]="scheduleForm.get('workType')?.invalid && scheduleForm.get('workType')?.touched">
+        <option *ngFor="let type of workTypes" [value]="type">{{ workTypeLabels[type] }}</option>
+      </select>
+      <div class="invalid-feedback" *ngIf="scheduleForm.get('workType')?.invalid && scheduleForm.get('workType')?.touched">
+        作業タイプを選択してください。
+      </div>
+    </div>
+
+    <!-- 予定日 -->
+    <div class="mb-3">
+      <label for="scheduledDate" class="form-label">予定日 <span class="required">*</span></label>
+      <input type="date" id="scheduledDate" formControlName="scheduledDate" class="form-control" [class.is-invalid]="scheduleForm.get('scheduledDate')?.invalid && scheduleForm.get('scheduledDate')?.touched">
+      <div class="invalid-feedback" *ngIf="scheduleForm.get('scheduledDate')?.invalid && scheduleForm.get('scheduledDate')?.touched">
+        予定日を入力してください。
+      </div>
+    </div>
+
+    <!-- 終日イベントフラグ（カレンダー機能用） -->
+    <div class="mb-3 form-check">
+      <input type="checkbox" class="form-check-input" id="isAllDay" [checked]="isAllDay" (change)="toggleAllDay()">
+      <label class="form-check-label" for="isAllDay">終日イベント</label>
+    </div>
+
+    <!-- 時間情報（終日イベントでない場合） -->
+    <div class="mb-3 time-inputs" *ngIf="!isAllDay">
+      <div class="row">
+        <div class="col">
+          <label for="startTime" class="form-label">開始時間</label>
+          <input type="time" id="startTime" formControlName="startTime" class="form-control">
+        </div>
+        <div class="col">
+          <label for="endTime" class="form-label">終了時間</label>
+          <input type="time" id="endTime" formControlName="endTime" class="form-control">
+        </div>
+      </div>
+    </div>
+
+    <!-- 予定内容 -->
+    <div class="mb-3">
+      <label for="description" class="form-label">予定内容 <span class="required">*</span></label>
+      <textarea id="description" formControlName="description" class="form-control" rows="4" [class.is-invalid]="scheduleForm.get('description')?.invalid && scheduleForm.get('description')?.touched"></textarea>
+      <div class="invalid-feedback" *ngIf="scheduleForm.get('description')?.invalid && scheduleForm.get('description')?.touched">
+        予定内容を入力してください。
+      </div>
+    </div>
+
+    <!-- 優先度（カレンダー機能用） -->
+    <div class="mb-3">
+      <label class="form-label">優先度</label>
+      <div class="priority-options">
+        <div class="form-check form-check-inline" *ngFor="let p of priorities">
+          <input class="form-check-input" type="radio" [id]="'priority-' + p.value" formControlName="priority" [value]="p.value">
+          <label class="form-check-label" [for]="'priority-' + p.value">{{ p.label }}</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- 繰り返し設定 -->
+    <div class="mb-3 recurrence-section">
+      <label for="recurrenceType" class="form-label">繰り返し</label>
+      <select id="recurrenceType" formControlName="recurrenceType" class="form-select">
+        <option *ngFor="let type of recurrenceTypes" [value]="type.value">{{ type.label }}</option>
+      </select>
+
+      <!-- 繰り返し詳細設定（繰り返しタイプが「なし」以外の場合） -->
+      <div class="recurrence-options mt-3" *ngIf="showRecurrenceOptions" [formGroup]="recurrenceForm">
+        <div class="mb-3">
+          <label for="interval" class="form-label">間隔</label>
+          <div class="input-group">
+            <input type="number" id="interval" formControlName="interval" class="form-control" min="1">
+            <span class="input-group-text">
+              <ng-container [ngSwitch]="scheduleForm.get('recurrenceType')?.value">
+                <ng-container *ngSwitchCase="'daily'">日ごと</ng-container>
+                <ng-container *ngSwitchCase="'weekly'">週ごと</ng-container>
+                <ng-container *ngSwitchCase="'monthly'">月ごと</ng-container>
+                <ng-container *ngSwitchCase="'yearly'">年ごと</ng-container>
+                <ng-container *ngSwitchDefault>回ごと</ng-container>
+              </ng-container>
+            </span>
+          </div>
+        </div>
+
+        <!-- 週次繰り返しの曜日選択（週次の場合のみ） -->
+        <div class="mb-3" *ngIf="scheduleForm.get('recurrenceType')?.value === 'weekly'">
+          <label class="form-label">曜日</label>
+          <div class="weekday-selector">
+            <!-- 曜日選択UI（チェックボックスなど）をここに実装 -->
+            <div class="form-check form-check-inline" *ngFor="let day of ['日', '月', '火', '水', '木', '金', '土']; let i = index">
+              <input class="form-check-input" type="checkbox" [id]="'weekday-' + i" [value]="i" [checked]="isWeekDaySelected(i)" (change)="onWeekDayChange($event, i)">
+              <label class="form-check-label" [for]="'weekday-' + i">{{ day }}</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- 月次繰り返しの日付選択（月次の場合のみ） -->
+        <div class="mb-3" *ngIf="scheduleForm.get('recurrenceType')?.value === 'monthly'">
+          <label for="monthDay" class="form-label">日付</label>
+          <input type="number" id="monthDay" formControlName="monthDay" class="form-control" min="1" max="31">
+          <small class="form-text text-muted">毎月この日に繰り返します。存在しない日の場合は月末になります。</small>
+        </div>
+
+        <!-- 繰り返し終了設定 -->
+        <div class="mb-3">
+          <label class="form-label">繰り返し終了</label>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" id="endNever" name="endType" value="never" checked>
+            <label class="form-check-label" for="endNever">終了日なし</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" id="endAfter" name="endType" value="after">
+            <label class="form-check-label" for="endAfter">
+              <div class="input-group input-group-sm mt-1">
+                <input type="number" formControlName="occurrences" class="form-control" min="1">
+                <span class="input-group-text">回後に終了</span>
+              </div>
+            </label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" id="endOn" name="endType" value="on">
+            <label class="form-check-label" for="endOn">
+              <div class="input-group input-group-sm mt-1">
+                <span class="input-group-text">終了日</span>
+                <input type="date" formControlName="endDate" class="form-control">
+              </div>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- リマインダー設定 -->
+    <div class="mb-3">
+      <label for="reminderDays" class="form-label">リマインダー</label>
+      <select id="reminderDays" formControlName="reminderDays" class="form-select">
+        <option *ngFor="let option of reminderOptions" [value]="option.value">{{ option.label }}</option>
+      </select>
+
+      <!-- カスタムリマインダー（「カスタム」選択時のみ） -->
+      <div class="custom-reminder mt-2" *ngIf="showCustomReminder">
+        <div class="input-group">
+          <input type="number" class="form-control" min="1" max="30" placeholder="日数">
+          <span class="input-group-text">日前</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 保存中の表示 -->
+    <div *ngIf="saving" class="saving-indicator mb-3">
+      <div class="spinner-border spinner-border-sm text-primary" role="status">
+        <span class="visually-hidden">処理中...</span>
+      </div>
+      <span class="ms-2">保存中...</span>
+    </div>
+
+    <!-- フォームアクション -->
+    <div class="form-actions">
+      <button type="button" class="btn btn-secondary" (click)="cancel()" [disabled]="saving">キャンセル</button>
+      <button type="submit" class="btn btn-primary" [disabled]="scheduleForm.invalid || saving">保存</button>
+    </div>
+  </form>
+</div>

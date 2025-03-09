@@ -313,6 +313,8 @@ GET /api/bonsai/{bonsaiId}/records
         "https://example.com/images/record123-before.jpg",
         "https://example.com/images/record123-after.jpg"
       ],
+      "isAllDay": true,
+      "priority": "medium",
       "createdAt": "2024-02-15T10:00:00Z",
       "updatedAt": "2024-02-15T10:00:00Z"
     },
@@ -326,6 +328,10 @@ GET /api/bonsai/{bonsaiId}/records
         "https://example.com/images/record456-before.jpg",
         "https://example.com/images/record456-after.jpg"
       ],
+      "isAllDay": false,
+      "startTime": "09:00",
+      "endTime": "11:30",
+      "priority": "high",
       "createdAt": "2024-01-20T11:30:00Z",
       "updatedAt": "2024-01-20T11:30:00Z"
     }
@@ -357,6 +363,9 @@ GET /api/records/{recordId}
     "https://example.com/images/record123-before.jpg",
     "https://example.com/images/record123-after.jpg"
   ],
+  "isAllDay": true,
+  "priority": "medium",
+  "colorCode": "#4CAF50",
   "createdAt": "2024-02-15T10:00:00Z",
   "updatedAt": "2024-02-15T10:00:00Z"
 }
@@ -379,7 +388,12 @@ POST /api/bonsai/{bonsaiId}/records
   "workType": "fertilizing",
   "date": "2024-03-05T00:00:00Z",
   "description": "有機肥料を与えた。次回は1ヶ月後を予定。",
-  "imageUrls": ["https://example.com/images/new-record-1.jpg"]
+  "imageUrls": ["https://example.com/images/new-record-1.jpg"],
+  "isAllDay": false,
+  "startTime": "09:00",
+  "endTime": "09:30",
+  "priority": "medium",
+  "colorCode": "#FF9800"
 }
 ```
 
@@ -392,6 +406,11 @@ POST /api/bonsai/{bonsaiId}/records
   "date": "2024-03-05T00:00:00Z",
   "description": "有機肥料を与えた。次回は1ヶ月後を予定。",
   "imageUrls": ["https://example.com/images/new-record-1.jpg"],
+  "isAllDay": false,
+  "startTime": "09:00",
+  "endTime": "09:30",
+  "priority": "medium",
+  "colorCode": "#FF9800",
   "createdAt": "2024-03-05T15:00:00Z",
   "updatedAt": "2024-03-05T15:00:00Z"
 }
@@ -415,7 +434,8 @@ PUT /api/records/{recordId}
   "imageUrls": [
     "https://example.com/images/new-record-1.jpg",
     "https://example.com/images/new-record-2.jpg"
-  ]
+  ],
+  "priority": "high"
 }
 ```
 
@@ -431,6 +451,11 @@ PUT /api/records/{recordId}
     "https://example.com/images/new-record-1.jpg",
     "https://example.com/images/new-record-2.jpg"
   ],
+  "isAllDay": false,
+  "startTime": "09:00",
+  "endTime": "09:30",
+  "priority": "high",
+  "colorCode": "#FF9800",
   "createdAt": "2024-03-05T15:00:00Z",
   "updatedAt": "2024-03-05T15:05:00Z"
 }
@@ -484,6 +509,10 @@ GET /api/bonsai/{bonsaiId}/schedules
       "scheduledDate": "2024-04-15T00:00:00Z",
       "description": "春の剪定予定",
       "completed": false,
+      "isAllDay": true,
+      "priority": "high",
+      "colorCode": "#4CAF50",
+      "reminderDays": 3,
       "createdAt": "2024-03-01T10:00:00Z",
       "updatedAt": "2024-03-01T10:00:00Z"
     },
@@ -494,6 +523,17 @@ GET /api/bonsai/{bonsaiId}/schedules
       "scheduledDate": "2024-04-05T00:00:00Z",
       "description": "月次の肥料",
       "completed": false,
+      "isAllDay": false,
+      "startTime": "10:00",
+      "endTime": "10:30",
+      "priority": "medium",
+      "colorCode": "#FF9800",
+      "reminderDays": 1,
+      "recurrencePattern": {
+        "type": "monthly",
+        "interval": 1,
+        "occurrences": 6
+      },
       "createdAt": "2024-03-05T11:30:00Z",
       "updatedAt": "2024-03-05T11:30:00Z"
     }
@@ -518,7 +558,16 @@ POST /api/bonsai/{bonsaiId}/schedules
 {
   "workType": "repotting",
   "scheduledDate": "2024-05-10T00:00:00Z",
-  "description": "2年ぶりの植え替え。赤玉土と鹿沼土を用意する。"
+  "description": "2年ぶりの植え替え。赤玉土と鹿沼土を用意する。",
+  "isAllDay": true,
+  "priority": "high",
+  "colorCode": "#2196F3",
+  "reminderDays": 7,
+  "recurrencePattern": {
+    "type": "yearly",
+    "interval": 2,
+    "occurrences": 5
+  }
 }
 ```
 
@@ -531,6 +580,15 @@ POST /api/bonsai/{bonsaiId}/schedules
   "scheduledDate": "2024-05-10T00:00:00Z",
   "description": "2年ぶりの植え替え。赤玉土と鹿沼土を用意する。",
   "completed": false,
+  "isAllDay": true,
+  "priority": "high",
+  "colorCode": "#2196F3",
+  "reminderDays": 7,
+  "recurrencePattern": {
+    "type": "yearly",
+    "interval": 2,
+    "occurrences": 5
+  },
   "createdAt": "2024-03-05T15:30:00Z",
   "updatedAt": "2024-03-05T15:30:00Z"
 }
@@ -551,7 +609,8 @@ PUT /api/schedules/{scheduleId}
 ```json
 {
   "scheduledDate": "2024-05-15T00:00:00Z",
-  "completed": true
+  "completed": true,
+  "reminderDays": 3
 }
 ```
 
@@ -564,6 +623,15 @@ PUT /api/schedules/{scheduleId}
   "scheduledDate": "2024-05-15T00:00:00Z",
   "description": "2年ぶりの植え替え。赤玉土と鹿沼土を用意する。",
   "completed": true,
+  "isAllDay": true,
+  "priority": "high",
+  "colorCode": "#2196F3",
+  "reminderDays": 3,
+  "recurrencePattern": {
+    "type": "yearly",
+    "interval": 2,
+    "occurrences": 5
+  },
   "createdAt": "2024-03-05T15:30:00Z",
   "updatedAt": "2024-03-05T15:35:00Z"
 }
@@ -659,12 +727,29 @@ interface WorkRecord {
   imageUrls: string[];    // 作業前後の画像URL配列
   createdAt: string;      // ISO 8601形式
   updatedAt: string;      // ISO 8601形式
+  
+  // カレンダー表示用の拡張プロパティ（オプション）
+  startTime?: string;     // 開始時間（HH:mm形式）
+  endTime?: string;       // 終了時間（HH:mm形式）
+  isAllDay?: boolean;     // 終日イベントフラグ
+  priority?: 'high' | 'medium' | 'low'; // 優先度（高、中、低）
+  colorCode?: string;     // 表示色（CSS色コード）
 }
 ```
 
 ### 作業予定
 
 ```typescript
+// 繰り返しパターン
+interface RecurrencePattern {
+  type: 'none' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'custom'; // 繰り返しタイプ
+  interval: number;       // 間隔（例：2週間ごとなら2）
+  endDate?: string;       // 終了日（ISO 8601形式）
+  occurrences?: number;   // 繰り返し回数
+  weekDays?: number[];    // 週の曜日（0=日曜, 1=月曜, ..., 6=土曜）
+  monthDay?: number;      // 月の日（1-31）
+}
+
 interface WorkSchedule {
   id: string;
   bonsaiId: string;
@@ -674,5 +759,13 @@ interface WorkSchedule {
   completed: boolean;     // 完了フラグ
   createdAt: string;      // ISO 8601形式
   updatedAt: string;      // ISO 8601形式
+  
+  // カレンダー表示用の拡張プロパティ（オプション）
+  startTime?: string;     // 開始時間（HH:mm形式）
+  endTime?: string;       // 終了時間（HH:mm形式）
+  isAllDay?: boolean;     // 終日イベントフラグ
+  priority?: 'high' | 'medium' | 'low'; // 優先度（高、中、低）
+  colorCode?: string;     // 表示色（CSS色コード）
+  recurrencePattern?: RecurrencePattern; // 繰り返しパターン
+  reminderDays?: number;  // リマインダー日数（予定日の何日前に通知するか）
 }
-```
