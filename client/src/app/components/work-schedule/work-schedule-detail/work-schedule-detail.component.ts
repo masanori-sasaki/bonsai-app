@@ -36,6 +36,21 @@ export class WorkScheduleDetailComponent implements OnInit {
     'low': '低'
   };
 
+  /**
+   * 作業タイプのラベルを取得
+   * 
+   * @returns 作業タイプのラベル（複数の場合は結合）
+   */
+  getWorkTypeLabels(): string {
+    if (!this.workSchedule || !this.workSchedule.workTypes || this.workSchedule.workTypes.length === 0) {
+      return '作業';
+    }
+    
+    return this.workSchedule.workTypes
+      .map(type => this.workTypeLabels[type])
+      .join('・');
+  }
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,

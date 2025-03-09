@@ -55,7 +55,7 @@
       </div>
       <div class="work-schedule-content" [class.completed]="schedule.completed">
         <div class="work-schedule-header">
-          <div class="work-schedule-type">{{ workTypeLabels[schedule.workType] }}</div>
+          <div class="work-schedule-type">{{ workTypeLabels[schedule.workTypes[0]] }}</div>
           <div class="work-schedule-date">{{ schedule.scheduledDate | date:'yyyy年MM月dd日' }}</div>
         </div>
         <div class="work-schedule-description">{{ schedule.description }}</div>

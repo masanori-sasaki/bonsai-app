@@ -243,7 +243,7 @@
 ```typescript
 {
   bonsaiId: string;
-  workType: 'pruning' | 'repotting' | 'watering' | 'fertilizing' | 'other';
+  workTypes: ('pruning' | 'repotting' | 'watering' | 'fertilizing' | 'other')[];
   date: string;
   description: string;
   imageFiles?: File[];
@@ -274,7 +274,7 @@
 ```typescript
 {
   id: string;
-  workType?: 'pruning' | 'repotting' | 'watering' | 'fertilizing' | 'other';
+  workTypes?: ('pruning' | 'repotting' | 'watering' | 'fertilizing' | 'other')[];
   date?: string;
   description?: string;
   imageFiles?: File[];
@@ -328,7 +328,7 @@
 ```typescript
 {
   bonsaiId: string;
-  workType: 'pruning' | 'repotting' | 'watering' | 'fertilizing' | 'other';
+  workTypes: ('pruning' | 'repotting' | 'watering' | 'fertilizing' | 'other')[];
   scheduledDate: string;
   description: string;
   
@@ -370,7 +370,7 @@
 ```typescript
 {
   id: string;
-  workType?: 'pruning' | 'repotting' | 'watering' | 'fertilizing' | 'other';
+  workTypes?: ('pruning' | 'repotting' | 'watering' | 'fertilizing' | 'other')[];
   scheduledDate?: string;
   description?: string;
   completed?: boolean;

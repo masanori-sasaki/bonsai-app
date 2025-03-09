@@ -19,12 +19,14 @@
   <form [formGroup]="recordForm" (ngSubmit)="saveWorkRecord()" *ngIf="!loading" class="record-form">
     <!-- 作業タイプ -->
     <div class="mb-3">
-      <label for="workType" class="form-label">作業タイプ <span class="required">*</span></label>
-      <select id="workType" formControlName="workType" class="form-select" [class.is-invalid]="recordForm.get('workType')?.invalid && recordForm.get('workType')?.touched">
-        <option *ngFor="let type of workTypes" [value]="type">{{ workTypeLabels[type] }}</option>
-      </select>
-      <div class="invalid-feedback" *ngIf="recordForm.get('workType')?.invalid && recordForm.get('workType')?.touched">
-        作業タイプを選択してください。
+      <label class="form-label">作業タイプ</label>
+      <div class="work-type-tags">
+        <div *ngFor="let type of workTypes" 
+             class="tag" 
+             [class.selected]="isWorkTypeSelected(type)"
+             (click)="toggleWorkType(type)">
+          {{ workTypeLabels[type] }}
+        </div>
       </div>
     </div>
 

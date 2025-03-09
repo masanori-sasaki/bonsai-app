@@ -19,23 +19,23 @@ export interface Bonsai {
 export interface BonsaiDetail extends Bonsai {
   workRecords?: {
     id: string;
-    workType: string;
+    workTypes: string[];
     date: string;
   }[];
   workSchedules?: {
     id: string;
-    workType: string;
+    workTypes: string[];
     scheduledDate: string;
   }[];
   // 後方互換性のために残す
   recentWorks?: {
     id: string;
-    workType: string;
+    workTypes: string[];
     date: string;
   }[];
   upcomingWorks?: {
     id: string;
-    workType: string;
+    workTypes: string[];
     scheduledDate: string;
   }[];
 }

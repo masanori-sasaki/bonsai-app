@@ -1,9 +1,9 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://amat42gzk53gc6komqnqobuafq0lxfdy.lambda-url.ap-northeast-1.on.aws/',
+  apiUrl: 'https://dmu5lvsxno2tujowgbm7xerasy0eyvqe.lambda-url.ap-northeast-1.on.aws/',
   cognito: {
-    userPoolId: 'ap-northeast-1_Uey2a88nX',
-    userPoolWebClientId: '3l2ktjm1b1o9ecm1j8vgpdjbqh',
-    domain: 'bonsai-dev-171278323216.auth.ap-northeast-1.amazoncognito.com'
+    userPoolId: 'ap-northeast-1_UNhPh5btt',
+    userPoolWebClientId: 'mr5tfnqnajdvdluhq80m100ja',
+    domain: 'bonsai-prod-171278323216.auth.ap-northeast-1.amazoncognito.com'
   }
 };

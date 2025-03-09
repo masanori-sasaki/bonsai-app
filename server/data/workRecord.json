@@ -1,32 +1,40 @@
 [
   {
-    "bonsaiId": "e4718bbf-579e-4cb4-995e-155983a5595a",
-    "workType": "pruning",
+    "bonsaiId": "9a025a35-4839-4846-bf6f-c94f1f507eed",
+    "workTypes": [
+      "pruning",
+      "watering",
+      "repotting"
+    ],
     "date": "2025-03-09T00:00:00.000Z",
-    "description": "長寿梅の剪定を行いました。枝の整理と形を整えました。",
+    "description": "test",
     "imageUrls": [],
-    "id": "6a8ce504-83fe-4f04-b156-80fdd3e8d245",
-    "createdAt": "2025-03-09T12:56:59.855Z",
-    "updatedAt": "2025-03-09T12:56:59.855Z"
+    "id": "c3d3ac02-2145-4cec-bf74-6cd2309d59cc",
+    "createdAt": "2025-03-09T16:13:52.306Z",
+    "updatedAt": "2025-03-09T16:13:52.306Z"
   },
   {
-    "bonsaiId": "e4718bbf-579e-4cb4-995e-155983a5595a",
-    "workType": "pruning",
+    "bonsaiId": "9a025a35-4839-4846-bf6f-c94f1f507eed",
+    "workTypes": [
+      "pruning"
+    ],
     "date": "2025-03-09T00:00:00.000Z",
-    "description": "111",
+    "description": "te",
     "imageUrls": [],
-    "id": "291d6f04-9b53-4f10-a239-5c8811ebe73c",
-    "createdAt": "2025-03-09T12:58:05.126Z",
-    "updatedAt": "2025-03-09T12:58:05.126Z"
+    "id": "19773174-08ce-4f1d-becf-1ffa568c9538",
+    "createdAt": "2025-03-09T16:14:21.576Z",
+    "updatedAt": "2025-03-09T16:14:21.576Z"
   },
   {
-    "bonsaiId": "e4718bbf-579e-4cb4-995e-155983a5595a",
-    "workType": "pruning",
+    "bonsaiId": "9a025a35-4839-4846-bf6f-c94f1f507eed",
+    "workTypes": [
+      "watering"
+    ],
     "date": "2025-03-09T00:00:00.000Z",
-    "description": "2209",
+    "description": "tee",
     "imageUrls": [],
-    "id": "c547d44b-b64d-4d1f-b77b-e5193af97693",
-    "createdAt": "2025-03-09T13:09:22.353Z",
-    "updatedAt": "2025-03-09T13:09:22.353Z"
+    "id": "5b53a555-b9bf-4d6e-b459-6a942da49bb9",
+    "createdAt": "2025-03-09T16:14:35.091Z",
+    "updatedAt": "2025-03-09T16:14:35.091Z"
   }
 ]

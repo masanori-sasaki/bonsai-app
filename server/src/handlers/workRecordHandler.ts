@@ -30,12 +30,12 @@ export async function getWorkRecordList(event: APIGatewayProxyEvent): Promise<AP
     
     // クエリパラメータを取得
     const queryParams = event.queryStringParameters || {};
-    const workType = queryParams.workType;
+    const workTypes = queryParams.workTypes ? queryParams.workTypes.split(',') : undefined;
     const limit = queryParams.limit ? parseInt(queryParams.limit, 10) : undefined;
     const nextToken = queryParams.nextToken;
     
     // 作業記録一覧を取得
-    const result = await workRecordService.listWorkRecords(userId, bonsaiId, workType, limit, nextToken);
+    const result = await workRecordService.listWorkRecords(userId, bonsaiId, workTypes, limit, nextToken);
     
     // 成功レスポンスを返す
     return createSuccessResponse(result);
@@ -96,8 +96,9 @@ export async function createWorkRecord(event: APIGatewayProxyEvent): Promise<API
     data.bonsaiId = bonsaiId; // パスパラメータの盆栽IDを設定
     
     // バリデーション
-    if (!data.workType) {
-      throw new InvalidRequestError('作業タイプは必須です');
+    if (!data.workTypes || data.workTypes.length === 0) {
+      // 作業タイプは必須ではなくなったため、空の配列を設定
+      data.workTypes = [];
     }
     if (!data.date) {
       throw new InvalidRequestError('作業日は必須です');

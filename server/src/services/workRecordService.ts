@@ -17,7 +17,7 @@ const workRecordStore: DataStore<WorkRecord> = createDataStore<WorkRecord>('work
  * 
  * @param userId ユーザーID
  * @param bonsaiId 盆栽ID
- * @param workType 作業タイプでフィルタリング（オプション）
+ * @param workTypes 作業タイプでフィルタリング（オプション）
  * @param limit 取得件数（オプション）
  * @param nextToken ページネーショントークン（オプション）
  * @returns 作業記録一覧レスポンス
@@ -25,7 +25,7 @@ const workRecordStore: DataStore<WorkRecord> = createDataStore<WorkRecord>('work
 export async function listWorkRecords(
   userId: string,
   bonsaiId: string,
-  workType?: string,
+  workTypes?: string[],
   limit?: number,
   nextToken?: string
 ): Promise<WorkRecordListResponse> {
@@ -39,8 +39,11 @@ export async function listWorkRecords(
   let records = allRecords.filter(record => record.bonsaiId === bonsaiId);
   
   // 作業タイプでフィルタリング
-  if (workType) {
-    records = records.filter(record => record.workType === workType);
+  if (workTypes && workTypes.length > 0) {
+    records = records.filter(record => {
+      // 少なくとも1つの作業タイプが一致する場合に含める
+      return record.workTypes.some(type => workTypes.includes(type));
+    });
   }
   
   // ページネーション処理
@@ -107,7 +110,7 @@ export async function createWorkRecord(userId: string, data: CreateWorkRecordReq
   // 新しい作業記録データを作成
   const newRecord = await workRecordStore.create({
     bonsaiId: data.bonsaiId,
-    workType: data.workType,
+    workTypes: data.workTypes,
     date: data.date,
     description: data.description,
     imageUrls: data.imageUrls || []
@@ -132,7 +135,7 @@ export async function updateWorkRecord(
   
   // 更新データを作成
   const updatedRecord = await workRecordStore.update(recordId, {
-    workType: data.workType,
+    workTypes: data.workTypes,
     date: data.date,
     description: data.description,
     imageUrls: data.imageUrls

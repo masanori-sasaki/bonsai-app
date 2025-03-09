@@ -45,7 +45,7 @@
   <div *ngIf="workRecords.length > 0" class="work-record-list">
     <div *ngFor="let record of workRecords" class="work-record-card" (click)="viewWorkRecord(record.id)">
       <div class="work-record-header">
-        <div class="work-record-type">{{ workTypeLabels[record.workType] }}</div>
+        <div class="work-record-type">{{ workTypeLabels[record.workTypes[0]] }}</div>
         <div class="work-record-date">{{ record.date | date:'yyyy年MM月dd日' }}</div>
       </div>
       <div class="work-record-content">
