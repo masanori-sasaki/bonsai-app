@@ -1,7 +1,7 @@
 /**
  * 作業タイプ
  */
-export type WorkType = 'pruning' | 'repotting' | 'watering' | 'fertilizing' | 'other';
+export type WorkType = 'pruning' | 'repotting' | 'watering' | 'fertilizing' | 'wire' | 'wireremove' | 'leafpull' | 'leafcut' | 'leafpeel' | 'disinfection' | 'carving' | 'replant' | 'protection' | 'other';
 
 /**
  * 作業タイプの表示名マッピング
@@ -11,6 +11,15 @@ export const WORK_TYPE_LABELS: Record<WorkType, string> = {
   repotting: '植替え',
   watering: '水やり',
   fertilizing: '肥料',
+  wire: '針金かけ',
+  wireremove: '針金はずし',
+  leafpull: '芽摘み',
+  leafcut: '芽切り',
+  leafpeel: '葉透かし',
+  disinfection: '消毒',
+  carving: '彫刻',
+  replant: '改作',
+  protection: '保護',
   other: 'その他'
 };
 

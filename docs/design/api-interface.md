@@ -721,7 +721,7 @@ interface Bonsai {
 interface WorkRecord {
   id: string;
   bonsaiId: string;
-  workTypes: ('pruning' | 'repotting' | 'watering' | 'fertilizing' | 'other')[]; // 作業タイプ（剪定、植替え、水やり、肥料、その他）の配列
+  workTypes: ('pruning' | 'repotting' | 'watering' | 'fertilizing' |'wire'|'wireremove'|'leafpull'|'leafcut'|'leafpeel'|'disinfection'|'carving'|'replant'|'protection'| 'other')[]; // 作業タイプ（剪定、植替え、水やり、肥料、針金かけ、針金はずし、芽摘み、芽切り、葉透かし、消毒、彫刻、改作、その他）の配列
   date: string;           // 作業日（ISO 8601形式）
   description: string;    // 作業内容の詳細
   imageUrls: string[];    // 作業前後の画像URL配列
