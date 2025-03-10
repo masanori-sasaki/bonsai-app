@@ -243,7 +243,7 @@
 ```typescript
 {
   bonsaiId: string;
-  workTypes: ('pruning' | 'repotting' | 'watering' | 'fertilizing' | 'other')[];
+  workTypes: ('pruning' | 'repotting' | 'watering' | 'fertilizing' |'wire'|'wireremove'|'leafpull'|'leafcut'|'leafpeel'|'disinfection'|'carving'|'replant'|'protection'| 'other')[]; // 作業タイプ（剪定、植替え、水やり、肥料、針金かけ、針金はずし、芽摘み、芽切り、葉透かし、消毒、彫刻、改作、その他）の配列
   date: string;
   description: string;
   imageFiles?: File[];
@@ -274,7 +274,7 @@
 ```typescript
 {
   id: string;
-  workTypes?: ('pruning' | 'repotting' | 'watering' | 'fertilizing' | 'other')[];
+  workTypes?: ('pruning' | 'repotting' | 'watering' | 'fertilizing' |'wire'|'wireremove'|'leafpull'|'leafcut'|'leafpeel'|'disinfection'|'carving'|'replant'|'protection'| 'other')[];
   date?: string;
   description?: string;
   imageFiles?: File[];
@@ -328,7 +328,7 @@
 ```typescript
 {
   bonsaiId: string;
-  workTypes: ('pruning' | 'repotting' | 'watering' | 'fertilizing' | 'other')[];
+  workTypes: ('pruning' | 'repotting' | 'watering' | 'fertilizing' |'wire'|'wireremove'|'leafpull'|'leafcut'|'leafpeel'|'disinfection'|'carving'|'replant'|'protection'| 'other')[];
   scheduledDate: string;
   description: string;
   
@@ -370,7 +370,7 @@
 ```typescript
 {
   id: string;
-  workTypes?: ('pruning' | 'repotting' | 'watering' | 'fertilizing' | 'other')[];
+  workTypes?: ('pruning' | 'repotting' | 'watering' | 'fertilizing' |'wire'|'wireremove'|'leafpull'|'leafcut'|'leafpeel'|'disinfection'|'carving'|'replant'|'protection'| 'other')[];
   scheduledDate?: string;
   description?: string;
   completed?: boolean;

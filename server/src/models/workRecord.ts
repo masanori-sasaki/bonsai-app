@@ -7,7 +7,7 @@
 /**
  * 作業タイプ
  */
-export type WorkType = 'pruning' | 'repotting' | 'watering' | 'fertilizing' | 'other';
+export type WorkType = 'pruning' | 'repotting' | 'watering' | 'fertilizing' |'wire'|'wireremove'|'leafpull'|'leafcut'|'leafpeel'|'disinfection'|'carving'|'replant'|'protection'| 'other';
 
 /**
  * 作業記録インターフェース
