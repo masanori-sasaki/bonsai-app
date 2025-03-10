@@ -170,7 +170,7 @@ export class BonsaiDetailComponent implements OnInit {
                 if (this.bonsai) {
                   this.bonsai.recentWorks = sortedRecords.map(record => ({
                     id: record.id,
-                    workType: record.workType,
+                    workTypes: record.workTypes,
                     date: record.date
                   }));
                   // recentWorksが未定義の場合は空の配列を設定

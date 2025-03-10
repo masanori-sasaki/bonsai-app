@@ -19,6 +19,21 @@ export class WorkRecordDetailComponent implements OnInit {
   workTypeLabels = WORK_TYPE_LABELS;
   selectedImageIndex = 0;
 
+  /**
+   * 作業タイプのラベルを取得
+   * 
+   * @returns 作業タイプのラベル（複数の場合は結合）
+   */
+  getWorkTypeLabels(): string {
+    if (!this.workRecord || !this.workRecord.workTypes || this.workRecord.workTypes.length === 0) {
+      return '作業';
+    }
+    
+    return this.workRecord.workTypes
+      .map(type => this.workTypeLabels[type])
+      .join('・');
+  }
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,

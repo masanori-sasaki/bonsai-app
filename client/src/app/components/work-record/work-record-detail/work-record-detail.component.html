@@ -3,7 +3,7 @@
     <button class="btn btn-outline-secondary" (click)="goBack()">
       <i class="fas fa-arrow-left"></i> 戻る
     </button>
-    <h2 *ngIf="workRecord">{{ workTypeLabels[workRecord.workType] }}の記録</h2>
+    <h2 *ngIf="workRecord">作業記録</h2>
     <div class="work-record-actions" *ngIf="workRecord">
       <button class="btn btn-primary" (click)="editWorkRecord()">
         <i class="fas fa-edit"></i> 編集
@@ -43,7 +43,16 @@
     <div class="work-record-info">
       <div class="info-row">
         <div class="info-label">作業タイプ</div>
-        <div class="info-value">{{ workTypeLabels[workRecord.workType] }}</div>
+        <div class="info-value">
+          <div class="work-type-tags">
+            <span *ngFor="let type of workRecord.workTypes" class="work-type-tag">
+              {{ workTypeLabels[type] }}
+            </span>
+            <span *ngIf="!workRecord.workTypes || workRecord.workTypes.length === 0" class="work-type-tag empty">
+              未設定
+            </span>
+          </div>
+        </div>
       </div>
       <div class="info-row">
         <div class="info-label">作業日</div>

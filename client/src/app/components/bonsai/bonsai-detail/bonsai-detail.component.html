@@ -78,7 +78,7 @@
           <div class="info-value">
             <div class="recent-works-list" *ngIf="bonsai.recentWorks && bonsai.recentWorks.length > 0">
               <div class="recent-work-item" *ngFor="let record of bonsai.recentWorks.slice(0, 3)" (click)="viewWorkRecord(record.id)">
-                <div class="work-type-badge">{{ getWorkTypeLabel(record.workType) }}</div>
+                <div class="work-type-badge">{{ getWorkTypeLabel(record.workTypes[0]) }}</div>
                 <div class="work-date">{{ record.date | date:'yyyy年MM月dd日' }}</div>
                 <div class="work-action">
                   <i class="fas fa-chevron-right"></i>
@@ -188,7 +188,7 @@
       <!-- 作業記録一覧 -->
       <div class="work-records" *ngIf="!workRecordsLoading && workRecords.length > 0">
         <div class="work-record-item" *ngFor="let record of workRecords" (click)="viewWorkRecord(record.id)">
-          <div class="work-record-type">{{ getWorkTypeLabel(record.workType) }}</div>
+          <div class="work-record-type">{{ getWorkTypeLabel(record.workTypes[0]) }}</div>
           <div class="work-record-date">{{ record.date | date:'yyyy年MM月dd日' }}</div>
           <div class="work-record-action">
             <i class="fas fa-chevron-right"></i>
@@ -219,7 +219,7 @@
 
       <div class="work-schedules" *ngIf="bonsai.upcomingWorks && bonsai.upcomingWorks.length > 0">
         <div class="work-schedule-item" *ngFor="let schedule of bonsai.upcomingWorks" (click)="viewWorkSchedule(schedule.id)">
-          <div class="work-schedule-type">{{ getWorkTypeLabel(schedule.workType) }}</div>
+          <div class="work-schedule-type">{{ getWorkTypeLabel(schedule.workTypes[0]) }}</div>
           <div class="work-schedule-date">{{ schedule.scheduledDate | date:'yyyy年MM月dd日' }}</div>
           <div class="work-schedule-action">
             <i class="fas fa-chevron-right"></i>

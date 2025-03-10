@@ -1,7 +1,7 @@
 /**
  * 作業タイプ
  */
-export type WorkType = 'pruning' | 'repotting' | 'watering' | 'fertilizing' | 'other';
+export type WorkType = 'pruning' | 'repotting' | 'watering' | 'fertilizing' | 'wire' | 'wireremove' | 'leafpull' | 'leafcut' | 'leafpeel' | 'disinfection' | 'carving' | 'replant' | 'protection' | 'other';
 
 /**
  * 作業タイプの表示名マッピング
@@ -11,6 +11,15 @@ export const WORK_TYPE_LABELS: Record<WorkType, string> = {
   repotting: '植替え',
   watering: '水やり',
   fertilizing: '肥料',
+  wire: '針金かけ',
+  wireremove: '針金はずし',
+  leafpull: '芽摘み',
+  leafcut: '芽切り',
+  leafpeel: '葉透かし',
+  disinfection: '消毒',
+  carving: '彫刻',
+  replant: '改作',
+  protection: '保護',
   other: 'その他'
 };
 
@@ -25,7 +34,7 @@ export type PriorityType = 'high' | 'medium' | 'low';
 export interface WorkRecord {
   id: string;
   bonsaiId: string;
-  workType: WorkType;     // 作業タイプ（剪定、植替え、水やり、肥料、その他）
+  workTypes: WorkType[];  // 作業タイプ（剪定、植替え、水やり、肥料、その他）の配列
   date: string;           // 作業日（ISO 8601形式）
   description: string;    // 作業内容の詳細
   imageUrls: string[];    // 作業前後の画像URL配列
@@ -53,7 +62,7 @@ export interface WorkRecordListResponse {
  */
 export interface CreateWorkRecordRequest {
   bonsaiId: string;
-  workType: WorkType;
+  workTypes: WorkType[];
   date: string;
   description: string;
   imageUrls?: string[];
@@ -70,7 +79,7 @@ export interface CreateWorkRecordRequest {
  * 作業記録更新リクエスト
  */
 export interface UpdateWorkRecordRequest {
-  workType?: WorkType;
+  workTypes?: WorkType[];
   date?: string;
   description?: string;
   imageUrls?: string[];

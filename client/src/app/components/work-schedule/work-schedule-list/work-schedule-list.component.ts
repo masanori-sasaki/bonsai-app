@@ -171,7 +171,7 @@ export class WorkScheduleListComponent implements OnInit {
     if (confirm('作業記録を作成しますか？')) {
       this.router.navigate(['/bonsai', this.bonsaiId, 'records', 'new'], {
         queryParams: {
-          workType: schedule.workType,
+          workTypes: schedule.workTypes,
           date: schedule.scheduledDate,
           description: schedule.description
         }

@@ -148,6 +148,25 @@
     .info-value.description-text {
       white-space: pre-line;
     }
+    
+    .work-type-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      
+      .work-type-tag {
+        padding: 4px 10px;
+        border-radius: 16px;
+        background-color: $primary;
+        color: $white;
+        font-size: 14px;
+        
+        &.empty {
+          background-color: $bg-dark;
+          color: $text-light;
+        }
+      }
+    }
   }
   
   .priority-badge {

@@ -198,12 +198,24 @@ async function main() {
     }
     
     if (!bucketName) {
-      // StorageStackの出力を直接取得してみる
-      try {
-        console.log('StorageStackの出力を直接取得しています...');
-        const storageStackName = `${config.stackName}-StorageStack`;
+    // StorageStackの正確な名前を取得
+    try {
+      console.log('StorageStackの正確な名前を取得しています...');
+      const listStacksResponse = await cloudformation.listStacks({
+        StackStatusFilter: ['CREATE_COMPLETE', 'UPDATE_COMPLETE']
+      }).promise();
+      
+      const storageStackPrefix = `${config.stackName}-StorageStack`;
+      const storageStack = listStacksResponse.StackSummaries.find(
+        stack => stack.StackName.startsWith(storageStackPrefix)
+      );
+      
+      if (storageStack) {
+        console.log(`StorageStackの正確な名前を見つけました: ${storageStack.StackName}`);
+        
+        // 正確なStorageStack名を使用して出力を取得
         const storageStackResponse = await cloudformation.describeStacks({
-          StackName: storageStackName
+          StackName: storageStack.StackName
         }).promise();
         
         if (storageStackResponse.Stacks && storageStackResponse.Stacks.length > 0) {
@@ -219,13 +231,34 @@ async function main() {
             console.log(`StorageStackからバケット名を取得しました: ${bucketName}`);
           }
         }
-      } catch (error) {
-        console.warn('StorageStackの出力取得に失敗しました:', error.message);
+      } else {
+        console.warn(`StorageStackが見つかりませんでした。検索プレフィックス: ${storageStackPrefix}`);
+      }
+    } catch (error) {
+      console.warn('StorageStackの出力取得に失敗しました:', error.message);
+    }
+    }
+    
+    // それでもバケット名が見つからない場合は、FrontendURLから抽出を試みる
+    if (!bucketName && outputs.FrontendURL) {
+      // URLからバケット名を抽出（より堅牢な方法）
+      const urlMatch = outputs.FrontendURL.match(/http:\/\/([^\.]+)\./);
+      if (urlMatch && urlMatch[1]) {
+        bucketName = urlMatch[1];
+        console.log(`FrontendURLからバケット名を抽出しました: ${bucketName}`);
       }
     }
     
+    // 最終手段として、環境変数から直接バケット名を取得
+    if (!bucketName && process.env.FRONTEND_BUCKET_NAME) {
+      bucketName = process.env.FRONTEND_BUCKET_NAME;
+      console.log(`環境変数からバケット名を取得しました: ${bucketName}`);
+    }
+    
     if (!bucketName) {
-      throw new Error('フロントエンドバケット名が見つかりません。CloudFormationスタックが正しくデプロイされているか確認してください。');
+      throw new Error('フロントエンドバケット名が見つかりません。CloudFormationスタックが正しくデプロイされているか確認してください。\n' +
+                     '手動でデプロイするには、環境変数FRONTEND_BUCKET_NAMEを設定してください。\n' +
+                     '例: set FRONTEND_BUCKET_NAME=bonsai-app-prod-171278323216-ap-northeast-1 && npm run deploy-frontend');
     }
     
     // フロントエンドをデプロイ
