@@ -63,7 +63,7 @@ describe('作業予定ハンドラー', () => {
         {
           id: 'schedule1',
           bonsaiId: 'bonsai1',
-          workType: 'pruning',
+          workTypes: ['pruning'],
           scheduledDate: '2025-04-15T00:00:00Z',
           description: '上部の枝を剪定する予定',
           completed: false,
@@ -73,7 +73,7 @@ describe('作業予定ハンドラー', () => {
         {
           id: 'schedule2',
           bonsaiId: 'bonsai1',
-          workType: 'repotting',
+          workTypes: ['repotting'],
           scheduledDate: '2025-05-10T00:00:00Z',
           description: '新しい鉢に植え替える予定',
           completed: true,
@@ -87,7 +87,7 @@ describe('作業予定ハンドラー', () => {
     (workScheduleService.getWorkSchedule as jest.Mock).mockResolvedValue({
       id: 'schedule1',
       bonsaiId: 'bonsai1',
-      workType: 'pruning',
+      workTypes: ['pruning'],
       scheduledDate: '2025-04-15T00:00:00Z',
       description: '上部の枝を剪定する予定',
       completed: false,
@@ -98,7 +98,7 @@ describe('作業予定ハンドラー', () => {
     (workScheduleService.createWorkSchedule as jest.Mock).mockResolvedValue({
       id: 'new-schedule-id',
       bonsaiId: 'bonsai1',
-      workType: 'watering',
+      workTypes: ['watering'],
       scheduledDate: '2025-04-01T00:00:00Z',
       description: '水やりを行う予定',
       completed: false,
@@ -109,7 +109,7 @@ describe('作業予定ハンドラー', () => {
     (workScheduleService.updateWorkSchedule as jest.Mock).mockResolvedValue({
       id: 'schedule1',
       bonsaiId: 'bonsai1',
-      workType: 'pruning',
+      workTypes: ['pruning'],
       scheduledDate: '2025-04-15T00:00:00Z',
       description: '上部の枝を剪定する予定（更新）',
       completed: true,
@@ -141,10 +141,10 @@ describe('作業予定ハンドラー', () => {
       expect(body).toHaveProperty('items');
       expect(body.items).toHaveLength(2);
       expect(body.items[0]).toHaveProperty('id', 'schedule1');
-      expect(body.items[0]).toHaveProperty('workType', 'pruning');
+      expect(body.items[0].workTypes).toContain('pruning');
       expect(body.items[0]).toHaveProperty('completed', false);
       expect(body.items[1]).toHaveProperty('id', 'schedule2');
-      expect(body.items[1]).toHaveProperty('workType', 'repotting');
+      expect(body.items[1].workTypes).toContain('repotting');
       expect(body.items[1]).toHaveProperty('completed', true);
       expect(body).toHaveProperty('nextToken', 'mock-next-token');
       
@@ -239,7 +239,7 @@ describe('作業予定ハンドラー', () => {
       // 期待される値の検証
       expect(body).toHaveProperty('id', 'schedule1');
       expect(body).toHaveProperty('bonsaiId', 'bonsai1');
-      expect(body).toHaveProperty('workType', 'pruning');
+      expect(body.workTypes).toContain('pruning');
       expect(body).toHaveProperty('description', '上部の枝を剪定する予定');
       expect(body).toHaveProperty('completed', false);
       
@@ -301,7 +301,7 @@ describe('作業予定ハンドラー', () => {
         ...createMockEvent('/api/bonsai/bonsai1/schedules', 'POST'),
         pathParameters: { bonsaiId: 'bonsai1' },
         body: JSON.stringify({
-          workType: 'watering',
+          workTypes: ['watering'],
           scheduledDate: '2025-04-01T00:00:00Z',
           description: '水やりを行う予定'
         })
@@ -319,7 +319,7 @@ describe('作業予定ハンドラー', () => {
       // 期待される値の検証
       expect(body).toHaveProperty('id', 'new-schedule-id');
       expect(body).toHaveProperty('bonsaiId', 'bonsai1');
-      expect(body).toHaveProperty('workType', 'watering');
+      expect(body.workTypes).toContain('watering');
       expect(body).toHaveProperty('description', '水やりを行う予定');
       expect(body).toHaveProperty('completed', false);
       
@@ -327,7 +327,7 @@ describe('作業予定ハンドラー', () => {
       expect(authUtils.getUserIdFromRequest).toHaveBeenCalledWith(mockEvent);
       expect(workScheduleService.createWorkSchedule).toHaveBeenCalledWith('user123', {
         bonsaiId: 'bonsai1',
-        workType: 'watering',
+        workTypes: ['watering'],
         scheduledDate: '2025-04-01T00:00:00Z',
         description: '水やりを行う予定'
       });
@@ -338,7 +338,7 @@ describe('作業予定ハンドラー', () => {
       const mockEvent = {
         ...createMockEvent('/api/bonsai/undefined/schedules', 'POST'),
         body: JSON.stringify({
-          workType: 'watering',
+          workTypes: ['watering'],
           scheduledDate: '2025-04-01T00:00:00Z',
           description: '水やりを行う予定'
         })
@@ -392,7 +392,7 @@ describe('作業予定ハンドラー', () => {
         ...createMockEvent('/api/bonsai/bonsai1/schedules', 'POST'),
         pathParameters: { bonsaiId: 'bonsai1' },
         body: JSON.stringify({
-          workType: 'watering',
+          workTypes: ['watering'],
           // scheduledDate: 欠落
           // description: 欠落
         })
@@ -425,7 +425,7 @@ describe('作業予定ハンドラー', () => {
         ...createMockEvent('/api/bonsai/nonexistent/schedules', 'POST'),
         pathParameters: { bonsaiId: 'nonexistent' },
         body: JSON.stringify({
-          workType: 'watering',
+          workTypes: ['watering'],
           scheduledDate: '2025-04-01T00:00:00Z',
           description: '水やりを行う予定'
         })

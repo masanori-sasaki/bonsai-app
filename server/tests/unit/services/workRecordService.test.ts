@@ -43,7 +43,7 @@ describe('作業記録サービス', () => {
     {
       id: 'record1',
       bonsaiId: 'bonsai1',
-      workType: 'pruning',
+      workTypes: ['pruning'],
       date: '2025-01-20T00:00:00Z',
       description: '上部の枝を剪定しました。',
       imageUrls: ['https://example.com/images/record1-1.jpg', 'https://example.com/images/record1-2.jpg'],
@@ -53,7 +53,7 @@ describe('作業記録サービス', () => {
     {
       id: 'record2',
       bonsaiId: 'bonsai1',
-      workType: 'watering',
+      workTypes: ['watering'],
       date: '2025-02-05T00:00:00Z',
       description: '水やりを行いました。',
       imageUrls: ['https://example.com/images/record2-1.jpg'],
@@ -63,7 +63,7 @@ describe('作業記録サービス', () => {
     {
       id: 'record3',
       bonsaiId: 'bonsai2',
-      workType: 'repotting',
+      workTypes: ['repotting'],
       date: '2025-02-15T00:00:00Z',
       description: '新しい鉢に植え替えました。',
       imageUrls: ['https://example.com/images/record3-1.jpg', 'https://example.com/images/record3-2.jpg'],
@@ -142,20 +142,20 @@ describe('作業記録サービス', () => {
     it('作業タイプでフィルタリングできること', async () => {
       // モック関数の実装を設定
       (workRecordService.listWorkRecords as jest.Mock).mockResolvedValue({
-        items: mockWorkRecordData.filter(r => r.bonsaiId === 'bonsai1' && r.workType === 'pruning'),
+        items: mockWorkRecordData.filter(r => r.bonsaiId === 'bonsai1' && r.workTypes.includes('pruning')),
         nextToken: undefined
       });
       
       // サービス関数を実行（作業タイプ指定）
-      const result = await workRecordService.listWorkRecords('user1', 'bonsai1', 'pruning');
+      const result = await workRecordService.listWorkRecords('user1', 'bonsai1', ['pruning']);
       
       // 結果の検証
       expect(result.items).toHaveLength(1);
       expect(result.items[0].id).toBe('record1');
-      expect(result.items[0].workType).toBe('pruning');
+      expect(result.items[0].workTypes).toContain('pruning');
       
       // 関数が正しく呼び出されたことを検証
-      expect(workRecordService.listWorkRecords).toHaveBeenCalledWith('user1', 'bonsai1', 'pruning');
+      expect(workRecordService.listWorkRecords).toHaveBeenCalledWith('user1', 'bonsai1', ['pruning']);
     });
     
     it('指定された件数分のデータを返すこと', async () => {
@@ -269,7 +269,7 @@ describe('作業記録サービス', () => {
       // 結果の検証
       expect(result.id).toBe('record1');
       expect(result.bonsaiId).toBe('bonsai1');
-      expect(result.workType).toBe('pruning');
+      expect(result.workTypes).toContain('pruning');
       
       // 関数が正しく呼び出されたことを検証
       expect(workRecordService.getWorkRecord).toHaveBeenCalledWith('record1');
@@ -295,7 +295,7 @@ describe('作業記録サービス', () => {
       // 作成データ
       const createData = {
         bonsaiId: 'bonsai1',
-        workType: 'fertilizing' as WorkType,
+        workTypes: ['fertilizing'] as WorkType[],
         date: '2025-03-09T00:00:00Z',
         description: '肥料を与えました。',
         imageUrls: ['https://example.com/images/new-record.jpg']
@@ -305,7 +305,7 @@ describe('作業記録サービス', () => {
       (workRecordService.createWorkRecord as jest.Mock).mockResolvedValue({
         id: 'new-record-id',
         bonsaiId: 'bonsai1',
-        workType: 'fertilizing',
+        workTypes: ['fertilizing'],
         date: '2025-03-09T00:00:00Z',
         description: '肥料を与えました。',
         imageUrls: ['https://example.com/images/new-record.jpg'],
@@ -319,7 +319,7 @@ describe('作業記録サービス', () => {
       // 結果の検証
       expect(result.id).toBe('new-record-id');
       expect(result.bonsaiId).toBe('bonsai1');
-      expect(result.workType).toBe('fertilizing');
+      expect(result.workTypes).toContain('fertilizing');
       expect(result.description).toBe('肥料を与えました。');
       
       // 関数が正しく呼び出されたことを検証
@@ -330,7 +330,7 @@ describe('作業記録サービス', () => {
       // 作成データ（imageUrlsなし）
       const createData = {
         bonsaiId: 'bonsai1',
-        workType: 'watering' as WorkType,
+        workTypes: ['watering'] as WorkType[],
         date: '2025-03-09T00:00:00Z',
         description: '水やりを行いました。'
       };
@@ -339,7 +339,7 @@ describe('作業記録サービス', () => {
       (workRecordService.createWorkRecord as jest.Mock).mockResolvedValue({
         id: 'new-record-id',
         bonsaiId: 'bonsai1',
-        workType: 'watering',
+        workTypes: ['watering'],
         date: '2025-03-09T00:00:00Z',
         description: '水やりを行いました。',
         imageUrls: [],
@@ -361,7 +361,7 @@ describe('作業記録サービス', () => {
       // 作成データ
       const createData = {
         bonsaiId: 'nonexistent-bonsai',
-        workType: 'watering' as WorkType,
+        workTypes: ['watering'] as WorkType[],
         date: '2025-03-09T00:00:00Z',
         description: '水やりを行いました。'
       };
@@ -384,14 +384,14 @@ describe('作業記録サービス', () => {
     it('既存の作業記録を更新して返すこと', async () => {
       // 更新データ
       const updateData = {
-        workType: 'other' as WorkType,
+        workTypes: ['other'] as WorkType[],
         description: '剪定から作業タイプを変更しました。'
       };
       
       // モック関数の実装を設定
       (workRecordService.updateWorkRecord as jest.Mock).mockResolvedValue({
         ...mockWorkRecordData[0],
-        workType: 'other',
+        workTypes: ['other'],
         description: '剪定から作業タイプを変更しました。',
         updatedAt: '2025-03-09T00:00:00Z'
       });
@@ -401,7 +401,7 @@ describe('作業記録サービス', () => {
       
       // 結果の検証
       expect(result.id).toBe('record1');
-      expect(result.workType).toBe('other');
+      expect(result.workTypes).toContain('other');
       expect(result.description).toBe('剪定から作業タイプを変更しました。');
       expect(result.date).toBe('2025-01-20T00:00:00Z'); // 更新されていない項目は元の値を保持
       
