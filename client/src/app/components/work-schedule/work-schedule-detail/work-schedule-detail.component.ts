@@ -164,10 +164,25 @@ export class WorkScheduleDetailComponent implements OnInit {
    */
   toggleCompleted(): void {
     if (this.workSchedule) {
-      const updatedSchedule = {
-        completed: !this.workSchedule.completed
+      // const updatedSchedule = {
+      //   completed: !this.workSchedule.completed
+      // };
+       // 更新に必要なすべてのプロパティを含むオブジェクトを作成
+       const updatedSchedule = {
+        workTypes: this.workSchedule.workTypes,
+        scheduledDate: this.workSchedule.scheduledDate,
+        description: this.workSchedule.description,
+        completed: !this.workSchedule.completed,
+        // オプショナルなプロパティも含める
+        startTime: this.workSchedule.startTime,
+        endTime: this.workSchedule.endTime,
+        isAllDay: this.workSchedule.isAllDay,
+        priority: this.workSchedule.priority,
+        colorCode: this.workSchedule.colorCode,
+        recurrencePattern: this.workSchedule.recurrencePattern,
+        reminderDays: this.workSchedule.reminderDays
       };
-      
+
       this.workScheduleService.updateWorkSchedule(this.scheduleId, updatedSchedule)
         .subscribe({
           next: (schedule: WorkSchedule) => {

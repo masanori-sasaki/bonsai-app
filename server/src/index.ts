@@ -146,39 +146,8 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       }
     }
     
-    // 作業記録詳細のエンドポイント
-    const workRecordDetailMatch = path.match(/^\/api\/records\/([^\/\?]+)/);
-    if (workRecordDetailMatch) {
-      const recordId = workRecordDetailMatch[1];
-      console.log('作業記録詳細 recordId:', recordId);
-      event.pathParameters = { ...event.pathParameters, recordId };
-      
-      if (method === 'GET') {
-        return await getWorkRecordDetail(event);
-      } else if (method === 'PUT') {
-        return await updateWorkRecord(event);
-      } else if (method === 'DELETE') {
-        return await deleteWorkRecord(event);
-      }
-    }
-    
-    // 作業予定一覧のエンドポイント
-    // クエリパラメータを含まないパスパターンに変更
-    const workScheduleListMatch = path.match(/^\/api\/bonsai\/([^\/\?]+)\/schedules/);
-    if (workScheduleListMatch) {
-      const bonsaiId = workScheduleListMatch[1];
-      console.log('作業予定一覧 bonsaiId:', bonsaiId);
-      event.pathParameters = { ...event.pathParameters, bonsaiId };
-      
-      if (method === 'GET') {
-        return await getWorkScheduleList(event);
-      } else if (method === 'POST') {
-        return await createWorkSchedule(event);
-      }
-    }
-    
-    // 作業予定詳細のエンドポイント
-    const workScheduleDetailMatch = path.match(/^\/api\/schedules\/([^\/\?]+)/);
+    // 作業予定詳細のエンドポイント - 作業記録詳細よりも先に処理
+    const workScheduleDetailMatch = path.match(/^\/api\/schedules\/([^\/\?]+)$/);
     if (workScheduleDetailMatch) {
       const scheduleId = workScheduleDetailMatch[1];
       console.log('作業予定詳細 scheduleId:', scheduleId);
@@ -190,6 +159,22 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
         return await updateWorkSchedule(event);
       } else if (method === 'DELETE') {
         return await deleteWorkSchedule(event);
+      }
+    }
+    
+    // 作業記録詳細のエンドポイント
+    const workRecordDetailMatch = path.match(/^\/api\/records\/([^\/\?]+)$/);
+    if (workRecordDetailMatch) {
+      const recordId = workRecordDetailMatch[1];
+      console.log('作業記録詳細 recordId:', recordId);
+      event.pathParameters = { ...event.pathParameters, recordId };
+      
+      if (method === 'GET') {
+        return await getWorkRecordDetail(event);
+      } else if (method === 'PUT') {
+        return await updateWorkRecord(event);
+      } else if (method === 'DELETE') {
+        return await deleteWorkRecord(event);
       }
     }
     

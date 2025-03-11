@@ -27,7 +27,7 @@ export class WorkRecordFormComponent implements OnInit {
   saving = false;
   error = '';
   workTypeLabels = WORK_TYPE_LABELS;
-  workTypes: WorkType[] = ['pruning', 'repotting', 'watering', 'fertilizing', 'other', 'wire', 'wireremove', 'leafpull', 'leafcut', 'leafpeel', 'disinfection', 'carving', 'replant', 'protection'];
+  workTypes: WorkType[] = ['pruning', 'repotting', 'watering', 'fertilizing', 'wire', 'wireremove', 'leafpull', 'leafcut', 'leafpeel', 'disinfection', 'carving', 'replant', 'protection', 'other'];
   selectedWorkTypes: WorkType[] = [];
   
   // 画像アップロード関連のプロパティ

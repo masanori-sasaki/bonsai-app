@@ -482,7 +482,12 @@ export class WorkScheduleFormComponent implements OnInit {
    * キャンセルして前の画面に戻る
    */
   cancel(): void {
-    // 盆栽詳細ページに戻る
-    this.router.navigate(['/bonsai', this.bonsaiId]);
+    if (this.isEditMode) {
+      // 編集モードの場合は作業予定詳細ページに戻る
+      this.router.navigate(['/schedules', this.scheduleId]);
+    } else {
+      // 新規作成モードの場合は盆栽詳細ページに戻る
+      this.router.navigate(['/bonsai', this.bonsaiId]);
+    }
   }
 }

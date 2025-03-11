@@ -2,9 +2,11 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BonsaiService } from '../../../services/bonsai.service';
 import { WorkRecordService } from '../../../services/work-record.service';
+import { WorkScheduleService } from '../../../services/work-schedule.service';
 import { ImageUploadService } from '../../../services/image-upload.service';
 import { BonsaiDetail } from '../../../models/bonsai.model';
 import { WORK_TYPE_LABELS, WorkType, WorkRecord } from '../../../models/work-record.model';
+import { WorkSchedule } from '../../../models/work-schedule.model';
 
 @Component({
   selector: 'app-bonsai-detail',
@@ -24,6 +26,11 @@ export class BonsaiDetailComponent implements OnInit {
   workRecords: WorkRecord[] = [];
   workRecordsLoading = false;
   workRecordsError = '';
+  
+  // 作業予定タブ用のプロパティ
+  workSchedules: WorkSchedule[] = [];
+  workSchedulesLoading = false;
+  workSchedulesError = '';
 
   // 画像アップロード関連のプロパティ
   imagePreview: string | null = null;
@@ -36,6 +43,7 @@ export class BonsaiDetailComponent implements OnInit {
     private router: Router,
     private bonsaiService: BonsaiService,
     private workRecordService: WorkRecordService,
+    private workScheduleService: WorkScheduleService,
     private imageUploadService: ImageUploadService
   ) { }
 
@@ -208,6 +216,11 @@ export class BonsaiDetailComponent implements OnInit {
     if (tabId === 'records' && this.bonsaiId && this.bonsaiId !== 'new') {
       this.loadWorkRecords();
     }
+    
+    // 作業予定タブが選択された場合、作業予定一覧を取得
+    if (tabId === 'schedules' && this.bonsaiId && this.bonsaiId !== 'new') {
+      this.loadWorkSchedules();
+    }
   }
   
   /**
@@ -236,6 +249,33 @@ export class BonsaiDetailComponent implements OnInit {
         }
       });
   }
+  
+  /**
+   * 作業予定一覧を取得
+   */
+  loadWorkSchedules(): void {
+    if (!this.bonsaiId) return;
+    
+    this.workSchedulesLoading = true;
+    this.workSchedulesError = '';
+    this.workSchedules = [];
+    
+    this.workScheduleService.getWorkScheduleList(this.bonsaiId)
+      .subscribe({
+        next: (response) => {
+          // 作業予定を予定日の昇順でソート
+          this.workSchedules = response.items ? response.items.sort(
+            (a, b) => new Date(a.scheduledDate).getTime() - new Date(b.scheduledDate).getTime()
+          ) : [];
+          this.workSchedulesLoading = false;
+        },
+        error: (error) => {
+          this.workSchedulesError = '作業予定の取得に失敗しました。';
+          console.error('作業予定取得エラー:', error);
+          this.workSchedulesLoading = false;
+        }
+      });
+  }
 
   /**
    * 盆栽編集ページに遷移
@@ -249,8 +289,13 @@ export class BonsaiDetailComponent implements OnInit {
    */
   goBack(): void {
     if (this.isEditMode) {
-      // 編集モードの場合は詳細ページに戻る
-      this.router.navigate(['/bonsai', this.bonsaiId]);
+      if (this.bonsaiId === 'new') {
+        // 新規登録モードの場合は盆栽一覧に戻る
+        this.router.navigate(['/bonsai']);
+      } else {
+        // 既存盆栽の編集モードの場合は詳細ページに戻る
+        this.router.navigate(['/bonsai', this.bonsaiId]);
+      }
     } else {
       // 通常モードの場合は一覧ページに戻る
       this.router.navigate(['/bonsai']);
@@ -371,7 +416,7 @@ export class BonsaiDetailComponent implements OnInit {
    * @param scheduleId 作業予定ID
    */
   viewWorkSchedule(scheduleId: string): void {
-    this.router.navigate(['/schedules', scheduleId, 'edit']);
+    this.router.navigate(['/schedules', scheduleId]);
   }
 
   /**

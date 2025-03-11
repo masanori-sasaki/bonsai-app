@@ -65,6 +65,7 @@ dist/
 *.tsbuildinfo
 
 # テスト
+server/data/
 coverage/
 .nyc_output/
 *.lcov

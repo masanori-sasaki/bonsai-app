@@ -202,6 +202,40 @@ sequenceDiagram
     end
 ```
 
+### 盆栽詳細画面での作業予定タブ表示フロー
+
+```mermaid
+sequenceDiagram
+    actor User as ユーザー
+    participant Client as クライアントアプリ
+    participant Component as 盆栽詳細コンポーネント
+    participant WorkScheduleService as 作業予定サービス
+    participant API as API Gateway/Lambda
+    participant DynamoDB as DynamoDB
+    participant Router as Angularルーター
+
+    User->>Component: 作業予定タブをクリック
+    Component->>Component: activeTab = 'schedules' に設定
+    Component->>WorkScheduleService: 作業予定一覧取得リクエスト
+    WorkScheduleService->>API: 作業予定一覧取得API呼び出し
+    API->>DynamoDB: 盆栽IDに紐づく作業予定取得
+    DynamoDB->>API: 作業予定一覧
+    API->>WorkScheduleService: 作業予定一覧レスポンス
+    WorkScheduleService->>Component: 作業予定一覧
+    Component->>Component: 作業予定を予定日の昇順でソート
+    Component->>User: 作業予定一覧を表示
+    
+    alt 作業予定項目クリック
+        User->>Component: 作業予定項目をクリック
+        Component->>Router: /schedules/:scheduleId/edit へのナビゲーション
+        Router->>User: 作業予定編集画面を表示
+    else 作業予定追加ボタンクリック
+        User->>Component: 作業予定追加ボタンをクリック
+        Component->>Router: /bonsai/:id/schedules/new へのナビゲーション
+        Router->>User: 作業予定作成画面を表示
+    end
+```
+
 ### 盆栽情報更新フロー
 
 ```mermaid
