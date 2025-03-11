@@ -1,0 +1,21 @@
+.calendar-container {
+  width: 100%;
+  margin-bottom: 2rem;
+  
+  ::ng-deep {
+    .fc-event {
+      cursor: pointer;
+      border-radius: 4px;
+      padding: 2px 4px;
+      font-size: 0.85rem;
+    }
+    
+    .fc-day-today {
+      background-color: rgba(0, 0, 0, 0.05);
+    }
+    
+    .fc-toolbar-title {
+      font-size: 1.25rem;
+    }
+  }
+}

@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FullCalendarModule } from '@fullcalendar/angular';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -26,6 +27,9 @@ import { WorkScheduleDetailComponent } from './components/work-schedule/work-sch
 import { WorkRecordFormComponent } from './components/work-record/work-record-form/work-record-form.component';
 import { WorkScheduleFormComponent } from './components/work-schedule/work-schedule-form/work-schedule-form.component';
 
+// カレンダーコンポーネント
+import { CalendarComponent } from './components/calendar/calendar.component';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -38,14 +42,16 @@ import { WorkScheduleFormComponent } from './components/work-schedule/work-sched
     WorkScheduleListComponent,
     WorkScheduleDetailComponent,
     WorkRecordFormComponent,
-    WorkScheduleFormComponent
+    WorkScheduleFormComponent,
+    CalendarComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    FullCalendarModule
   ],
   providers: [],
   bootstrap: [AppComponent]

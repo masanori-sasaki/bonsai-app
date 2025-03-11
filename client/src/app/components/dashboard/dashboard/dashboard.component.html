@@ -13,6 +13,13 @@
   </div>
 
   <div *ngIf="!loading" class="dashboard-content">
+    <!-- カレンダーセクションを追加 -->
+    <div class="dashboard-section">
+      <div class="section-header">
+        <h2>カレンダー</h2>
+      </div>
+      <app-calendar></app-calendar>
+    </div>
     <div class="dashboard-section">
       <div class="section-header">
         <h2>盆栽一覧</h2>
