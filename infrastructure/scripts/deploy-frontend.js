@@ -207,7 +207,7 @@ async function main() {
       
       const storageStackPrefix = `${config.stackName}-StorageStack`;
       const storageStack = listStacksResponse.StackSummaries.find(
-        stack => stack.StackName.startsWith(storageStackPrefix)
+        stack => stack.StackName.includes(storageStackPrefix)
       );
       
       if (storageStack) {
