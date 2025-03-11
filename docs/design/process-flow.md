@@ -8,6 +8,7 @@
 2. [盆栽管理フロー](#盆栽管理フロー)
 3. [作業記録管理フロー](#作業記録管理フロー)
 4. [作業予定管理フロー](#作業予定管理フロー)
+5. [ダッシュボードカレンダーフロー](#ダッシュボードカレンダーフロー)
 
 ## 認証フロー
 
@@ -417,4 +418,91 @@ sequenceDiagram
     API->>Client: 更新完了レスポンス
     Client->>User: 成功メッセージ表示
     Client->>Client: 作業予定情報更新
+```
+
+## ダッシュボードカレンダーフロー
+
+### カレンダーデータ読み込みフロー
+
+```mermaid
+sequenceDiagram
+    actor User as ユーザー
+    participant Dashboard as ダッシュボードコンポーネント
+    participant Calendar as カレンダーコンポーネント
+    participant CalendarData as カレンダーデータサービス
+    participant BonsaiService as 盆栽サービス
+    participant ScheduleService as 作業予定サービス
+    participant RecordService as 作業記録サービス
+    participant API as API Gateway/Lambda
+    participant DynamoDB as DynamoDB
+
+    User->>Dashboard: ダッシュボード画面を表示
+    Dashboard->>Calendar: カレンダーコンポーネントを初期化
+    Calendar->>Calendar: 現在の月/週を取得
+    Calendar->>CalendarData: カレンダーイベント取得リクエスト
+    CalendarData->>BonsaiService: 盆栽一覧取得リクエスト
+    BonsaiService->>API: 盆栽一覧取得API呼び出し
+    API->>DynamoDB: 盆栽データ取得
+    DynamoDB->>API: 盆栽一覧
+    API->>BonsaiService: 盆栽一覧レスポンス
+    BonsaiService->>CalendarData: 盆栽一覧
+    
+    loop 各盆栽に対して
+        CalendarData->>ScheduleService: 作業予定取得リクエスト
+        ScheduleService->>API: 作業予定取得API呼び出し
+        API->>DynamoDB: 作業予定データ取得
+        DynamoDB->>API: 作業予定一覧
+        API->>ScheduleService: 作業予定一覧レスポンス
+        ScheduleService->>CalendarData: 作業予定一覧
+        
+        CalendarData->>RecordService: 作業記録取得リクエスト
+        RecordService->>API: 作業記録取得API呼び出し
+        API->>DynamoDB: 作業記録データ取得
+        DynamoDB->>API: 作業記録一覧
+        API->>RecordService: 作業記録一覧レスポンス
+        RecordService->>CalendarData: 作業記録一覧
+        
+        CalendarData->>CalendarData: 作業予定と作業記録をカレンダーイベントに変換
+    end
+    
+    CalendarData->>Calendar: カレンダーイベント
+    Calendar->>Calendar: カレンダーにイベントを表示
+    Calendar->>User: カレンダーを表示
+```
+
+### カレンダー表示切り替えフロー
+
+```mermaid
+sequenceDiagram
+    actor User as ユーザー
+    participant Calendar as カレンダーコンポーネント
+    participant CalendarData as カレンダーデータサービス
+
+    User->>Calendar: 表示切り替えボタンをクリック（月表示/週表示）
+    Calendar->>Calendar: 表示モード変更
+    Calendar->>Calendar: 日付範囲の再計算
+    Calendar->>CalendarData: 新しい日付範囲でデータ取得リクエスト
+    CalendarData->>Calendar: 更新されたカレンダーイベント
+    Calendar->>Calendar: カレンダーを再描画
+    Calendar->>User: 更新されたカレンダーを表示
+```
+
+### カレンダーイベントクリックフロー
+
+```mermaid
+sequenceDiagram
+    actor User as ユーザー
+    participant Calendar as カレンダーコンポーネント
+    participant Router as Angularルーター
+
+    User->>Calendar: カレンダーイベントをクリック
+    Calendar->>Calendar: イベントタイプ判定
+    
+    alt 作業予定の場合
+        Calendar->>Router: 作業予定詳細画面へ遷移（/schedules/:id）
+        Router->>User: 作業予定詳細画面を表示
+    else 作業記録の場合
+        Calendar->>Router: 作業記録詳細画面へ遷移（/records/:id）
+        Router->>User: 作業記録詳細画面を表示
+    end
 ```
