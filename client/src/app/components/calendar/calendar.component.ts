@@ -18,14 +18,32 @@ export class CalendarComponent implements OnInit {
     headerToolbar: {
       left: 'prev,next today',
       center: 'title',
-      right: 'dayGridMonth,timeGridWeek'
+      right: 'dayGridMonth,dayGridWeek' // timeGridWeekからdayGridWeekに変更
     },
     events: [],
     eventClick: this.handleEventClick.bind(this),
     datesSet: this.handleDatesSet.bind(this),
     locale: 'ja',
     height: 'auto',
-    firstDay: 0 // 日曜日始まり
+    firstDay: 0, // 日曜日始まり
+    dayMaxEvents: 2, // 1日に表示する最大イベント数（これを超えると「+more」が表示される）
+    moreLinkClick: 'day', // 「+more」クリック時の動作（dayビューに切り替え）
+    fixedWeekCount: false, // 月によって週の数を可変にする
+    eventTimeFormat: { // イベントの時間フォーマット
+      hour: '2-digit',
+      minute: '2-digit',
+      meridiem: false
+    },
+    views: {
+      dayGridWeek: {
+        dayMaxEvents: 6, // 週表示で1日に表示する最大イベント数
+        dayHeaderFormat: { // 曜日ヘッダーのフォーマット
+          weekday: 'short',
+          day: 'numeric',
+          omitCommas: true
+        }
+      }
+    }
   };
 
   constructor(

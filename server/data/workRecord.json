@@ -86,5 +86,77 @@
     "id": "07180956-059e-4ab5-85d9-b5a0fea02850",
     "createdAt": "2025-03-11T09:28:18.356Z",
     "updatedAt": "2025-03-11T09:28:18.356Z"
+  },
+  {
+    "bonsaiId": "9c069747-e892-46e1-813b-fdaad13bcb60",
+    "workTypes": [
+      "repotting"
+    ],
+    "date": "2025-03-19T00:00:00.000Z",
+    "description": "test",
+    "imageUrls": [],
+    "id": "8e485004-f2e3-4b51-8313-b7c5acc1492e",
+    "createdAt": "2025-03-12T13:25:08.549Z",
+    "updatedAt": "2025-03-12T13:25:08.549Z"
+  },
+  {
+    "bonsaiId": "9c069747-e892-46e1-813b-fdaad13bcb60",
+    "workTypes": [
+      "wire"
+    ],
+    "date": "2025-03-12T00:00:00.000Z",
+    "description": "tst",
+    "imageUrls": [],
+    "id": "c8df5eb8-8256-4d5b-95c0-88705173b917",
+    "createdAt": "2025-03-12T13:25:16.986Z",
+    "updatedAt": "2025-03-12T13:25:16.986Z"
+  },
+  {
+    "bonsaiId": "9c069747-e892-46e1-813b-fdaad13bcb60",
+    "workTypes": [
+      "leafpeel"
+    ],
+    "date": "2025-03-12T00:00:00.000Z",
+    "description": "sts",
+    "imageUrls": [],
+    "id": "efe3a7fd-0b8e-4e5f-9b2a-e05a3afe3433",
+    "createdAt": "2025-03-12T13:25:23.229Z",
+    "updatedAt": "2025-03-12T13:26:28.756Z"
+  },
+  {
+    "bonsaiId": "9c069747-e892-46e1-813b-fdaad13bcb60",
+    "workTypes": [
+      "pruning"
+    ],
+    "date": "2025-03-05T00:00:00.000Z",
+    "description": "st",
+    "imageUrls": [],
+    "id": "9c4767c6-1666-4afe-95a7-0a3a88997392",
+    "createdAt": "2025-03-12T13:25:44.187Z",
+    "updatedAt": "2025-03-12T13:25:44.187Z"
+  },
+  {
+    "bonsaiId": "9c069747-e892-46e1-813b-fdaad13bcb60",
+    "workTypes": [
+      "pruning"
+    ],
+    "date": "2025-02-26T00:00:00.000Z",
+    "description": "stst",
+    "imageUrls": [],
+    "id": "278ee02d-c8b2-4e4c-8c0d-5859cf65e8c1",
+    "createdAt": "2025-03-12T13:25:53.168Z",
+    "updatedAt": "2025-03-12T13:25:53.168Z"
+  },
+  {
+    "bonsaiId": "9c069747-e892-46e1-813b-fdaad13bcb60",
+    "workTypes": [
+      "protection"
+    ],
+    "date": "2025-04-02T00:00:00.000Z",
+    "description": "st",
+    "imageUrls": [],
+    "id": "d85d0cbd-fbb7-4ab3-86d2-4f32dad650eb",
+    "createdAt": "2025-03-12T13:26:07.888Z",
+    "updatedAt": "2025-03-12T13:26:07.888Z"
   }
 ]
