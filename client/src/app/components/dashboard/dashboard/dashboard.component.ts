@@ -59,7 +59,7 @@ export class DashboardComponent implements OnInit {
           this.bonsaiList = response.items;
           this.recentBonsai = [...this.bonsaiList].sort((a, b) => {
             return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
-          }).slice(0, 3);
+          }).slice(0, 5);
           this.loading = false;
         },
         error: (error) => {

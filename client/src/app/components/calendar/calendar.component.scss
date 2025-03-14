@@ -1,0 +1,156 @@
+@import 'src/assets/scss/variables';
+
+.calendar-container {
+  width: 100%;
+  height: 100%;
+  
+  ::ng-deep {
+    .fc {
+      height: 100%;
+      min-height: 600px;
+    }
+    
+    // カレンダーの日付セルの高さを固定（小さく）
+    .fc-daygrid-day {
+      height: 90px !important; // 小さくした高さ
+    }
+    
+    // 最大2件まで表示し、3件目以降は省略表示
+    .fc-daygrid-day-events {
+      max-height: 60px !important; // 2件分の高さ（小さく）
+      overflow: hidden !important;
+    }
+    
+    // 「+more」の表示スタイル
+    .fc-daygrid-more-link {
+      font-size: 0.8rem;
+      margin-top: 2px;
+      color: #666;
+      background-color: rgba(0, 0, 0, 0.05);
+      border-radius: 4px;
+      padding: 1px 4px;
+      
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.1);
+        color: #333;
+      }
+    }
+    
+    // 週表示のスタイル調整
+    .fc-dayGridWeek-view {
+      .fc-daygrid-day {
+        height: 600px !important; // 日付セルの高さを大きく
+      }
+      
+      .fc-daygrid-day-events {
+        max-height: 120px !important; // イベント表示部分の高さを大きく
+      }
+      
+      .fc-col-header-cell {
+        padding: 8px 0 !important; // 曜日ヘッダーのパディングを調整
+        font-weight: bold !important; // 曜日ヘッダーを太字に
+      }
+      
+      .fc-daygrid-day-number {
+        font-size: 1rem !important; // 日付の文字サイズを大きく
+        padding: 5px 8px !important; // 日付のパディングを調整
+      }
+      
+      .fc-daygrid-day-top {
+        justify-content: center !important; // 日付を中央揃え
+      }
+    }
+    
+    .fc-event {
+      cursor: pointer;
+      border-radius: 4px;
+      padding: 2px 4px;
+      font-size: 0.85rem;
+      margin-bottom: 2px;
+      max-height: 36px; // 1件あたりの最大高さ
+      overflow: hidden;
+    }
+    
+    .fc-day-today {
+      background-color: rgba(0, 0, 0, 0.05);
+    }
+    
+    .fc-toolbar-title {
+      font-size: 1.25rem;
+    }
+    
+    // ボタンのスタイル調整
+    .fc-button-primary {
+      background-color: $primary !important;
+      border-color: $primary !important;
+      
+      &:hover {
+        background-color: $primary-dark !important;
+        border-color: $primary-dark !important;
+      }
+      
+      &:disabled {
+        background-color: rgba($primary, 0.7) !important;
+        border-color: rgba($primary, 0.7) !important;
+      }
+      
+      &.fc-button-active {
+        background-color: $primary-dark !important;
+        border-color: $primary-dark !important;
+        box-shadow: 0 0 0 0.2rem rgba($primary, 0.5) !important;
+      }
+    }
+    
+    .fc-today-button {
+      background-color: $accent !important;
+      border-color: $accent !important;
+      
+      &:hover {
+        background-color: darken($accent, 10%) !important;
+        border-color: darken($accent, 10%) !important;
+      }
+      
+      &:disabled {
+        background-color: rgba($accent, 0.7) !important;
+        border-color: rgba($accent, 0.7) !important;
+      }
+    }
+    
+    // レスポンシブ対応
+    @media (max-width: 991px) {
+      .fc-toolbar {
+        flex-direction: column;
+        gap: 10px;
+        
+        .fc-toolbar-chunk {
+          display: flex;
+          justify-content: center;
+          width: 100%;
+        }
+      }
+    }
+    
+    @media (max-width: 575px) {
+      .fc-header-toolbar {
+        margin-bottom: 0.5em;
+      }
+      
+      .fc-toolbar-title {
+        font-size: 1rem;
+      }
+      
+      .fc-button {
+        padding: 0.2em 0.5em;
+        font-size: 0.9em;
+      }
+      
+      .fc-daygrid-day {
+        height: 100px !important; // モバイル表示時は少し小さく
+      }
+      
+      .fc-daygrid-day-events {
+        max-height: 60px !important; // モバイル表示時は少し小さく
+      }
+    }
+  }
+}
