@@ -30,7 +30,10 @@ export async function getWorkRecordList(event: APIGatewayProxyEvent): Promise<AP
     
     // クエリパラメータを取得
     const queryParams = event.queryStringParameters || {};
-    const workTypes = queryParams.workTypes ? queryParams.workTypes.split(',') : undefined;
+    // workTypesパラメータを処理（単一の値または複数の値をカンマ区切りで受け取る）
+    const workTypes = queryParams.workTypes ? 
+      (queryParams.workTypes.includes(',') ? queryParams.workTypes.split(',') : [queryParams.workTypes]) 
+      : undefined;
     const limit = queryParams.limit ? parseInt(queryParams.limit, 10) : undefined;
     const nextToken = queryParams.nextToken;
     

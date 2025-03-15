@@ -158,5 +158,19 @@
     "id": "d85d0cbd-fbb7-4ab3-86d2-4f32dad650eb",
     "createdAt": "2025-03-12T13:26:07.888Z",
     "updatedAt": "2025-03-12T13:26:07.888Z"
+  },
+  {
+    "bonsaiId": "9c069747-e892-46e1-813b-fdaad13bcb60",
+    "workTypes": [
+      "watering",
+      "fertilizing",
+      "wire"
+    ],
+    "date": "2025-03-15T00:00:00.000Z",
+    "description": "test",
+    "imageUrls": [],
+    "id": "9f3cd96a-0e8d-4895-9dca-6048a7896468",
+    "createdAt": "2025-03-15T12:52:21.910Z",
+    "updatedAt": "2025-03-15T12:52:21.910Z"
   }
 ]

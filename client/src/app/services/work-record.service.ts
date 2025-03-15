@@ -32,7 +32,7 @@ export class WorkRecordService {
     const params: any = {};
     
     if (workType) {
-      params.workType = workType;
+      params.workTypes = workType;
     }
     
     if (limit) {

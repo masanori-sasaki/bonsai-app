@@ -12,39 +12,39 @@ import { CalendarEvent } from '../models/calendar-event.model';
   providedIn: 'root'
 })
 export class CalendarDataService {
-  // 作業タイプごとの色マッピング
+  // 作業タイプごとの色マッピング（視認性向上のため色を濃くしました）
   private readonly scheduleColors: Record<WorkType, string> = {
-    pruning: '#4285F4',
-    repotting: '#5C9CFF',
-    watering: '#7EB5FF',
-    fertilizing: '#A1C9FF',
-    wire: '#C4DDFF',
-    wireremove: '#D6E6FF',
-    leafpull: '#4285F4',
-    leafcut: '#5C9CFF',
-    leafpeel: '#7EB5FF',
-    disinfection: '#A1C9FF',
-    carving: '#C4DDFF',
-    replant: '#D6E6FF',
-    protection: '#E8F1FF',
-    other: '#F0F5FF'
+    pruning: '#1A73E8',     // より濃いブルー
+    repotting: '#4285F4',   // 標準的なブルー
+    watering: '#5C9CFF',    // やや薄いブルー
+    fertilizing: '#7EB5FF', // 薄いブルー
+    wire: '#3C78D8',        // 濃いブルー
+    wireremove: '#5B8BE8',  // やや濃いブルー
+    leafpull: '#1967D2',    // 濃いブルー
+    leafcut: '#4D90FE',     // 標準的なブルー
+    leafpeel: '#3B78E7',    // やや濃いブルー
+    disinfection: '#2A56C6', // 濃いブルー
+    carving: '#3D5AFE',     // 鮮やかなブルー
+    replant: '#5677FC',     // 標準的なブルー
+    protection: '#4A6FE3',  // やや濃いブルー
+    other: '#6889F7'        // 薄めのブルー
   };
   
   private readonly recordColors: Record<WorkType, string> = {
-    pruning: '#34A853',
-    repotting: '#5ABF77',
-    watering: '#7FD69A',
-    fertilizing: '#A5EDBD',
-    wire: '#CAFEE0',
-    wireremove: '#E0FFE9',
-    leafpull: '#34A853',
-    leafcut: '#5ABF77',
-    leafpeel: '#7FD69A',
-    disinfection: '#A5EDBD',
-    carving: '#CAFEE0',
-    replant: '#E0FFE9',
-    protection: '#F0FFF5',
-    other: '#F8FFFC'
+    pruning: '#0F9D58',     // より濃いグリーン
+    repotting: '#34A853',   // 標準的なグリーン
+    watering: '#5ABF77',    // やや薄いグリーン
+    fertilizing: '#7FD69A', // 薄いグリーン
+    wire: '#137333',        // 濃いグリーン
+    wireremove: '#1E8E3E',  // やや濃いグリーン
+    leafpull: '#0C7C42',    // 濃いグリーン
+    leafcut: '#30B05D',     // 標準的なグリーン
+    leafpeel: '#1AA260',    // やや濃いグリーン
+    disinfection: '#188038', // 濃いグリーン
+    carving: '#1B9E77',     // 鮮やかなグリーン
+    replant: '#43A047',     // 標準的なグリーン
+    protection: '#2E7D32',  // やや濃いグリーン
+    other: '#66BB6A'        // 薄めのグリーン
   };
 
   constructor(
@@ -145,7 +145,7 @@ export class CalendarDataService {
       end: schedule.endTime ? `${schedule.scheduledDate.split('T')[0]}T${schedule.endTime}` : undefined,
       allDay: schedule.isAllDay !== undefined ? schedule.isAllDay : true,
       color: schedule.colorCode || color,
-      textColor: '#FFFFFF',
+      textColor: '#FFFFFF', // 常に白テキスト
       extendedProps: {
         type: 'schedule',
         bonsaiId: schedule.bonsaiId,
@@ -168,7 +168,7 @@ export class CalendarDataService {
       end: record.endTime ? `${record.date.split('T')[0]}T${record.endTime}` : undefined,
       allDay: record.isAllDay !== undefined ? record.isAllDay : true,
       color: record.colorCode || color,
-      textColor: '#FFFFFF',
+      textColor: '#FFFFFF', // 常に白テキスト
       extendedProps: {
         type: 'record',
         bonsaiId: record.bonsaiId,
@@ -189,4 +189,6 @@ export class CalendarDataService {
       ? `${workTypeLabel}他 ${suffix}`
       : `${workTypeLabel} ${suffix}`;
   }
+
+  // 注: getTextColorForBackgroundメソッドは削除しました（常に白テキストを使用するため）
 }
