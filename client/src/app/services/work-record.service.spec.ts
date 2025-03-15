@@ -7,7 +7,8 @@ import {
   WorkRecord, 
   WorkRecordListResponse, 
   CreateWorkRecordRequest, 
-  UpdateWorkRecordRequest 
+  UpdateWorkRecordRequest,
+  WorkType
 } from '../models/work-record.model';
 
 describe('WorkRecordService', () => {
@@ -35,7 +36,7 @@ describe('WorkRecordService', () => {
           {
             id: 'record1',
             bonsaiId: 'bonsai1',
-            workType: 'pruning',
+            workTypes: ['pruning' as WorkType],
             date: '2025-02-15T10:00:00Z',
             description: '剪定作業を行いました。',
             imageUrls: ['https://example.com/images/record1-1.jpg'],
@@ -45,7 +46,7 @@ describe('WorkRecordService', () => {
           {
             id: 'record2',
             bonsaiId: 'bonsai1',
-            workType: 'watering',
+            workTypes: ['watering' as WorkType],
             date: '2025-02-10T09:00:00Z',
             description: '水やりを行いました。',
             imageUrls: [],
@@ -64,7 +65,7 @@ describe('WorkRecordService', () => {
       service.getWorkRecordList(bonsaiId).subscribe(response => {
         expect(response).toEqual(mockResponse);
         expect(response.items.length).toBe(2);
-        expect(response.items[0].workType).toBe('pruning');
+        expect(response.items[0].workTypes[0]).toBe('pruning');
         expect(response.nextToken).toBeUndefined();
       });
 
@@ -79,7 +80,7 @@ describe('WorkRecordService', () => {
           {
             id: 'record1',
             bonsaiId: 'bonsai1',
-            workType: 'pruning',
+            workTypes: ['pruning' as WorkType],
             date: '2025-02-15T10:00:00Z',
             description: '剪定作業を行いました。',
             imageUrls: ['https://example.com/images/record1-1.jpg'],
@@ -93,17 +94,17 @@ describe('WorkRecordService', () => {
       // ApiServiceのgetメソッドをモック
       spyOn(apiService, 'get').and.returnValue(of(mockResponse));
 
-      // サービスメソッドを呼び出し（workTypeを指定）
+      // サービスメソッドを呼び出し（workTypesを指定）
       const bonsaiId = 'bonsai1';
       const workType = 'pruning';
       service.getWorkRecordList(bonsaiId, workType).subscribe(response => {
         expect(response).toEqual(mockResponse);
         expect(response.items.length).toBe(1);
-        expect(response.items[0].workType).toBe(workType);
+        expect(response.items[0].workTypes[0]).toBe(workType);
       });
 
       // ApiServiceのgetメソッドが正しく呼び出されたことを確認
-      expect(apiService.get).toHaveBeenCalledWith(`bonsai/${bonsaiId}/records`, { workType });
+      expect(apiService.get).toHaveBeenCalledWith(`bonsai/${bonsaiId}/records`, { workTypes: workType });
     });
 
     it('should get work record list with limit and nextToken parameters', () => {
@@ -113,7 +114,7 @@ describe('WorkRecordService', () => {
           {
             id: 'record2',
             bonsaiId: 'bonsai1',
-            workType: 'watering',
+            workTypes: ['watering' as WorkType],
             date: '2025-02-10T09:00:00Z',
             description: '水やりを行いました。',
             imageUrls: [],
@@ -151,7 +152,7 @@ describe('WorkRecordService', () => {
       const mockResponse: WorkRecord = {
         id: 'record1',
         bonsaiId: 'bonsai1',
-        workType: 'pruning',
+        workTypes: ['pruning' as WorkType],
         date: '2025-02-15T10:00:00Z',
         description: '剪定作業を行いました。枝を整えて形を整えました。',
         imageUrls: ['https://example.com/images/record1-1.jpg', 'https://example.com/images/record1-2.jpg'],
@@ -167,7 +168,7 @@ describe('WorkRecordService', () => {
       service.getWorkRecordDetail(recordId).subscribe(response => {
         expect(response).toEqual(mockResponse);
         expect(response.id).toBe(recordId);
-        expect(response.workType).toBe('pruning');
+        expect(response.workTypes[0]).toBe('pruning');
         expect(response.description).toContain('剪定作業');
         expect(response.imageUrls.length).toBe(2);
       });
@@ -181,8 +182,8 @@ describe('WorkRecordService', () => {
     it('should create work record', () => {
       // リクエストデータ
       const createRequest: CreateWorkRecordRequest = {
-        bonsaiId: 'bonsai1', // bonsaiIdを追加
-        workType: 'fertilizing',
+        bonsaiId: 'bonsai1',
+        workTypes: ['fertilizing' as WorkType],
         date: '2025-03-09T11:00:00Z',
         description: '肥料を与えました。',
         imageUrls: ['https://example.com/images/new-record.jpg']
@@ -192,7 +193,7 @@ describe('WorkRecordService', () => {
       const mockResponse: WorkRecord = {
         id: 'new-record-id',
         bonsaiId: 'bonsai1',
-        workType: 'fertilizing',
+        workTypes: ['fertilizing' as WorkType],
         date: '2025-03-09T11:00:00Z',
         description: '肥料を与えました。',
         imageUrls: ['https://example.com/images/new-record.jpg'],
@@ -209,7 +210,7 @@ describe('WorkRecordService', () => {
         expect(response).toEqual(mockResponse);
         expect(response.id).toBe('new-record-id');
         expect(response.bonsaiId).toBe(bonsaiId);
-        expect(response.workType).toBe('fertilizing');
+        expect(response.workTypes[0]).toBe('fertilizing');
         expect(response.description).toBe('肥料を与えました。');
       });
 
@@ -222,6 +223,7 @@ describe('WorkRecordService', () => {
     it('should update work record', () => {
       // リクエストデータ
       const updateRequest: UpdateWorkRecordRequest = {
+        workTypes: ['pruning' as WorkType],
         description: '剪定作業を行いました。枝を整えて形を整えました。追記：特に上部を重点的に剪定しました。',
         imageUrls: ['https://example.com/images/record1-1.jpg', 'https://example.com/images/record1-2.jpg', 'https://example.com/images/record1-3.jpg']
       };
@@ -230,7 +232,7 @@ describe('WorkRecordService', () => {
       const mockResponse: WorkRecord = {
         id: 'record1',
         bonsaiId: 'bonsai1',
-        workType: 'pruning',
+        workTypes: ['pruning' as WorkType],
         date: '2025-02-15T10:00:00Z',
         description: '剪定作業を行いました。枝を整えて形を整えました。追記：特に上部を重点的に剪定しました。',
         imageUrls: ['https://example.com/images/record1-1.jpg', 'https://example.com/images/record1-2.jpg', 'https://example.com/images/record1-3.jpg'],

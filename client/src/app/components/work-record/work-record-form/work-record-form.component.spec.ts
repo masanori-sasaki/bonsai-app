@@ -38,7 +38,7 @@ describe('WorkRecordFormComponent', () => {
   const mockWorkRecord: WorkRecord = {
     id: 'record1',
     bonsaiId: 'bonsai1',
-    workType: 'pruning',
+    workTypes: ['pruning'],
     date: '2025-02-15T10:00:00Z',
     description: '剪定作業を行いました。',
     imageUrls: ['https://example.com/images/record1-1.jpg'],
@@ -270,7 +270,7 @@ describe('WorkRecordFormComponent', () => {
     const newRecord: WorkRecord = {
       id: 'new-record-id',
       bonsaiId: 'bonsai1',
-      workType: 'pruning',
+      workTypes: ['pruning'],
       date: '2025-03-15T00:00:00Z',
       description: '剪定作業を行いました。',
       imageUrls: [],
@@ -285,7 +285,7 @@ describe('WorkRecordFormComponent', () => {
     // createWorkRecordが正しく呼ばれることを確認
     expect(workRecordService.createWorkRecord).toHaveBeenCalledWith('bonsai1', jasmine.objectContaining({
       bonsaiId: 'bonsai1',
-      workType: 'pruning',
+      workTypes: ['pruning'],
       description: '剪定作業を行いました。',
       imageUrls: []
     }));
@@ -318,7 +318,7 @@ describe('WorkRecordFormComponent', () => {
     
     // updateWorkRecordが正しく呼ばれることを確認
     expect(workRecordService.updateWorkRecord).toHaveBeenCalledWith('record1', jasmine.objectContaining({
-      workType: 'pruning',
+      workTypes: ['pruning'],
       description: '剪定作業を行いました。（更新）'
     }));
     
@@ -344,7 +344,7 @@ describe('WorkRecordFormComponent', () => {
     const newRecord: WorkRecord = {
       id: 'new-record-id',
       bonsaiId: 'bonsai1',
-      workType: 'pruning',
+      workTypes: ['pruning'],
       date: '2025-03-15T00:00:00Z',
       description: '剪定作業を行いました。',
       imageUrls: ['https://example.com/images/uploaded.jpg'],
@@ -362,7 +362,7 @@ describe('WorkRecordFormComponent', () => {
     // createWorkRecordが正しく呼ばれることを確認
     expect(workRecordService.createWorkRecord).toHaveBeenCalledWith('bonsai1', jasmine.objectContaining({
       bonsaiId: 'bonsai1',
-      workType: 'pruning',
+      workTypes: ['pruning'],
       description: '剪定作業を行いました。',
       imageUrls: ['https://example.com/images/uploaded.jpg']
     }));

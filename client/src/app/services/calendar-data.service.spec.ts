@@ -44,10 +44,28 @@ describe('CalendarDataService', () => {
       // モックデータの設定
       bonsaiServiceSpy.getBonsaiList.and.returnValue(of({
         items: [
-          { id: 'bonsai1', name: '松' },
-          { id: 'bonsai2', name: '梅' }
+          { 
+            id: 'bonsai1', 
+            userId: 'user1',
+            name: '松',
+            species: '五葉松',
+            registrationDate: '2025-01-15T00:00:00Z',
+            imageUrls: ['https://example.com/images/bonsai1.jpg'],
+            createdAt: '2025-01-15T10:30:00Z',
+            updatedAt: '2025-02-20T15:30:00Z'
+          },
+          { 
+            id: 'bonsai2', 
+            userId: 'user1',
+            name: '梅',
+            species: '梅（Prunus mume）',
+            registrationDate: '2025-02-10T00:00:00Z',
+            imageUrls: ['https://example.com/images/bonsai2.jpg'],
+            createdAt: '2025-02-10T09:00:00Z',
+            updatedAt: '2025-02-10T09:00:00Z'
+          }
         ],
-        total: 2
+        nextToken: undefined
       }));
       
       workScheduleServiceSpy.getWorkScheduleList.and.returnValue(of({
@@ -58,10 +76,16 @@ describe('CalendarDataService', () => {
             scheduledDate: '2025-03-15T10:00:00',
             workTypes: ['pruning' as WorkType],
             description: '剪定予定',
-            isAllDay: false
+            completed: false,
+            createdAt: '2025-02-15T10:30:00Z',
+            updatedAt: '2025-02-15T10:30:00Z',
+            isAllDay: false,
+            startTime: '10:00',
+            endTime: '12:00',
+            colorCode: '#1A73E8'
           }
         ],
-        total: 1
+        nextToken: undefined
       }));
       
       workRecordServiceSpy.getWorkRecordList.and.returnValue(of({
@@ -70,12 +94,16 @@ describe('CalendarDataService', () => {
             id: 'record1',
             bonsaiId: 'bonsai1',
             date: '2025-03-10T09:00:00',
-            workTypes: ['watering' as WorkType],
-            description: '水やり記録',
-            isAllDay: true
+            workTypes: ['watering' as WorkType, 'fertilizing' as WorkType],
+            description: '水やりと肥料の記録',
+            imageUrls: ['https://example.com/images/record1.jpg'],
+            createdAt: '2025-03-10T09:15:00Z',
+            updatedAt: '2025-03-10T09:15:00Z',
+            isAllDay: true,
+            colorCode: '#0F9D58'
           }
         ],
-        total: 1
+        nextToken: undefined
       }));
     });
 
@@ -108,7 +136,7 @@ describe('CalendarDataService', () => {
     });
 
     it('should handle empty bonsai list', (done) => {
-      bonsaiServiceSpy.getBonsaiList.and.returnValue(of({ items: [], total: 0 }));
+      bonsaiServiceSpy.getBonsaiList.and.returnValue(of({ items: [], nextToken: undefined }));
       
       service.getCalendarEvents(startDate, endDate).subscribe(events => {
         expect(events.length).toBe(0);
@@ -120,8 +148,17 @@ describe('CalendarDataService', () => {
 
     it('should handle API errors gracefully', (done) => {
       bonsaiServiceSpy.getBonsaiList.and.returnValue(of({
-        items: [{ id: 'bonsai1', name: '松' }],
-        total: 1
+        items: [{ 
+          id: 'bonsai1', 
+          userId: 'user1',
+          name: '松',
+          species: '五葉松',
+          registrationDate: '2025-01-15T00:00:00Z',
+          imageUrls: ['https://example.com/images/bonsai1.jpg'],
+          createdAt: '2025-01-15T10:30:00Z',
+          updatedAt: '2025-02-20T15:30:00Z'
+        }],
+        nextToken: undefined
       }));
       
       // 作業予定の取得でエラーが発生した場合

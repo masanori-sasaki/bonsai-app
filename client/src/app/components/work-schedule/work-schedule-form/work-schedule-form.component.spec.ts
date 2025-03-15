@@ -36,7 +36,7 @@ describe('WorkScheduleFormComponent', () => {
   const mockWorkSchedule: WorkSchedule = {
     id: 'schedule1',
     bonsaiId: 'bonsai1',
-    workType: 'pruning',
+    workTypes: ['pruning'],
     scheduledDate: '2025-04-15T10:00:00Z',
     description: '剪定予定',
     completed: false,
@@ -165,6 +165,10 @@ describe('WorkScheduleFormComponent', () => {
     // コンポーネントを再作成
     fixture = TestBed.createComponent(WorkScheduleFormComponent);
     component = fixture.componentInstance;
+    
+    // 盆栽詳細取得のモックを設定（これがないとエラーになる可能性がある）
+    bonsaiService.getBonsaiDetail.and.returnValue(of(mockBonsai));
+    
     fixture.detectChanges();
     
     // エラーが設定されることを確認
@@ -200,7 +204,7 @@ describe('WorkScheduleFormComponent', () => {
     const newSchedule: WorkSchedule = {
       id: 'new-schedule-id',
       bonsaiId: 'bonsai1',
-      workType: 'pruning',
+      workTypes: ['pruning'],
       scheduledDate: '2025-04-15T00:00:00Z',
       description: '剪定予定',
       completed: false,
@@ -215,7 +219,7 @@ describe('WorkScheduleFormComponent', () => {
     // createWorkScheduleが正しく呼ばれることを確認
     expect(workScheduleService.createWorkSchedule).toHaveBeenCalledWith('bonsai1', jasmine.objectContaining({
       bonsaiId: 'bonsai1',
-      workType: 'pruning',
+      workTypes: ['pruning'],
       scheduledDate: jasmine.any(String),
       description: '剪定予定',
       completed: false
@@ -252,7 +256,7 @@ describe('WorkScheduleFormComponent', () => {
     
     // updateWorkScheduleが正しく呼ばれることを確認
     expect(workScheduleService.updateWorkSchedule).toHaveBeenCalledWith('schedule1', jasmine.objectContaining({
-      workType: 'pruning',
+      workTypes: ['pruning'],
       scheduledDate: jasmine.any(String),
       description: '剪定予定（更新）',
       completed: true
@@ -281,6 +285,12 @@ describe('WorkScheduleFormComponent', () => {
   });
 
   it('should toggle all day event flag', () => {
+    // フォームの初期値を設定
+    component.scheduleForm.patchValue({
+      startTime: '',
+      endTime: ''
+    });
+    
     // 初期状態は終日イベント
     expect(component.isAllDay).toBeTrue();
     expect(component.scheduleForm.get('startTime')?.value).toBe('');
