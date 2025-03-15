@@ -39,7 +39,7 @@
     // 週表示のスタイル調整
     .fc-dayGridWeek-view {
       .fc-daygrid-day {
-        height: 600px !important; // 日付セルの高さを大きく
+        height: 400px !important; // 日付セルの高さを大きく
       }
       
       .fc-daygrid-day-events {
@@ -69,6 +69,16 @@
       margin-bottom: 2px;
       max-height: 36px; // 1件あたりの最大高さ
       overflow: hidden;
+      border-width: 1px; // 境界線の幅を設定
+      border-style: solid; // 境界線のスタイルを設定
+      font-weight: 500; // テキストを少し太く
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); // 軽い影を追加して立体感を出す
+      
+      // イベントにホバーした時のスタイル
+      &:hover {
+        filter: brightness(0.9); // ホバー時に少し暗く
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); // ホバー時に影を強調
+      }
     }
     
     .fc-day-today {

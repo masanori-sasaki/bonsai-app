@@ -26,7 +26,7 @@ export class CalendarComponent implements OnInit {
     locale: 'ja',
     height: 'auto',
     firstDay: 0, // 日曜日始まり
-    dayMaxEvents: 2, // 1日に表示する最大イベント数（これを超えると「+more」が表示される）
+    dayMaxEvents: true, // trueに設定すると、スペースに基づいて自動的に「+more」リンクを表示
     moreLinkClick: 'day', // 「+more」クリック時の動作（dayビューに切り替え）
     fixedWeekCount: false, // 月によって週の数を可変にする
     eventTimeFormat: { // イベントの時間フォーマット
@@ -36,14 +36,15 @@ export class CalendarComponent implements OnInit {
     },
     views: {
       dayGridWeek: {
-        dayMaxEvents: 6, // 週表示で1日に表示する最大イベント数
+        dayMaxEvents: 10, // 週表示で1日に表示する最大イベント数を増やす
         dayHeaderFormat: { // 曜日ヘッダーのフォーマット
           weekday: 'short',
           day: 'numeric',
           omitCommas: true
         }
       }
-    }
+    },
+    eventDidMount: this.handleEventDidMount.bind(this) // イベント要素がDOMに追加された時のコールバック
   };
 
   constructor(
@@ -71,6 +72,68 @@ export class CalendarComponent implements OnInit {
 
   handleDatesSet(dateInfo: any): void {
     this.loadCalendarData(dateInfo.start, dateInfo.end);
+  }
+  
+  // イベント要素がDOMに追加された時のコールバック
+  handleEventDidMount(info: any): void {
+    // イベントの種類に基づいて境界線の色を設定
+    const eventType = info.event.extendedProps.type;
+    const eventEl = info.el;
+    
+    if (eventType === 'schedule') {
+      // 作業予定の場合は境界線を少し暗く
+      const bgColor = info.event.backgroundColor;
+      eventEl.style.borderColor = this.darkenColor(bgColor, 15);
+    } else if (eventType === 'record') {
+      // 作業記録の場合は境界線を少し暗く
+      const bgColor = info.event.backgroundColor;
+      eventEl.style.borderColor = this.darkenColor(bgColor, 15);
+    }
+    
+    // ツールチップを追加
+    const workTypes = info.event.extendedProps.workTypes || [];
+    const description = info.event.extendedProps.description || '';
+    
+    // ツールチップのHTMLを作成
+    let tooltipContent = `<div style="font-weight: bold;">${info.event.title}</div>`;
+    if (description) {
+      tooltipContent += `<div>${description}</div>`;
+    }
+    
+    // ツールチップを設定（title属性を使用）
+    eventEl.title = this.stripHtml(tooltipContent);
+  }
+  
+  // 色を暗くするヘルパーメソッド
+  private darkenColor(color: string, percent: number): string {
+    // #で始まる場合は#を削除
+    color = color.replace('#', '');
+    
+    // 16進数の色コードをRGB値に変換
+    const r = parseInt(color.substring(0, 2), 16);
+    const g = parseInt(color.substring(2, 4), 16);
+    const b = parseInt(color.substring(4, 6), 16);
+    
+    // 各色成分を指定されたパーセンテージだけ暗くする
+    const darkenR = Math.max(0, Math.floor(r * (100 - percent) / 100));
+    const darkenG = Math.max(0, Math.floor(g * (100 - percent) / 100));
+    const darkenB = Math.max(0, Math.floor(b * (100 - percent) / 100));
+    
+    // RGB値を16進数の色コードに戻す
+    return `#${this.componentToHex(darkenR)}${this.componentToHex(darkenG)}${this.componentToHex(darkenB)}`;
+  }
+  
+  // 数値を16進数に変換するヘルパーメソッド
+  private componentToHex(c: number): string {
+    const hex = c.toString(16);
+    return hex.length === 1 ? '0' + hex : hex;
+  }
+  
+  // HTMLタグを削除するヘルパーメソッド（ツールチップ用）
+  private stripHtml(html: string): string {
+    const tmp = document.createElement('DIV');
+    tmp.innerHTML = html;
+    return tmp.textContent || tmp.innerText || '';
   }
 
   loadCalendarData(start: Date, end: Date): void {
