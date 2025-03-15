@@ -89,4 +89,65 @@ describe('CalendarComponent', () => {
     component.handleDatesSet(mockDateInfo);
     expect(calendarDataServiceSpy.getCalendarEvents).toHaveBeenCalledWith(mockDateInfo.start, mockDateInfo.end);
   });
+
+  it('should properly handle event did mount callback', () => {
+    // モックイベント情報を作成
+    const mockEventInfo = {
+      event: {
+        backgroundColor: '#4285F4',
+        title: 'テストイベント',
+        extendedProps: {
+          type: 'schedule',
+          workTypes: ['pruning'],
+          description: 'テスト説明'
+        }
+      },
+      el: document.createElement('div')
+    };
+
+    // スパイを設定
+    spyOn(component as any, 'darkenColor').and.returnValue('#3367d6');
+    spyOn(component as any, 'stripHtml').and.returnValue('テストイベント テスト説明');
+
+    // イベントマウントハンドラを呼び出し
+    component.handleEventDidMount(mockEventInfo);
+
+    // 境界線の色が設定されることを確認
+    expect(mockEventInfo.el.style.borderColor).toBe('#3367d6');
+    
+    // ツールチップが設定されることを確認
+    expect(mockEventInfo.el.title).toBe('テストイベント テスト説明');
+    
+    // darkenColorメソッドが呼び出されることを確認
+    expect((component as any).darkenColor).toHaveBeenCalledWith('#4285F4', 15);
+  });
+
+  it('should darken color correctly', () => {
+    // プライベートメソッドをテスト
+    const darkenColor = (component as any).darkenColor;
+    
+    // 色を暗くする
+    expect(darkenColor('#FF0000', 20)).toBe('#cc0000'); // 赤を20%暗く
+    expect(darkenColor('#00FF00', 50)).toBe('#007f00'); // 緑を50%暗く
+    expect(darkenColor('#0000FF', 10)).toBe('#0000e5'); // 青を10%暗く
+  });
+
+  it('should convert component to hex correctly', () => {
+    // プライベートメソッドをテスト
+    const componentToHex = (component as any).componentToHex;
+    
+    // 数値を16進数に変換
+    expect(componentToHex(0)).toBe('00');
+    expect(componentToHex(255)).toBe('ff');
+    expect(componentToHex(10)).toBe('0a');
+  });
+
+  it('should strip HTML correctly', () => {
+    // プライベートメソッドをテスト
+    const stripHtml = (component as any).stripHtml;
+    
+    // HTMLタグを削除
+    expect(stripHtml('<div>テスト</div>')).toBe('テスト');
+    expect(stripHtml('<strong>太字</strong>と<em>斜体</em>')).toBe('太字と斜体');
+  });
 });
