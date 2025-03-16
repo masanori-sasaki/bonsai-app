@@ -1,0 +1,53 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Bonsai App - Monthly Report Scheduler'
+
+Parameters:
+  Environment:
+    Type: String
+    Default: dev
+    AllowedValues:
+      - dev
+      - prod
+    Description: Environment name
+
+  ApiLambdaArn:
+    Type: String
+    Description: ARN of the API Lambda function
+
+Resources:
+  # CloudWatch Events Rule for Monthly Report Generation
+  MonthlyReportSchedulerRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Name: !Sub bonsai-monthly-report-scheduler-${Environment}
+      Description: 'Triggers the monthly report generation at the end of each month'
+      ScheduleExpression: 'cron(0 0 L * ? *)'  # Run at midnight on the last day of the month
+      State: ENABLED
+      Targets:
+        - Arn: !Ref ApiLambdaArn
+          Id: 'MonthlyReportGenerationTarget'
+          Input: !Sub |
+            {
+              "source": "aws.events",
+              "detail-type": "Scheduled Event",
+              "resources": ["monthly-report-scheduler"],
+              "detail": {
+                "action": "generateMonthlyReports"
+              }
+            }
+
+  # Permission for CloudWatch Events to invoke Lambda
+  MonthlyReportSchedulerPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref ApiLambdaArn
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt MonthlyReportSchedulerRule.Arn
+
+Outputs:
+  MonthlyReportSchedulerRuleArn:
+    Description: ARN of the CloudWatch Events Rule for Monthly Report Scheduler
+    Value: !GetAtt MonthlyReportSchedulerRule.Arn
+    Export:
+      Name: !Sub ${AWS::StackName}-MonthlyReportSchedulerRuleArn
