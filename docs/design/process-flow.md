@@ -524,7 +524,7 @@ sequenceDiagram
     participant ReportService as レポートサービス
     participant DB as DynamoDB
 
-    Scheduler->>Lambda: 月初トリガー（毎月1日）
+    Scheduler->>Lambda: 月末トリガー（毎月最終日）
     Lambda->>Lambda: 前月の年月を計算
     Lambda->>UserService: アクティブユーザー一覧取得
     UserService->>DB: ユーザーデータ取得
