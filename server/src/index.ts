@@ -29,6 +29,11 @@ import {
   updateWorkSchedule,
   deleteWorkSchedule
 } from './handlers/workScheduleHandler';
+import {
+  listMonthlyReports,
+  getMonthlyReport,
+  generateMonthlyReport
+} from './handlers/monthlyReportHandler';
 
 /**
  * Lambda関数のハンドラー
@@ -181,6 +186,29 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     // 画像アップロード用の署名付きURL生成エンドポイント
     if (path === '/api/images/presigned-url' && method === 'POST') {
       return await generatePresignedUrl(event);
+    }
+    
+    // 月次レポート一覧のエンドポイント
+    if (path === '/api/reports' && method === 'GET') {
+      return await listMonthlyReports(event);
+    }
+    
+    // 月次レポート生成のエンドポイント
+    if (path === '/api/reports' && method === 'POST') {
+      return await generateMonthlyReport(event);
+    }
+    
+    // 月次レポート詳細のエンドポイント
+    const monthlyReportDetailMatch = path.match(/^\/api\/reports\/(\d+)\/(\d+)$/);
+    if (monthlyReportDetailMatch) {
+      const year = monthlyReportDetailMatch[1];
+      const month = monthlyReportDetailMatch[2];
+      console.log('月次レポート詳細 year:', year, 'month:', month);
+      event.pathParameters = { ...event.pathParameters, year, month };
+      
+      if (method === 'GET') {
+        return await getMonthlyReport(event);
+      }
     }
     
     // 未実装のエンドポイント

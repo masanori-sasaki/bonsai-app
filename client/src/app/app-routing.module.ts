@@ -13,6 +13,8 @@ import { WorkRecordFormComponent } from './components/work-record/work-record-fo
 import { WorkScheduleListComponent } from './components/work-schedule/work-schedule-list/work-schedule-list.component';
 import { WorkScheduleFormComponent } from './components/work-schedule/work-schedule-form/work-schedule-form.component';
 import { WorkScheduleDetailComponent } from './components/work-schedule/work-schedule-detail/work-schedule-detail.component';
+import { MonthlyReportListComponent } from './components/monthly-report/monthly-report-list/monthly-report-list.component';
+import { MonthlyReportDetailComponent } from './components/monthly-report/monthly-report-detail/monthly-report-detail.component';
 
 const routes: Routes = [
   // 認証関連
@@ -83,6 +85,18 @@ const routes: Routes = [
   { 
     path: 'schedules/:scheduleId/edit', 
     component: WorkScheduleFormComponent,
+    canActivate: [AuthGuard]
+  },
+  
+  // 月次レポート関連
+  { 
+    path: 'reports', 
+    component: MonthlyReportListComponent,
+    canActivate: [AuthGuard]
+  },
+  { 
+    path: 'reports/:year/:month', 
+    component: MonthlyReportDetailComponent,
     canActivate: [AuthGuard]
   },
   

@@ -30,6 +30,10 @@ import { WorkScheduleFormComponent } from './components/work-schedule/work-sched
 // カレンダーコンポーネント
 import { CalendarComponent } from './components/calendar/calendar.component';
 
+// 月次レポート関連コンポーネント
+import { MonthlyReportListComponent } from './components/monthly-report/monthly-report-list/monthly-report-list.component';
+import { MonthlyReportDetailComponent } from './components/monthly-report/monthly-report-detail/monthly-report-detail.component';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -43,7 +47,9 @@ import { CalendarComponent } from './components/calendar/calendar.component';
     WorkScheduleDetailComponent,
     WorkRecordFormComponent,
     WorkScheduleFormComponent,
-    CalendarComponent
+    CalendarComponent,
+    MonthlyReportListComponent,
+    MonthlyReportDetailComponent
   ],
   imports: [
     BrowserModule,

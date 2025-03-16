@@ -118,6 +118,14 @@ app.delete('/api/schedules/:scheduleId', (req: Request, res: Response) => {
 // 画像アップロード関連のルート
 app.post('/api/images/presigned-url', lambdaToExpress('/api/images/presigned-url', 'POST'));
 
+// 月次レポート関連のルート
+app.get('/api/reports', lambdaToExpress('/api/reports', 'GET'));
+app.post('/api/reports', lambdaToExpress('/api/reports', 'POST'));
+app.get('/api/reports/:year/:month', (req: Request, res: Response) => {
+  const path = `/api/reports/${req.params.year}/${req.params.month}`;
+  lambdaToExpress(path, 'GET')(req, res);
+});
+
 // 認証関連のルート
 app.post('/api/auth/login', (req: Request, res: Response) => {
   // 簡易的な認証処理

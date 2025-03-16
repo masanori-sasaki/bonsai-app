@@ -9,7 +9,8 @@
 3. [盆栽関連ルート](#盆栽関連ルート)
 4. [作業記録関連ルート](#作業記録関連ルート)
 5. [作業予定関連ルート](#作業予定関連ルート)
-6. [ナビゲーションフロー](#ナビゲーションフロー)
+6. [月次レポート関連ルート](#月次レポート関連ルート)
+7. [ナビゲーションフロー](#ナビゲーションフロー)
 
 ## 基本ルーティング
 
@@ -50,6 +51,13 @@
 | `/bonsai/:id/schedules/new` | WorkScheduleFormComponent | 必須 | 作業予定作成画面 |
 | `/schedules/:id` | WorkScheduleDetailComponent | 必須 | 作業予定詳細画面 |
 | `/schedules/:scheduleId/edit` | WorkScheduleFormComponent | 必須 | 作業予定編集画面 |
+
+## 月次レポート関連ルート
+
+| パス | コンポーネント | 認証 | 説明 |
+|------|--------------|------|------|
+| `/reports` | MonthlyReportListComponent | 必須 | 月次レポート一覧画面 |
+| `/reports/:year/:month` | MonthlyReportDetailComponent | 必須 | 月次レポート詳細画面 |
 
 ## ナビゲーションフロー
 
@@ -113,4 +121,14 @@ graph TD
     BonsaiDetail[盆栽詳細] -->|作業予定クリック| ScheduleDetail[作業予定詳細]
     ScheduleList[作業予定一覧] -->|作業予定クリック| ScheduleDetail
     ScheduleDetail -->|編集ボタン| ScheduleEdit[作業予定編集]
+```
+
+### 月次レポート管理フロー
+
+```mermaid
+graph TD
+    Dashboard[ダッシュボード] --> ReportList[月次レポート一覧]
+    ReportList --> ReportDetail[月次レポート詳細]
+    ReportDetail -->|印刷ボタン| Print[印刷ダイアログ]
+    ReportDetail --> ReportList
 ```

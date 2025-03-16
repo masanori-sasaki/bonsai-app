@@ -1,0 +1,650 @@
+@import '../../../../assets/scss/variables';
+
+.monthly-report-detail-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.back-button, .print-button {
+  background-color: transparent;
+  border: 1px solid $primary-color;
+  color: $primary-color;
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: background-color 0.3s;
+  
+  &:hover {
+    background-color: rgba($primary-color, 0.1);
+  }
+  
+  i {
+    margin-right: 8px;
+  }
+}
+
+.print-button {
+  border-color: $accent-color;
+  color: $accent-color;
+  
+  &:hover {
+    background-color: rgba($accent-color, 0.1);
+  }
+}
+
+.error-message {
+  background-color: lighten($error-color, 35%);
+  padding: 12px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  color: $error-color;
+  
+  i {
+    margin-right: 8px;
+  }
+}
+
+.loading-indicator {
+  text-align: center;
+  padding: 30px;
+  color: $text-secondary;
+  
+  i {
+    margin-right: 8px;
+  }
+}
+
+.report-content {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  margin-bottom: 40px;
+}
+
+.report-header {
+  background-color: $primary-color;
+  color: white;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  
+  h1 {
+    margin: 0 0 10px 0;
+    font-size: 1.8rem;
+  }
+}
+
+.report-title-section {
+  flex: 1;
+}
+
+.report-date {
+  margin: 0;
+  opacity: 0.8;
+  font-size: 0.9rem;
+}
+
+.report-cover {
+  width: 120px;
+  height: 120px;
+  margin-left: 20px;
+  border-radius: 4px;
+  overflow: hidden;
+  
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.report-summary {
+  display: flex;
+  justify-content: space-around;
+  padding: 20px;
+  background-color: $background-light;
+  border-bottom: 1px solid $border-color;
+}
+
+.summary-stat {
+  text-align: center;
+  
+  .stat-value {
+    font-size: 2.5rem;
+    font-weight: 600;
+    color: $primary-color;
+  }
+  
+  .stat-label {
+    font-size: 1rem;
+    color: $text-secondary;
+  }
+}
+
+.work-type-distribution {
+  padding: 20px;
+  border-bottom: 1px solid $border-color;
+  
+  h2 {
+    margin-top: 0;
+    color: $text-primary;
+    font-size: 1.5rem;
+  }
+}
+
+.work-type-chart {
+  margin-top: 20px;
+}
+
+.work-type-bar {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.work-type-label {
+  width: 120px;
+  font-size: 0.9rem;
+  color: $text-primary;
+}
+
+.work-type-bar-container {
+  flex: 1;
+  height: 24px;
+  background-color: $background-light;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.work-type-bar-fill {
+  height: 100%;
+  background-color: $primary-color;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 10px;
+  min-width: 30px;
+  transition: width 0.5s;
+}
+
+.work-type-count {
+  color: white;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.tab-navigation {
+  display: flex;
+  border-bottom: 1px solid $border-color;
+}
+
+.tab-button {
+  flex: 1;
+  padding: 15px;
+  background-color: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  font-size: 1rem;
+  color: $text-secondary;
+  transition: all 0.3s;
+  
+  &:hover {
+    background-color: rgba($primary-color, 0.05);
+  }
+  
+  &.active {
+    color: $primary-color;
+    border-bottom-color: $primary-color;
+    font-weight: 500;
+  }
+  
+  i {
+    margin-right: 8px;
+  }
+}
+
+.tab-content {
+  padding: 20px;
+  
+  h2 {
+    margin-top: 0;
+    color: $text-primary;
+    font-size: 1.5rem;
+  }
+}
+
+.no-content {
+  text-align: center;
+  padding: 30px;
+  color: $text-secondary;
+  background-color: $background-light;
+  border-radius: 4px;
+}
+
+// 盆栽サマリースタイル
+.bonsai-summary-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 20px;
+}
+
+.bonsai-summary-card {
+  border: 1px solid $border-color;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.bonsai-summary-header {
+  background-color: $background-light;
+  padding: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  
+  &.has-important-work {
+    background-color: lighten($accent-color, 35%);
+  }
+  
+  h3 {
+    margin: 0 0 5px 0;
+    font-size: 1.2rem;
+    color: $text-primary;
+  }
+}
+
+.bonsai-info {
+  cursor: pointer;
+  
+  &:hover h3 {
+    color: $primary-color;
+  }
+}
+
+.bonsai-species {
+  margin: 0;
+  font-size: 0.9rem;
+  color: $text-secondary;
+}
+
+.important-badge {
+  background-color: $accent-color;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  
+  i {
+    margin-right: 5px;
+  }
+}
+
+.bonsai-summary-content {
+  padding: 15px;
+  display: flex;
+}
+
+.bonsai-image {
+  width: 100px;
+  height: 100px;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-right: 15px;
+  
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.bonsai-work-summary {
+  flex: 1;
+}
+
+.work-types {
+  margin-bottom: 10px;
+}
+
+.work-type-tag {
+  display: inline-block;
+  background-color: $primary-color;
+  color: white;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  margin-right: 5px;
+  margin-bottom: 5px;
+}
+
+.work-summary-text {
+  margin: 0 0 15px 0;
+  font-size: 0.9rem;
+  color: $text-primary;
+  line-height: 1.5;
+}
+
+.work-records-link {
+  a {
+    color: $primary-color;
+    cursor: pointer;
+    font-size: 0.9rem;
+    
+    &:hover {
+      text-decoration: underline;
+    }
+    
+    i {
+      margin-left: 5px;
+      font-size: 0.8rem;
+    }
+  }
+}
+
+// ハイライトスタイル
+.highlights-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.highlight-card {
+  border: 1px solid $border-color;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.highlight-header {
+  background-color: $background-light;
+  padding: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  
+  h3 {
+    margin: 0 0 5px 0;
+    font-size: 1.2rem;
+    color: $text-primary;
+  }
+}
+
+.highlight-bonsai-info {
+  cursor: pointer;
+  
+  &:hover h3 {
+    color: $primary-color;
+  }
+}
+
+.highlight-date {
+  font-size: 0.9rem;
+  color: $text-secondary;
+}
+
+.highlight-importance {
+  padding: 5px 10px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  
+  &.priority-high {
+    background-color: lighten($error-color, 35%);
+    color: $error-color;
+  }
+  
+  &.priority-medium {
+    background-color: lighten($accent-color, 35%);
+    color: $accent-color;
+  }
+  
+  &.priority-low {
+    background-color: lighten($success-color, 35%);
+    color: $success-color;
+  }
+}
+
+.highlight-content {
+  padding: 15px;
+  display: flex;
+}
+
+.highlight-image {
+  width: 150px;
+  height: 150px;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-right: 15px;
+  
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.highlight-details {
+  flex: 1;
+}
+
+.highlight-work-types {
+  margin-bottom: 10px;
+}
+
+.highlight-description {
+  margin: 0 0 15px 0;
+  font-size: 0.9rem;
+  color: $text-primary;
+  line-height: 1.5;
+}
+
+.highlight-reason {
+  background-color: $background-light;
+  padding: 10px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  color: $text-secondary;
+  margin-bottom: 15px;
+  
+  i {
+    color: $primary-color;
+    margin-right: 5px;
+  }
+}
+
+.highlight-action {
+  text-align: right;
+}
+
+.view-record-button {
+  background-color: $primary-color;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 15px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  
+  &:hover {
+    background-color: darken($primary-color, 10%);
+  }
+  
+  i {
+    margin-left: 5px;
+    font-size: 0.8rem;
+  }
+}
+
+// 推奨作業スタイル
+.recommendations-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.recommendation-card {
+  border: 1px solid $border-color;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.recommendation-header {
+  padding: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  
+  &.priority-high {
+    background-color: lighten($error-color, 35%);
+  }
+  
+  &.priority-medium {
+    background-color: lighten($accent-color, 35%);
+  }
+  
+  &.priority-low {
+    background-color: lighten($success-color, 35%);
+  }
+  
+  h3 {
+    margin: 0 0 5px 0;
+    font-size: 1.2rem;
+    color: $text-primary;
+  }
+}
+
+.recommendation-bonsai-info {
+  cursor: pointer;
+  
+  &:hover h3 {
+    color: $primary-color;
+  }
+}
+
+.recommendation-priority {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.recommendation-content {
+  padding: 15px;
+}
+
+.recommendation-work-types {
+  margin-bottom: 15px;
+}
+
+.recommendation-reason {
+  background-color: $background-light;
+  padding: 10px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  color: $text-primary;
+  margin-bottom: 15px;
+  
+  i {
+    color: $primary-color;
+    margin-right: 5px;
+  }
+}
+
+.recommendation-tips {
+  background-color: lighten($success-color, 45%);
+  padding: 10px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  color: $text-primary;
+  margin-bottom: 15px;
+  
+  i {
+    color: $success-color;
+    margin-right: 5px;
+  }
+}
+
+.recommendation-action {
+  text-align: right;
+}
+
+.view-bonsai-button {
+  background-color: $primary-color;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 15px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  
+  &:hover {
+    background-color: darken($primary-color, 10%);
+  }
+  
+  i {
+    margin-left: 5px;
+    font-size: 0.8rem;
+  }
+}
+
+// 印刷スタイル
+@media print {
+  .header, .tab-navigation {
+    display: none;
+  }
+  
+  .monthly-report-detail-container {
+    padding: 0;
+  }
+  
+  .report-content {
+    box-shadow: none;
+  }
+  
+  .tab-content {
+    display: block !important;
+  }
+}
+
+// レスポンシブ対応
+@media (max-width: 768px) {
+  .report-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .report-cover {
+    margin: 15px 0 0 0;
+    width: 100%;
+    height: auto;
+  }
+  
+  .bonsai-summary-list {
+    grid-template-columns: 1fr;
+  }
+  
+  .bonsai-summary-content, .highlight-content {
+    flex-direction: column;
+  }
+  
+  .bonsai-image, .highlight-image {
+    width: 100%;
+    height: 200px;
+    margin: 0 0 15px 0;
+  }
+}
