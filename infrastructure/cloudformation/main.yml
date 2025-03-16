@@ -44,6 +44,17 @@ Resources:
       Parameters:
         Environment: !Ref Environment
         CognitoUserPoolArn: !GetAtt AuthStack.Outputs.UserPoolArn
+        
+  # Monthly Report Scheduler Stack (CloudWatch Events)
+  MonthlyReportSchedulerStack:
+    Type: AWS::CloudFormation::Stack
+    DependsOn:
+      - ApiStack
+    Properties:
+      TemplateURL: https://bonsai-app-templates-171278323216.s3.ap-northeast-1.amazonaws.com/monthly-report-scheduler.yml
+      Parameters:
+        Environment: !Ref Environment
+        ApiLambdaArn: !GetAtt ApiStack.Outputs.LambdaArn
 
 Outputs:
   ApiEndpoint:

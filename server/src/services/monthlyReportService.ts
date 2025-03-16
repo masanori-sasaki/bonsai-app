@@ -2,6 +2,7 @@
  * 月次レポートサービス
  * 
  * このファイルは、月次レポートの生成や取得などの機能を提供します。
+ * また、CloudWatch Eventsからのトリガーによる自動生成機能もサポートします。
  */
 
 import { MonthlyReport, MonthlyReportListResponse, MonthlyReportListItem, BonsaiMonthlySummary, WorkHighlight, RecommendedWork } from '../models/monthlyReport';
@@ -31,8 +32,9 @@ const WORK_TYPE_LABELS: Record<WorkType, string> = {
   other: 'その他'
 };
 
-// 月次レポートデータストアの作成
+// データストアの作成
 const monthlyReportStore: DataStore<MonthlyReport> = createDataStore<MonthlyReport>('monthlyReport');
+const userStore: DataStore<any> = createDataStore<any>('user');
 
 /**
  * 月次レポート一覧を取得
@@ -423,6 +425,29 @@ export async function updateMonthlyReport(reportId: string): Promise<MonthlyRepo
   );
   
   return updatedReport;
+}
+
+/**
+ * アクティブユーザー一覧を取得
+ * 
+ * @returns アクティブユーザーIDの配列
+ */
+export async function getActiveUsers(): Promise<string[]> {
+  try {
+    // すべてのユーザーを取得
+    const allUsers = await userStore.getAll();
+    
+    // アクティブユーザーをフィルタリング
+    // ここでは簡易的に、すべてのユーザーをアクティブとみなす
+    // 実際の実装では、最終ログイン日時や登録状態などに基づいてフィルタリングする
+    const activeUserIds = allUsers.map(user => user.id);
+    
+    return activeUserIds;
+  } catch (error) {
+    console.error('アクティブユーザー取得中にエラーが発生しました:', error);
+    // エラーが発生した場合は空配列を返す
+    return [];
+  }
 }
 
 /**

@@ -3,9 +3,10 @@
  * 
  * このファイルはアプリケーションのエントリーポイントです。
  * AWS Lambda関数のハンドラーとして機能します。
+ * また、CloudWatch Eventsからのトリガーにも対応しています。
  */
 
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+import { APIGatewayProxyEvent, APIGatewayProxyResult, ScheduledEvent } from 'aws-lambda';
 import { createSuccessResponse, createErrorResponse } from './utils/response';
 import { 
   getBonsaiList, 
@@ -32,15 +33,23 @@ import {
 import {
   listMonthlyReports,
   getMonthlyReport,
-  generateMonthlyReport
+  generateMonthlyReport,
+  handleScheduledMonthlyReportGeneration
 } from './handlers/monthlyReportHandler';
 
 /**
  * Lambda関数のハンドラー
- * API Gatewayからのリクエストを処理します
+ * API GatewayからのリクエストとCloudWatch Eventsからのトリガーを処理します
  */
-export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+export const handler = async (event: APIGatewayProxyEvent | ScheduledEvent): Promise<APIGatewayProxyResult | void> => {
   try {
+    // CloudWatch Eventsからのトリガーを処理
+    if (isScheduledEvent(event)) {
+      console.log('CloudWatch Eventsからのトリガーを処理します');
+      return handleScheduledMonthlyReportGeneration(event);
+    }
+    
+    // API Gatewayからのリクエストを処理
     // リクエストのパスとメソッドを取得（Lambda Function URLとAPI Gateway両方に対応）
     let path = event.path;
     let method = event.httpMethod;
@@ -220,3 +229,15 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     return createErrorResponse(error as Error);
   }
 };
+
+/**
+ * イベントがScheduledEventかどうかを判定
+ * 
+ * @param event イベント
+ * @returns ScheduledEventかどうか
+ */
+function isScheduledEvent(event: any): event is ScheduledEvent {
+  return event.source === 'aws.events' && 
+         event['detail-type'] === 'Scheduled Event' &&
+         Array.isArray(event.resources);
+}

@@ -47,7 +47,13 @@ const lambdaToExpress = (path: string, method: string) => {
       // Lambda関数を呼び出し
       const result = await handler(event as APIGatewayProxyEvent);
       
-      // レスポンスを返す
+      // CloudWatch Eventsからのトリガーの場合はvoidが返るため、その場合は200 OKを返す
+      if (!result) {
+        res.status(200).json({ message: 'OK' });
+        return;
+      }
+      
+      // APIGatewayProxyResultの場合はレスポンスを返す
       res.status(result.statusCode).json(JSON.parse(result.body));
     } catch (error) {
       console.error('ルートハンドラーエラー:', error);
