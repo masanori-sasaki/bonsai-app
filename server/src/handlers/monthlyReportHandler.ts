@@ -83,14 +83,23 @@ export async function generateMonthlyReport(event: APIGatewayProxyEvent): Promis
       });
     }
     
-    const report = await monthlyReportService.generateMonthlyReport(
-      userId,
-      requestBody.year,
-      requestBody.month
-    );
+    console.log(`月次レポート生成リクエスト: ユーザーID=${userId}, 年=${requestBody.year}, 月=${requestBody.month}`);
     
-    return createSuccessResponse(report);
+    try {
+      const report = await monthlyReportService.generateMonthlyReport(
+        userId,
+        requestBody.year,
+        requestBody.month
+      );
+      
+      console.log(`月次レポート生成成功: ${report.id}`);
+      return createSuccessResponse(report);
+    } catch (serviceError) {
+      console.error(`月次レポート生成エラー:`, serviceError);
+      return createErrorResponse(serviceError as Error);
+    }
   } catch (error) {
+    console.error(`月次レポートハンドラーエラー:`, error);
     return createErrorResponse(error as Error);
   }
 }

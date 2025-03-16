@@ -158,7 +158,7 @@ async function uploadToS3() {
 async function uploadTemplates() {
   console.log('CloudFormationテンプレートをアップロードしています...');
   
-  const templates = ['main.yml', 'api.yml', 'auth.yml', 'storage.yml'];
+  const templates = ['main.yml', 'api.yml', 'auth.yml', 'storage.yml', 'monthly-report-scheduler.yml'];
   const timestamp = new Date().toISOString();
   
   for (const template of templates) {

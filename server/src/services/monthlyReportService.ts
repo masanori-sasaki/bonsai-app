@@ -162,8 +162,14 @@ export async function generateMonthlyReport(
   );
   
   if (existingReport) {
+    console.log(`既存のレポートが見つかりました: ${existingReport.id}`);
     // 既存のレポートがある場合は更新
-    return updateMonthlyReport(existingReport.id);
+    try {
+      return await updateMonthlyReport(existingReport.id);
+    } catch (error) {
+      console.error(`レポート更新中にエラーが発生しました: ${error}`);
+      throw error;
+    }
   }
   
   // ユーザーの全盆栽を取得
@@ -410,19 +416,254 @@ export async function generateMonthlyReport(
  * @returns 更新された月次レポート
  */
 export async function updateMonthlyReport(reportId: string): Promise<MonthlyReport> {
+  console.log(`月次レポート更新開始: ${reportId}`);
+  
   // 月次レポートを取得
   const report = await monthlyReportStore.getById(reportId);
   
   if (!report) {
+    console.error(`レポートが見つかりません: ${reportId}`);
     throw new ResourceNotFoundError('月次レポート', reportId);
   }
   
-  // レポートを再生成
-  const updatedReport = await generateMonthlyReport(
-    report.userId,
-    report.year,
-    report.month
-  );
+  console.log(`レポート情報: ユーザーID=${report.userId}, 年=${report.year}, 月=${report.month}`);
+  
+  // ユーザーの全盆栽を取得
+  const bonsaiList = await bonsaiService.listBonsai(report.userId);
+  const bonsais = bonsaiList.items;
+  
+  // 対象月の日付範囲を計算
+  const startDate = new Date(report.year, report.month - 1, 1); // 月は0-11なので-1
+  const endDate = new Date(report.year, report.month, 0); // 翌月の0日=当月の末日
+  
+  console.log(`対象期間: ${startDate.toISOString()} から ${endDate.toISOString()}`);
+  
+  // 作業タイプ別カウント初期化
+  const workTypeCounts: Record<WorkType, number> = {} as Record<WorkType, number>;
+  
+  // 盆栽ごとのサマリー配列
+  const bonsaiSummaries: BonsaiMonthlySummary[] = [];
+  
+  // 重要作業ハイライト配列
+  const highlights: WorkHighlight[] = [];
+  
+  // 総作業数
+  let totalWorkCount = 0;
+  
+  // 各盆栽に対して処理
+  for (const bonsai of bonsais) {
+    // 盆栽の作業記録を取得
+    const workRecordList = await workRecordService.listWorkRecords(report.userId, bonsai.id);
+    const workRecords = workRecordList.items;
+    
+    // 対象月の作業記録をフィルタリング
+    const monthWorkRecords = workRecords.filter(record => {
+      const recordDate = new Date(record.date);
+      return recordDate >= startDate && recordDate <= endDate;
+    });
+    
+    // 作業記録がない場合はスキップ
+    if (monthWorkRecords.length === 0) {
+      continue;
+    }
+    
+    // 作業タイプ別カウントを更新
+    monthWorkRecords.forEach(record => {
+      record.workTypes.forEach(workType => {
+        workTypeCounts[workType] = (workTypeCounts[workType] || 0) + 1;
+      });
+    });
+    
+    // 総作業数を更新
+    totalWorkCount += monthWorkRecords.length;
+    
+    // 作業記録IDの配列
+    const workRecordIds = monthWorkRecords.map(record => record.id);
+    
+    // 実施した作業タイプの配列（重複なし）
+    const workTypes = Array.from(new Set(
+      monthWorkRecords.flatMap(record => record.workTypes)
+    ));
+    
+    // 作業内容のサマリーテキスト生成
+    const workSummary = monthWorkRecords.map(record => {
+      const date = new Date(record.date);
+      const dateStr = `${date.getMonth() + 1}/${date.getDate()}`;
+      const workTypeLabels = record.workTypes.map(type => WORK_TYPE_LABELS[type]).join(', ');
+      return `${workTypeLabels}(${dateStr})`;
+    }).join(', ');
+    
+    // 重要な作業があるかどうか
+    const hasImportantWork = monthWorkRecords.some(record => {
+      // 植替え、剪定、針金かけ、針金はずしは重要な作業とみなす
+      return record.workTypes.some(type => 
+        ['repotting', 'pruning', 'wire', 'wireremove'].includes(type)
+      );
+    });
+    
+    // 代表画像URL
+    let imageUrl: string | undefined;
+    
+    // 作業記録の画像から代表画像を選定
+    for (const record of monthWorkRecords) {
+      if (record.imageUrls && record.imageUrls.length > 0) {
+        imageUrl = record.imageUrls[0];
+        break;
+      }
+    }
+    
+    // 作業記録の画像がない場合は盆栽情報から取得
+    if (!imageUrl && bonsai.imageUrls && bonsai.imageUrls.length > 0) {
+      imageUrl = bonsai.imageUrls[0];
+    }
+    
+    // 盆栽月次サマリーを追加
+    bonsaiSummaries.push({
+      bonsaiId: bonsai.id,
+      bonsaiName: bonsai.name,
+      species: bonsai.species,
+      imageUrl,
+      workRecordIds,
+      workTypes,
+      workSummary,
+      hasImportantWork
+    });
+    
+    // 重要な作業をハイライトに追加
+    if (hasImportantWork) {
+      // 重要な作業を含む作業記録を抽出
+      const importantRecords = monthWorkRecords.filter(record => 
+        record.workTypes.some(type => 
+          ['repotting', 'pruning', 'wire', 'wireremove'].includes(type)
+        )
+      );
+      
+      // 各重要作業をハイライトに追加
+      for (const record of importantRecords) {
+        const importantTypes = record.workTypes.filter(type => 
+          ['repotting', 'pruning', 'wire', 'wireremove'].includes(type)
+        );
+        
+        // 重要度を決定
+        let importance: 'high' | 'medium' | 'low' = 'medium';
+        if (record.workTypes.includes('repotting')) {
+          importance = 'high'; // 植替えは最重要
+        }
+        
+        // ハイライト理由を生成
+        const typeLabels = importantTypes.map(type => WORK_TYPE_LABELS[type]).join('、');
+        let highlightReason = `${typeLabels}は盆栽の成長に重要な作業です`;
+        
+        // 作業タイプに応じた理由を追加
+        if (record.workTypes.includes('repotting')) {
+          highlightReason = '年に一度の重要な植替え作業';
+        } else if (record.workTypes.includes('pruning')) {
+          highlightReason = '樹形を整える重要な剪定作業';
+        } else if (record.workTypes.includes('wire')) {
+          highlightReason = '樹形を作るための針金かけ作業';
+        } else if (record.workTypes.includes('wireremove')) {
+          highlightReason = '樹皮保護のための針金はずし作業';
+        }
+        
+        // 画像URL
+        const imageUrl = record.imageUrls && record.imageUrls.length > 0 
+          ? record.imageUrls[0] 
+          : undefined;
+        
+        // ハイライトを追加
+        highlights.push({
+          recordId: record.id,
+          bonsaiId: bonsai.id,
+          bonsaiName: bonsai.name,
+          workTypes: importantTypes,
+          date: record.date,
+          description: record.description,
+          imageUrl,
+          importance,
+          highlightReason
+        });
+      }
+    }
+  }
+  
+  // 次月の推奨作業を生成
+  const recommendedWorks: RecommendedWork[] = [];
+  
+  // 各盆栽に対して推奨作業を生成
+  for (const bonsai of bonsais) {
+    // 次月の推奨作業マスターデータを取得
+    const nextMonthRecommendedMasters = getNextMonthRecommendedWorks(report.month, bonsai.species);
+    
+    // 各推奨作業マスターデータから推奨作業を生成
+    for (const master of nextMonthRecommendedMasters) {
+      // 推奨作業を追加
+      recommendedWorks.push({
+        bonsaiId: bonsai.id,
+        bonsaiName: bonsai.name,
+        species: bonsai.species,
+        workTypes: master.workTypes,
+        reason: generateRecommendedReason(master, bonsai),
+        priority: master.priority,
+        seasonalTips: master.description
+      });
+    }
+  }
+  
+  // 推奨作業を優先度順にソート
+  recommendedWorks.sort((a, b) => {
+    const priorityOrder = { high: 0, medium: 1, low: 2 };
+    return priorityOrder[a.priority] - priorityOrder[b.priority];
+  });
+  
+  // レポートタイトル
+  const reportTitle = `${report.year}年${report.month}月 盆栽管理レポート`;
+  
+  // カバー画像URL（ハイライトの画像から選定）
+  let coverImageUrl: string | undefined;
+  if (highlights.length > 0) {
+    // 重要度の高いハイライトから画像を選定
+    const sortedHighlights = [...highlights].sort((a, b) => {
+      const importanceOrder = { high: 0, medium: 1, low: 2 };
+      return importanceOrder[a.importance] - importanceOrder[b.importance];
+    });
+    
+    for (const highlight of sortedHighlights) {
+      if (highlight.imageUrl) {
+        coverImageUrl = highlight.imageUrl;
+        break;
+      }
+    }
+  }
+  
+  // カバー画像がない場合は盆栽サマリーから選定
+  if (!coverImageUrl && bonsaiSummaries.length > 0) {
+    for (const summary of bonsaiSummaries) {
+      if (summary.imageUrl) {
+        coverImageUrl = summary.imageUrl;
+        break;
+      }
+    }
+  }
+  
+  // 更新データを作成
+  const updateData: Partial<MonthlyReport> = {
+    generatedAt: new Date().toISOString(),
+    totalBonsaiCount: bonsais.length,
+    totalWorkCount,
+    workTypeCounts,
+    bonsaiSummaries,
+    highlights,
+    recommendedWorks,
+    reportTitle,
+    coverImageUrl
+  };
+  
+  console.log(`レポート更新データ作成完了: ${reportId}`);
+  
+  // 月次レポートを更新
+  const updatedReport = await monthlyReportStore.update(reportId, updateData);
+  
+  console.log(`レポート更新完了: ${reportId}`);
   
   return updatedReport;
 }
