@@ -9,6 +9,7 @@
 3. [作業記録管理フロー](#作業記録管理フロー)
 4. [作業予定管理フロー](#作業予定管理フロー)
 5. [ダッシュボードカレンダーフロー](#ダッシュボードカレンダーフロー)
+6. [月次レポートフロー](#月次レポートフロー)
 
 ## 認証フロー
 
@@ -504,5 +505,131 @@ sequenceDiagram
     else 作業記録の場合
         Calendar->>Router: 作業記録詳細画面へ遷移（/records/:id）
         Router->>User: 作業記録詳細画面を表示
+    end
+```
+
+
+## 月次レポートフロー
+
+### 月次レポート生成フロー
+
+```mermaid
+sequenceDiagram
+    participant Scheduler as CloudWatch Events
+    participant Lambda as レポート生成Lambda
+    participant UserService as ユーザーサービス
+    participant BonsaiService as 盆栽サービス
+    participant RecordService as 作業記録サービス
+    participant MasterData as 推奨作業マスターデータ
+    participant ReportService as レポートサービス
+    participant DB as DynamoDB
+
+    Scheduler->>Lambda: 月末トリガー（毎月最終日）
+    Lambda->>Lambda: 前月の年月を計算
+    Lambda->>UserService: アクティブユーザー一覧取得
+    UserService->>DB: ユーザーデータ取得
+    DB->>UserService: ユーザー一覧
+    UserService->>Lambda: ユーザー一覧
+    
+    loop 各ユーザーに対して
+        Lambda->>BonsaiService: ユーザーの全盆栽取得
+        BonsaiService->>DB: 盆栽データ取得
+        DB->>BonsaiService: 盆栽一覧
+        BonsaiService->>Lambda: 盆栽一覧
+        
+        Lambda->>Lambda: 対象月の日付範囲を計算
+        
+        loop 各盆栽に対して
+            Lambda->>RecordService: 対象月の作業記録取得
+            RecordService->>DB: 作業記録データ取得
+            DB->>RecordService: 作業記録一覧
+            RecordService->>Lambda: 作業記録一覧
+            
+            Lambda->>Lambda: 作業記録の集計・分析
+            Lambda->>Lambda: 重要作業の特定
+            Lambda->>Lambda: 代表画像の選定
+                note right of Lambda: 作業記録の画像がない場合は盆栽情報から取得
+            
+            Lambda->>Lambda: 盆栽月次サマリー作成
+        end
+        
+        Lambda->>Lambda: 作業タイプ別集計
+        Lambda->>Lambda: 重要作業ハイライト抽出
+        
+        Lambda->>MasterData: 推奨作業マスターデータ取得
+        MasterData->>Lambda: 推奨作業マスターデータ
+        
+        loop 各盆栽に対して
+            Lambda->>Lambda: 樹種・季節に基づく推奨作業生成
+            Lambda->>Lambda: 推奨作業の優先度付け
+        end
+        
+        Lambda->>Lambda: 月次レポートデータ構築
+        Lambda->>ReportService: レポートデータ保存
+        ReportService->>DB: レポートデータ保存
+        DB->>ReportService: 保存確認
+        ReportService->>Lambda: 保存完了
+    end
+    
+    Lambda->>Lambda: 処理完了ログ記録
+```
+
+### 月次レポート一覧表示フロー
+
+```mermaid
+sequenceDiagram
+    actor User as ユーザー
+    participant Client as クライアントアプリ
+    participant ReportService as 月次レポートサービス
+    participant API as API Gateway
+    participant Lambda as レポート取得Lambda
+    participant DB as DynamoDB
+
+    User->>Client: ダッシュボードでレポートリンクをクリック
+    Client->>Client: レポート一覧画面に遷移
+    Client->>ReportService: レポート一覧取得リクエスト
+    ReportService->>API: GET /reports
+    API->>Lambda: レポート一覧取得ハンドラー呼び出し
+    Lambda->>DB: ユーザーIDに紐づくレポート取得
+    DB->>Lambda: レポート一覧
+    Lambda->>API: レポート一覧レスポンス
+    API->>ReportService: レポート一覧
+    ReportService->>Client: レポート一覧
+    Client->>Client: レポート一覧を日付降順で表示
+    Client->>User: レポート一覧表示
+```
+
+### 月次レポート詳細表示フロー
+
+```mermaid
+sequenceDiagram
+    actor User as ユーザー
+    participant Client as クライアントアプリ
+    participant ReportService as 月次レポートサービス
+    participant API as API Gateway
+    participant Lambda as レポート取得Lambda
+    participant DB as DynamoDB
+
+    User->>Client: 特定の月のレポートをクリック
+    Client->>Client: レポート詳細画面に遷移
+    Client->>ReportService: レポート詳細取得リクエスト
+    ReportService->>API: GET /reports/{year}/{month}
+    API->>Lambda: レポート詳細取得ハンドラー呼び出し
+    Lambda->>DB: 指定年月のレポート取得
+    DB->>Lambda: レポート詳細
+    Lambda->>API: レポート詳細レスポンス
+    API->>ReportService: レポート詳細
+    ReportService->>Client: レポート詳細
+    
+    Client->>Client: 作業タイプ別グラフ生成
+    Client->>Client: 盆栽サマリーセクション生成
+    Client->>Client: 重要作業ハイライトセクション生成
+    Client->>Client: 推奨作業セクション生成
+    Client->>User: レポート詳細表示
+    
+    alt 印刷ボタンクリック
+        User->>Client: 印刷ボタンをクリック
+        Client->>Client: 印刷用スタイル適用
+        Client->>User: ブラウザの印刷ダイアログを表示
     end
 ```

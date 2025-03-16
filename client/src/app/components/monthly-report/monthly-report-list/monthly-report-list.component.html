@@ -1,0 +1,79 @@
+<div class="monthly-report-list-container">
+  <div class="header">
+    <h1>月次レポート一覧</h1>
+    <button 
+      class="generate-button" 
+      (click)="generateReport()" 
+      [disabled]="generating">
+      <i class="fas fa-file-medical"></i>
+      {{ generating ? '生成中...' : '新規レポート生成' }}
+    </button>
+  </div>
+
+  <div class="info-text" *ngIf="generating">
+    <i class="fas fa-spinner fa-spin"></i> 
+    {{ currentYear }}年{{ getMonthName(currentMonth) }}のレポートを生成しています...
+  </div>
+
+  <div class="error-message" *ngIf="error">
+    <i class="fas fa-exclamation-triangle"></i> {{ error }}
+  </div>
+
+  <div class="loading-indicator" *ngIf="loading && !reports.length">
+    <i class="fas fa-spinner fa-spin"></i> 月次レポートを読み込んでいます...
+  </div>
+
+  <div class="no-reports" *ngIf="!loading && !reports.length">
+    <p>月次レポートがまだありません。</p>
+    <p>「新規レポート生成」ボタンをクリックして、最初のレポートを作成しましょう。</p>
+  </div>
+
+  <div class="reports-grid" *ngIf="reports.length > 0">
+    <div class="report-card" *ngFor="let report of reports" (click)="viewReport(report)">
+      <div class="report-header">
+        <span class="report-title">{{ report.year }}年{{ getMonthName(report.month) }}レポート</span>
+        <span class="new-badge" *ngIf="report.isNew">新着</span>
+      </div>
+      
+      <div class="report-content">
+        <div class="report-stats">
+          <div class="stat-item">
+            <i class="fas fa-tree"></i>
+            <span class="stat-value">{{ report.totalBonsaiCount }}</span>
+            <span class="stat-label">盆栽</span>
+          </div>
+          <div class="stat-item">
+            <i class="fas fa-tasks"></i>
+            <span class="stat-value">{{ report.totalWorkCount }}</span>
+            <span class="stat-label">作業</span>
+          </div>
+          <div class="stat-item">
+            <i class="fas fa-star"></i>
+            <span class="stat-value">{{ report.highlightCount }}</span>
+            <span class="stat-label">ハイライト</span>
+          </div>
+        </div>
+        
+        <div class="report-footer">
+          <span class="report-date">
+            <i class="far fa-calendar-alt"></i> {{ formatDate(report.generatedAt) }}
+          </span>
+          <span class="view-button">
+            <i class="fas fa-chevron-right"></i>
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="load-more" *ngIf="hasMoreReports">
+    <button 
+      class="load-more-button" 
+      (click)="loadMoreReports()" 
+      [disabled]="loading">
+      <i class="fas fa-spinner fa-spin" *ngIf="loading"></i>
+      <span *ngIf="!loading">さらに読み込む</span>
+      <span *ngIf="loading">読み込み中...</span>
+    </button>
+  </div>
+</div>

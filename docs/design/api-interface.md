@@ -656,6 +656,142 @@ DELETE /api/schedules/{scheduleId}
 }
 ```
 
+### 月次レポート
+
+#### 月次レポート一覧取得
+
+```
+GET /api/reports
+```
+
+**認証**: 必須
+
+**クエリパラメータ**:
+- `limit` (オプション): 取得する最大件数（デフォルト: 20）
+- `nextToken` (オプション): ページネーショントークン
+
+**レスポンス**:
+```json
+{
+  "items": [
+    {
+      "id": "report202503",
+      "year": 2025,
+      "month": 3,
+      "generatedAt": "2025-04-01T00:05:00Z",
+      "totalBonsaiCount": 5,
+      "totalWorkCount": 12,
+      "highlightCount": 2,
+      "isNew": true
+    },
+    {
+      "id": "report202502",
+      "year": 2025,
+      "month": 2,
+      "generatedAt": "2025-03-01T00:10:00Z",
+      "totalBonsaiCount": 5,
+      "totalWorkCount": 8,
+      "highlightCount": 1,
+      "isNew": false
+    }
+  ],
+  "nextToken": null
+}
+```
+
+#### 月次レポート詳細取得
+
+```
+GET /api/reports/{year}/{month}
+```
+
+**認証**: 必須
+
+**パスパラメータ**:
+- `year`: 年
+- `month`: 月（1-12）
+
+**レスポンス**:
+```json
+{
+  "id": "report202503",
+  "userId": "user123",
+  "year": 2025,
+  "month": 3,
+  "generatedAt": "2025-04-01T00:05:00Z",
+  "reportTitle": "2025年3月 盆栽管理レポート",
+  "coverImageUrl": "https://example.com/images/report-cover-202503.jpg",
+  
+  "totalBonsaiCount": 5,
+  "totalWorkCount": 12,
+  "workTypeCounts": {
+    "pruning": 3,
+    "watering": 5,
+    "fertilizing": 2,
+    "wire": 1,
+    "wireremove": 1
+  },
+  
+  "bonsaiSummaries": [
+    {
+      "bonsaiId": "bonsai123",
+      "bonsaiName": "松風（五葉松）",
+      "species": "五葉松",
+      "imageUrl": "https://example.com/images/bonsai123-202503.jpg",
+      "workRecordIds": ["record123", "record456", "record789"],
+      "workTypes": ["pruning", "watering", "fertilizing"],
+      "workSummary": "剪定(3/5), 水やり(3/10, 3/20), 肥料(3/15)",
+      "hasImportantWork": true
+    },
+    {
+      "bonsaiId": "bonsai456",
+      "bonsaiName": "翠松（真柏）",
+      "species": "真柏",
+      "imageUrl": "https://example.com/images/bonsai456-202503.jpg",
+      "workRecordIds": ["record321", "record654"],
+      "workTypes": ["watering"],
+      "workSummary": "水やり(3/10, 3/20)",
+      "hasImportantWork": false
+    }
+  ],
+  
+  "highlights": [
+    {
+      "recordId": "record123",
+      "bonsaiId": "bonsai123",
+      "bonsaiName": "松風（五葉松）",
+      "workTypes": ["pruning"],
+      "date": "2025-03-05T00:00:00Z",
+      "description": "春の芽出し前の整枝剪定を実施。不要な枝を整理し、樹形を整えた。",
+      "imageUrl": "https://example.com/images/record123-after.jpg",
+      "importance": "high",
+      "highlightReason": "年に一度の重要な剪定作業"
+    }
+  ],
+  
+  "recommendedWorks": [
+    {
+      "bonsaiId": "bonsai123",
+      "bonsaiName": "松風（五葉松）",
+      "species": "五葉松",
+      "workTypes": ["leafpull", "watering"],
+      "reason": "成長期に入るため、新芽の管理と水やりが重要です",
+      "priority": "high",
+      "seasonalTips": "新芽が伸びてきたら芽摘みを行いましょう。成長期に入るため水やりの頻度を増やしましょう。"
+    },
+    {
+      "bonsaiId": "bonsai456",
+      "bonsaiName": "翠松（真柏）",
+      "species": "真柏",
+      "workTypes": ["disinfection", "fertilizing"],
+      "reason": "春の病害虫予防と成長促進のため",
+      "priority": "medium",
+      "seasonalTips": "春の病害虫予防のため消毒を行いましょう。成長期に向けて緩効性肥料を与えましょう。"
+    }
+  ]
+}
+```
+
 ## エラーレスポンス
 
 APIはエラーが発生した場合、適切なHTTPステータスコードと以下の形式のJSONレスポンスを返します：
@@ -769,3 +905,93 @@ interface WorkSchedule {
   recurrencePattern?: RecurrencePattern; // 繰り返しパターン
   reminderDays?: number;  // リマインダー日数（予定日の何日前に通知するか）
 }
+```
+
+### 月次レポート
+
+```typescript
+/**
+ * 月次レポートモデル
+ */
+interface MonthlyReport {
+  id: string;
+  userId: string;         // ユーザーID
+  year: number;           // 年
+  month: number;          // 月（1-12）
+  generatedAt: string;    // 生成日時（ISO 8601形式）
+  
+  // 集計データ
+  totalBonsaiCount: number;  // 盆栽総数
+  totalWorkCount: number;    // 作業総数
+  workTypeCounts: Record<string, number>;  // 作業タイプ別カウント
+  
+  // 盆栽ごとのサマリー
+  bonsaiSummaries: BonsaiMonthlySummary[];
+  
+  // 重要作業ハイライト
+  highlights: WorkHighlight[];
+  
+  // 次月の推奨作業
+  recommendedWorks: RecommendedWork[];
+  
+  // レポートのメタデータ
+  reportTitle: string;    // レポートタイトル（例：「2025年3月 盆栽管理レポート」）
+  coverImageUrl?: string; // カバー画像URL
+}
+
+/**
+ * 盆栽月次サマリー
+ */
+interface BonsaiMonthlySummary {
+  bonsaiId: string;
+  bonsaiName: string;
+  species: string;
+  imageUrl?: string;      // 代表画像URL
+  workRecordIds: string[]; // 関連する作業記録ID
+  workTypes: string[];    // 実施した作業タイプ
+  workSummary: string;    // 作業内容のサマリーテキスト
+  hasImportantWork: boolean; // 重要な作業があったかどうか
+}
+
+/**
+ * 作業ハイライト
+ */
+interface WorkHighlight {
+  recordId: string;
+  bonsaiId: string;
+  bonsaiName: string;
+  workTypes: string[];
+  date: string;
+  description: string;
+  imageUrl?: string;
+  importance: 'high' | 'medium' | 'low';
+  highlightReason: string; // ハイライトされる理由
+}
+
+/**
+ * 推奨作業
+ */
+interface RecommendedWork {
+  bonsaiId: string;
+  bonsaiName: string;
+  species: string;        // 樹種
+  workTypes: string[];
+  reason: string;         // 推奨理由
+  priority: 'high' | 'medium' | 'low';
+  seasonalTips?: string;  // 季節に応じたアドバイス
+}
+
+/**
+ * 月次レポート一覧アイテム
+ */
+interface MonthlyReportListItem {
+  id: string;
+  year: number;
+  month: number;
+  generatedAt: string;
+  totalBonsaiCount: number;
+  totalWorkCount: number;
+  highlightCount: number;  // 重要作業の数
+  isNew?: boolean;         // 新着フラグ（最新のレポートの場合true）
+}
+```

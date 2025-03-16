@@ -1,0 +1,225 @@
+<div class="monthly-report-detail-container">
+  <div class="header">
+    <button class="back-button" (click)="goBack()">
+      <i class="fas fa-arrow-left"></i> 一覧に戻る
+    </button>
+    <button class="print-button" (click)="printReport()" *ngIf="report">
+      <i class="fas fa-print"></i> 印刷
+    </button>
+  </div>
+
+  <div class="error-message" *ngIf="error">
+    <i class="fas fa-exclamation-triangle"></i> {{ error }}
+  </div>
+
+  <div class="loading-indicator" *ngIf="loading">
+    <i class="fas fa-spinner fa-spin"></i> 月次レポートを読み込んでいます...
+  </div>
+
+  <div class="report-content" *ngIf="report && !loading">
+    <!-- レポートヘッダー -->
+    <div class="report-header">
+      <div class="report-title-section">
+        <h1>{{ report.reportTitle }}</h1>
+        <p class="report-date">生成日時: {{ formatDateTime(report.generatedAt) }}</p>
+      </div>
+      
+      <div class="report-cover" *ngIf="report.coverImageUrl">
+        <img [src]="report.coverImageUrl" alt="レポートカバー画像">
+      </div>
+    </div>
+
+    <!-- レポート概要 -->
+    <div class="report-summary">
+      <div class="summary-stat">
+        <div class="stat-value">{{ report.totalBonsaiCount }}</div>
+        <div class="stat-label">盆栽数</div>
+      </div>
+      <div class="summary-stat">
+        <div class="stat-value">{{ report.totalWorkCount }}</div>
+        <div class="stat-label">作業数</div>
+      </div>
+      <div class="summary-stat">
+        <div class="stat-value">{{ report.highlights.length }}</div>
+        <div class="stat-label">ハイライト</div>
+      </div>
+    </div>
+
+    <!-- 作業タイプ分布 -->
+    <div class="work-type-distribution" *ngIf="workTypeKeys.length > 0">
+      <h2>作業タイプ分布</h2>
+      <div class="work-type-chart">
+        <div class="work-type-bar" *ngFor="let workType of workTypeKeys">
+          <div class="work-type-label">{{ getWorkTypeLabel(workType) }}</div>
+          <div class="work-type-bar-container">
+            <div class="work-type-bar-fill" 
+                [style.width.%]="(report.workTypeCounts[workType] / report.totalWorkCount) * 100">
+              <span class="work-type-count">{{ report.workTypeCounts[workType] }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- タブナビゲーション -->
+    <div class="tab-navigation">
+      <button 
+        class="tab-button" 
+        [class.active]="activeTab === 'summary'"
+        (click)="setActiveTab('summary')">
+        <i class="fas fa-list"></i> 盆栽サマリー
+      </button>
+      <button 
+        class="tab-button" 
+        [class.active]="activeTab === 'highlights'"
+        (click)="setActiveTab('highlights')">
+        <i class="fas fa-star"></i> ハイライト
+      </button>
+      <button 
+        class="tab-button" 
+        [class.active]="activeTab === 'recommendations'"
+        (click)="setActiveTab('recommendations')">
+        <i class="fas fa-lightbulb"></i> 推奨作業
+      </button>
+    </div>
+
+    <!-- 盆栽サマリータブ -->
+    <div class="tab-content" *ngIf="activeTab === 'summary'">
+      <h2>盆栽サマリー</h2>
+      
+      <div class="no-content" *ngIf="report.bonsaiSummaries.length === 0">
+        <p>この月の盆栽サマリーはありません。</p>
+      </div>
+      
+      <div class="bonsai-summary-list" *ngIf="report.bonsaiSummaries.length > 0">
+        <div class="bonsai-summary-card" *ngFor="let summary of report.bonsaiSummaries">
+          <div class="bonsai-summary-header" [class.has-important-work]="summary.hasImportantWork">
+            <div class="bonsai-info" (click)="viewBonsai(summary.bonsaiId)">
+              <h3>{{ summary.bonsaiName }}</h3>
+              <p class="bonsai-species">{{ summary.species }}</p>
+            </div>
+            <div class="important-badge" *ngIf="summary.hasImportantWork">
+              <i class="fas fa-exclamation-circle"></i> 重要な作業あり
+            </div>
+          </div>
+          
+          <div class="bonsai-summary-content">
+            <div class="bonsai-image" *ngIf="summary.imageUrl">
+              <img [src]="summary.imageUrl" [alt]="summary.bonsaiName">
+            </div>
+            
+            <div class="bonsai-work-summary">
+              <div class="work-types">
+                <span class="work-type-tag" *ngFor="let workType of summary.workTypes">
+                  {{ getWorkTypeLabel(workType) }}
+                </span>
+              </div>
+              
+              <p class="work-summary-text">{{ summary.workSummary }}</p>
+              
+              <div class="work-records-link" *ngIf="summary.workRecordIds.length > 0">
+                <a (click)="viewBonsai(summary.bonsaiId)">
+                  {{ summary.workRecordIds.length }}件の作業記録を表示 <i class="fas fa-chevron-right"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ハイライトタブ -->
+    <div class="tab-content" *ngIf="activeTab === 'highlights'">
+      <h2>ハイライト</h2>
+      
+      <div class="no-content" *ngIf="report.highlights.length === 0">
+        <p>この月のハイライトはありません。</p>
+      </div>
+      
+      <div class="highlights-list" *ngIf="report.highlights.length > 0">
+        <div class="highlight-card" *ngFor="let highlight of report.highlights">
+          <div class="highlight-header">
+            <div class="highlight-bonsai-info" (click)="viewBonsai(highlight.bonsaiId)">
+              <h3>{{ highlight.bonsaiName }}</h3>
+              <div class="highlight-date">{{ formatDate(highlight.date) }}</div>
+            </div>
+            <div class="highlight-importance" [ngClass]="getPriorityClass(highlight.importance)">
+              {{ getPriorityLabel(highlight.importance) }}
+            </div>
+          </div>
+          
+          <div class="highlight-content">
+            <div class="highlight-image" *ngIf="highlight.imageUrl">
+              <img [src]="highlight.imageUrl" [alt]="highlight.bonsaiName">
+            </div>
+            
+            <div class="highlight-details">
+              <div class="highlight-work-types">
+                <span class="work-type-tag" *ngFor="let workType of highlight.workTypes">
+                  {{ getWorkTypeLabel(workType) }}
+                </span>
+              </div>
+              
+              <p class="highlight-description">{{ highlight.description }}</p>
+              
+              <div class="highlight-reason">
+                <i class="fas fa-info-circle"></i> {{ highlight.highlightReason }}
+              </div>
+              
+              <div class="highlight-action">
+                <button class="view-record-button" (click)="viewWorkRecord(highlight.recordId)">
+                  作業記録を表示 <i class="fas fa-chevron-right"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 推奨作業タブ -->
+    <div class="tab-content" *ngIf="activeTab === 'recommendations'">
+      <h2>{{ getMonthName(month === 12 ? 1 : month + 1) }}の推奨作業</h2>
+      
+      <div class="no-content" *ngIf="report.recommendedWorks.length === 0">
+        <p>次月の推奨作業はありません。</p>
+      </div>
+      
+      <div class="recommendations-list" *ngIf="report.recommendedWorks.length > 0">
+        <div class="recommendation-card" *ngFor="let recommendation of report.recommendedWorks">
+          <div class="recommendation-header" [ngClass]="getPriorityClass(recommendation.priority)">
+            <div class="recommendation-bonsai-info" (click)="viewBonsai(recommendation.bonsaiId)">
+              <h3>{{ recommendation.bonsaiName }}</h3>
+              <p class="bonsai-species">{{ recommendation.species }}</p>
+            </div>
+            <div class="recommendation-priority">
+              優先度: {{ getPriorityLabel(recommendation.priority) }}
+            </div>
+          </div>
+          
+          <div class="recommendation-content">
+            <div class="recommendation-work-types">
+              <span class="work-type-tag" *ngFor="let workType of recommendation.workTypes">
+                {{ getWorkTypeLabel(workType) }}
+              </span>
+            </div>
+            
+            <div class="recommendation-reason">
+              <i class="fas fa-info-circle"></i> {{ recommendation.reason }}
+            </div>
+            
+            <div class="recommendation-tips" *ngIf="recommendation.seasonalTips">
+              <i class="fas fa-lightbulb"></i> <strong>アドバイス:</strong> {{ recommendation.seasonalTips }}
+            </div>
+            
+            <div class="recommendation-action">
+              <button class="view-bonsai-button" (click)="viewBonsai(recommendation.bonsaiId)">
+                盆栽詳細を表示 <i class="fas fa-chevron-right"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
