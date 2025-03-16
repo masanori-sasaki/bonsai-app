@@ -1,4 +1,4 @@
-@import '../../../../assets/scss/variables';
+@import 'src/assets/scss/variables';
 
 .monthly-report-detail-container {
   padding: 20px;
@@ -14,8 +14,8 @@
 
 .back-button, .print-button {
   background-color: transparent;
-  border: 1px solid $primary-color;
-  color: $primary-color;
+  border: 1px solid $primary;
+  color: $primary;
   padding: 8px 15px;
   border-radius: 4px;
   cursor: pointer;
@@ -24,7 +24,7 @@
   transition: background-color 0.3s;
   
   &:hover {
-    background-color: rgba($primary-color, 0.1);
+    background-color: rgba($primary, 0.1);
   }
   
   i {
@@ -33,20 +33,20 @@
 }
 
 .print-button {
-  border-color: $accent-color;
-  color: $accent-color;
+  border-color: $accent;
+  color: $accent;
   
   &:hover {
-    background-color: rgba($accent-color, 0.1);
+    background-color: rgba($accent, 0.1);
   }
 }
 
 .error-message {
-  background-color: lighten($error-color, 35%);
+  background-color: lighten($error, 35%);
   padding: 12px;
   border-radius: 4px;
   margin-bottom: 20px;
-  color: $error-color;
+  color: $error;
   
   i {
     margin-right: 8px;
@@ -56,7 +56,7 @@
 .loading-indicator {
   text-align: center;
   padding: 30px;
-  color: $text-secondary;
+  color: $text-light;
   
   i {
     margin-right: 8px;
@@ -72,7 +72,7 @@
 }
 
 .report-header {
-  background-color: $primary-color;
+  background-color: $primary;
   color: white;
   padding: 20px;
   display: flex;
@@ -113,8 +113,8 @@
   display: flex;
   justify-content: space-around;
   padding: 20px;
-  background-color: $background-light;
-  border-bottom: 1px solid $border-color;
+  background-color: $bg-light;
+  border-bottom: 1px solid $bg-dark;
 }
 
 .summary-stat {
@@ -123,22 +123,22 @@
   .stat-value {
     font-size: 2.5rem;
     font-weight: 600;
-    color: $primary-color;
+    color: $primary;
   }
   
   .stat-label {
     font-size: 1rem;
-    color: $text-secondary;
+    color: $text-light;
   }
 }
 
 .work-type-distribution {
   padding: 20px;
-  border-bottom: 1px solid $border-color;
+  border-bottom: 1px solid $bg-dark;
   
   h2 {
     margin-top: 0;
-    color: $text-primary;
+    color: $text-dark;
     font-size: 1.5rem;
   }
 }
@@ -160,20 +160,20 @@
 .work-type-label {
   width: 120px;
   font-size: 0.9rem;
-  color: $text-primary;
+  color: $text-dark;
 }
 
 .work-type-bar-container {
   flex: 1;
   height: 24px;
-  background-color: $background-light;
+  background-color: $bg-light;
   border-radius: 12px;
   overflow: hidden;
 }
 
 .work-type-bar-fill {
   height: 100%;
-  background-color: $primary-color;
+  background-color: $primary;
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -191,7 +191,7 @@
 
 .tab-navigation {
   display: flex;
-  border-bottom: 1px solid $border-color;
+  border-bottom: 1px solid $bg-dark;
 }
 
 .tab-button {
@@ -202,16 +202,16 @@
   border-bottom: 3px solid transparent;
   cursor: pointer;
   font-size: 1rem;
-  color: $text-secondary;
+  color: $text-light;
   transition: all 0.3s;
   
   &:hover {
-    background-color: rgba($primary-color, 0.05);
+    background-color: rgba($primary, 0.05);
   }
   
   &.active {
-    color: $primary-color;
-    border-bottom-color: $primary-color;
+    color: $primary;
+    border-bottom-color: $primary;
     font-weight: 500;
   }
   
@@ -225,7 +225,7 @@
   
   h2 {
     margin-top: 0;
-    color: $text-primary;
+    color: $text-dark;
     font-size: 1.5rem;
   }
 }
@@ -233,8 +233,8 @@
 .no-content {
   text-align: center;
   padding: 30px;
-  color: $text-secondary;
-  background-color: $background-light;
+  color: $text-light;
+  background-color: $bg-light;
   border-radius: 4px;
 }
 
@@ -246,26 +246,26 @@
 }
 
 .bonsai-summary-card {
-  border: 1px solid $border-color;
+  border: 1px solid $bg-dark;
   border-radius: 8px;
   overflow: hidden;
 }
 
 .bonsai-summary-header {
-  background-color: $background-light;
+  background-color: $bg-light;
   padding: 15px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   
   &.has-important-work {
-    background-color: lighten($accent-color, 35%);
+    background-color: lighten($accent, 35%);
   }
   
   h3 {
     margin: 0 0 5px 0;
     font-size: 1.2rem;
-    color: $text-primary;
+    color: $text-dark;
   }
 }
 
@@ -273,18 +273,18 @@
   cursor: pointer;
   
   &:hover h3 {
-    color: $primary-color;
+    color: $primary;
   }
 }
 
 .bonsai-species {
   margin: 0;
   font-size: 0.9rem;
-  color: $text-secondary;
+  color: $text-light;
 }
 
 .important-badge {
-  background-color: $accent-color;
+  background-color: $accent;
   color: white;
   padding: 5px 10px;
   border-radius: 12px;
@@ -324,7 +324,7 @@
 
 .work-type-tag {
   display: inline-block;
-  background-color: $primary-color;
+  background-color: $primary;
   color: white;
   padding: 3px 8px;
   border-radius: 12px;
@@ -336,13 +336,13 @@
 .work-summary-text {
   margin: 0 0 15px 0;
   font-size: 0.9rem;
-  color: $text-primary;
+  color: $text-dark;
   line-height: 1.5;
 }
 
 .work-records-link {
   a {
-    color: $primary-color;
+    color: $primary;
     cursor: pointer;
     font-size: 0.9rem;
     
@@ -365,13 +365,13 @@
 }
 
 .highlight-card {
-  border: 1px solid $border-color;
+  border: 1px solid $bg-dark;
   border-radius: 8px;
   overflow: hidden;
 }
 
 .highlight-header {
-  background-color: $background-light;
+  background-color: $bg-light;
   padding: 15px;
   display: flex;
   justify-content: space-between;
@@ -380,7 +380,7 @@
   h3 {
     margin: 0 0 5px 0;
     font-size: 1.2rem;
-    color: $text-primary;
+    color: $text-dark;
   }
 }
 
@@ -388,13 +388,13 @@
   cursor: pointer;
   
   &:hover h3 {
-    color: $primary-color;
+    color: $primary;
   }
 }
 
 .highlight-date {
   font-size: 0.9rem;
-  color: $text-secondary;
+  color: $text-light;
 }
 
 .highlight-importance {
@@ -404,18 +404,18 @@
   font-weight: 500;
   
   &.priority-high {
-    background-color: lighten($error-color, 35%);
-    color: $error-color;
+    background-color: lighten($error, 35%);
+    color: $error;
   }
   
   &.priority-medium {
-    background-color: lighten($accent-color, 35%);
-    color: $accent-color;
+    background-color: lighten($accent, 35%);
+    color: $accent;
   }
   
   &.priority-low {
-    background-color: lighten($success-color, 35%);
-    color: $success-color;
+    background-color: lighten($success, 35%);
+    color: $success;
   }
 }
 
@@ -449,20 +449,20 @@
 .highlight-description {
   margin: 0 0 15px 0;
   font-size: 0.9rem;
-  color: $text-primary;
+  color: $text-dark;
   line-height: 1.5;
 }
 
 .highlight-reason {
-  background-color: $background-light;
+  background-color: $bg-light;
   padding: 10px;
   border-radius: 4px;
   font-size: 0.9rem;
-  color: $text-secondary;
+  color: $text-light;
   margin-bottom: 15px;
   
   i {
-    color: $primary-color;
+    color: $primary;
     margin-right: 5px;
   }
 }
@@ -472,7 +472,7 @@
 }
 
 .view-record-button {
-  background-color: $primary-color;
+  background-color: $primary;
   color: white;
   border: none;
   border-radius: 4px;
@@ -482,7 +482,7 @@
   transition: background-color 0.3s;
   
   &:hover {
-    background-color: darken($primary-color, 10%);
+    background-color: darken($primary, 10%);
   }
   
   i {
@@ -499,7 +499,7 @@
 }
 
 .recommendation-card {
-  border: 1px solid $border-color;
+  border: 1px solid $bg-dark;
   border-radius: 8px;
   overflow: hidden;
 }
@@ -511,21 +511,21 @@
   align-items: center;
   
   &.priority-high {
-    background-color: lighten($error-color, 35%);
+    background-color: lighten($error, 35%);
   }
   
   &.priority-medium {
-    background-color: lighten($accent-color, 35%);
+    background-color: lighten($accent, 35%);
   }
   
   &.priority-low {
-    background-color: lighten($success-color, 35%);
+    background-color: lighten($success, 35%);
   }
   
   h3 {
     margin: 0 0 5px 0;
     font-size: 1.2rem;
-    color: $text-primary;
+    color: $text-dark;
   }
 }
 
@@ -533,7 +533,7 @@
   cursor: pointer;
   
   &:hover h3 {
-    color: $primary-color;
+    color: $primary;
   }
 }
 
@@ -551,29 +551,29 @@
 }
 
 .recommendation-reason {
-  background-color: $background-light;
+  background-color: $bg-light;
   padding: 10px;
   border-radius: 4px;
   font-size: 0.9rem;
-  color: $text-primary;
+  color: $text-dark;
   margin-bottom: 15px;
   
   i {
-    color: $primary-color;
+    color: $primary;
     margin-right: 5px;
   }
 }
 
 .recommendation-tips {
-  background-color: lighten($success-color, 45%);
+  background-color: lighten($success, 45%);
   padding: 10px;
   border-radius: 4px;
   font-size: 0.9rem;
-  color: $text-primary;
+  color: $text-dark;
   margin-bottom: 15px;
   
   i {
-    color: $success-color;
+    color: $success;
     margin-right: 5px;
   }
 }
@@ -583,7 +583,7 @@
 }
 
 .view-bonsai-button {
-  background-color: $primary-color;
+  background-color: $primary;
   color: white;
   border: none;
   border-radius: 4px;
@@ -593,7 +593,7 @@
   transition: background-color 0.3s;
   
   &:hover {
-    background-color: darken($primary-color, 10%);
+    background-color: darken($primary, 10%);
   }
   
   i {
