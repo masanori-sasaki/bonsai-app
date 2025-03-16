@@ -32,6 +32,8 @@ app.get('/api/health', (req: Request, res: Response) => {
 const lambdaToExpress = (path: string, method: string) => {
   return async (req: Request, res: Response) => {
     try {
+      console.log('Lambda関数を呼び出し:', path, method);
+
       // ExpressリクエストをAPI Gateway形式に変換
       const event: Partial<APIGatewayProxyEvent> = {
         path,

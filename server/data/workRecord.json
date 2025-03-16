@@ -172,5 +172,17 @@
     "id": "9f3cd96a-0e8d-4895-9dca-6048a7896468",
     "createdAt": "2025-03-15T12:52:21.910Z",
     "updatedAt": "2025-03-15T12:52:21.910Z"
+  },
+  {
+    "bonsaiId": "9a025a35-4839-4846-bf6f-c94f1f507eed",
+    "workTypes": [
+      "pruning"
+    ],
+    "date": "2025-02-14T00:00:00.000Z",
+    "description": "剪定",
+    "imageUrls": [],
+    "id": "4fd0414c-c9c8-47c8-9c59-4a42705b0220",
+    "createdAt": "2025-03-16T06:44:35.858Z",
+    "updatedAt": "2025-03-16T06:44:35.858Z"
   }
 ]
