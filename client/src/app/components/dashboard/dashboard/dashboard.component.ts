@@ -5,6 +5,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { BonsaiService } from '../../../services/bonsai.service';
 import { AuthService } from '../../../services/auth.service';
 import { WorkRecordService } from '../../../services/work-record.service';
+import { CalendarDataService } from '../../../services/calendar-data.service';
 import { Bonsai, BonsaiListResponse } from '../../../models/bonsai.model';
 import { User } from '../../../models/user.model';
 import { BulkWateringDialogComponent } from '../../dialogs/bulk-watering-dialog/bulk-watering-dialog.component';
@@ -25,6 +26,7 @@ export class DashboardComponent implements OnInit {
     private bonsaiService: BonsaiService,
     private authService: AuthService,
     private workRecordService: WorkRecordService,
+    private calendarDataService: CalendarDataService,
     private router: Router,
     private dialog: MatDialog,
     private snackBar: MatSnackBar
@@ -137,6 +139,9 @@ export class DashboardComponent implements OnInit {
         next: (response) => {
           // 成功メッセージ表示
           this.snackBar.open(`${response.recordCount}件の盆栽に水やり記録を作成しました`, '閉じる', { duration: 3000 });
+          
+          // カレンダーデータの更新を通知
+          this.calendarDataService.refreshCalendarData();
         },
         error: (error) => {
           console.error('一括水やり記録作成エラー:', error);
