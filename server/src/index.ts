@@ -21,7 +21,8 @@ import {
   getWorkRecordDetail,
   createWorkRecord,
   updateWorkRecord,
-  deleteWorkRecord
+  deleteWorkRecord,
+  createBulkWateringRecords
 } from './handlers/workRecordHandler';
 import {
   getWorkScheduleList,
@@ -41,12 +42,17 @@ import {
  * Lambda関数のハンドラー
  * API GatewayからのリクエストとCloudWatch Eventsからのトリガーを処理します
  */
-export const handler = async (event: APIGatewayProxyEvent | ScheduledEvent): Promise<APIGatewayProxyResult | void> => {
+export const handler = async (event: APIGatewayProxyEvent | ScheduledEvent): Promise<APIGatewayProxyResult> => {
   try {
     // CloudWatch Eventsからのトリガーを処理
     if (isScheduledEvent(event)) {
       console.log('CloudWatch Eventsからのトリガーを処理します');
-      return handleScheduledMonthlyReportGeneration(event);
+      // CloudWatch Eventsからのトリガーの場合も、APIGatewayProxyResultを返す
+      await handleScheduledMonthlyReportGeneration(event);
+      return createSuccessResponse({
+        status: 'scheduled_task_completed',
+        timestamp: new Date().toISOString()
+      });
     }
     
     // API Gatewayからのリクエストを処理
@@ -218,6 +224,11 @@ export const handler = async (event: APIGatewayProxyEvent | ScheduledEvent): Pro
       if (method === 'GET') {
         return await getMonthlyReport(event);
       }
+    }
+    
+    // 一括水やりのエンドポイント
+    if (path === '/api/bulk-watering' && method === 'POST') {
+      return await createBulkWateringRecords(event);
     }
     
     // 未実装のエンドポイント

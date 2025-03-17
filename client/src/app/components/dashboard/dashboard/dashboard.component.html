@@ -1,7 +1,15 @@
 <div class="dashboard-container">
   <div class="dashboard-header">
     <!-- ウェルカムメッセージとサインアウトボタンを削除 -->
-  </div>
+</div>
+
+<!-- 一括水やりボタン -->
+<div class="bulk-watering-button">
+  <button class="btn btn-primary" (click)="showBulkWateringDialog()">
+    <i class="fas fa-tint"></i>
+    <span class="button-text">一括水やり</span>
+  </button>
+</div>
 
   <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
 

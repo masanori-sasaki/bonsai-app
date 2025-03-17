@@ -1,9 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { BonsaiService } from '../../../services/bonsai.service';
 import { AuthService } from '../../../services/auth.service';
+import { WorkRecordService } from '../../../services/work-record.service';
 import { Bonsai, BonsaiListResponse } from '../../../models/bonsai.model';
 import { User } from '../../../models/user.model';
+import { BulkWateringDialogComponent } from '../../dialogs/bulk-watering-dialog/bulk-watering-dialog.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -20,7 +24,10 @@ export class DashboardComponent implements OnInit {
   constructor(
     private bonsaiService: BonsaiService,
     private authService: AuthService,
-    private router: Router
+    private workRecordService: WorkRecordService,
+    private router: Router,
+    private dialog: MatDialog,
+    private snackBar: MatSnackBar
   ) { }
 
   ngOnInit(): void {
@@ -98,5 +105,50 @@ export class DashboardComponent implements OnInit {
    */
   signOut(): void {
     this.authService.signOut();
+  }
+
+  /**
+   * 一括水やりダイアログを表示
+   */
+  showBulkWateringDialog(): void {
+    const dialogRef = this.dialog.open(BulkWateringDialogComponent, {
+      width: '400px',
+      data: {
+        description: '一括水やり',
+        date: new Date().toISOString()
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.createBulkWateringRecords(result);
+      }
+    });
+  }
+
+  /**
+   * 一括水やり記録を作成
+   * 
+   * @param data 一括水やりデータ
+   */
+  createBulkWateringRecords(data: { description: string; date: string }): void {
+    this.workRecordService.createBulkWateringRecords(data)
+      .subscribe({
+        next: (response) => {
+          // 成功メッセージ表示
+          this.snackBar.open(`${response.recordCount}件の盆栽に水やり記録を作成しました`, '閉じる', { duration: 3000 });
+        },
+        error: (error) => {
+          console.error('一括水やり記録作成エラー:', error);
+          // エラーメッセージ表示
+          let errorMessage = '水やり記録の作成に失敗しました';
+          
+          if (error.error && error.error.message) {
+            errorMessage = error.error.message;
+          }
+          
+          this.snackBar.open(errorMessage, '閉じる', { duration: 3000 });
+        }
+      });
   }
 }
