@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, forkJoin, of } from 'rxjs';
+import { Observable, forkJoin, of, Subject } from 'rxjs';
 import { map, catchError, switchMap } from 'rxjs/operators';
 import { WorkScheduleService } from './work-schedule.service';
 import { WorkRecordService } from './work-record.service';
@@ -12,6 +12,12 @@ import { CalendarEvent } from '../models/calendar-event.model';
   providedIn: 'root'
 })
 export class CalendarDataService {
+  // カレンダーデータ更新通知用のSubject
+  private calendarRefreshSubject = new Subject<void>();
+  
+  // カレンダーデータ更新通知用のObservable
+  calendarRefresh$ = this.calendarRefreshSubject.asObservable();
+  
   // 作業タイプごとの色マッピング（視認性向上のため色を濃くしました）
   private readonly scheduleColors: Record<WorkType, string> = {
     pruning: '#1A73E8',     // より濃いブルー
@@ -191,4 +197,12 @@ export class CalendarDataService {
   }
 
   // 注: getTextColorForBackgroundメソッドは削除しました（常に白テキストを使用するため）
+
+  /**
+   * カレンダーデータの更新を通知
+   * 作業記録や作業予定が追加・更新・削除された時に呼び出す
+   */
+  refreshCalendarData(): void {
+    this.calendarRefreshSubject.next();
+  }
 }

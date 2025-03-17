@@ -347,33 +347,37 @@ export class BonsaiDetailComponent implements OnInit {
       imageUrls: this.bonsai.imageUrls
     };
 
-    // 新規作成の場合
-    if (this.bonsaiId === 'new') {
-      this.bonsaiService.createBonsai(bonsaiData)
-        .subscribe({
-          next: (createdBonsai) => {
-            // 作成された盆栽の詳細ページに遷移
-            this.router.navigate(['/bonsai', createdBonsai.id]);
-          },
-          error: (error) => {
-            this.error = '盆栽情報の作成に失敗しました。';
-            console.error('盆栽作成エラー:', error);
-          }
-        });
-    } else {
-      // 更新の場合
-      this.bonsaiService.updateBonsai(this.bonsaiId, bonsaiData)
-        .subscribe({
-          next: (updatedBonsai) => {
-            // 詳細ページに戻る
-            this.router.navigate(['/bonsai', this.bonsaiId]);
-          },
-          error: (error) => {
-            this.error = '盆栽情報の更新に失敗しました。';
-            console.error('盆栽更新エラー:', error);
-          }
-        });
-    }
+      // 新規作成の場合
+      if (this.bonsaiId === 'new') {
+        this.bonsaiService.createBonsai(bonsaiData)
+          .subscribe({
+            next: (createdBonsai) => {
+              // 編集モードをオフにする
+              this.isEditMode = false;
+              // 作成された盆栽の詳細ページに遷移
+              this.router.navigate(['/bonsai', createdBonsai.id]);
+            },
+            error: (error) => {
+              this.error = '盆栽情報の作成に失敗しました。';
+              console.error('盆栽作成エラー:', error);
+            }
+          });
+      } else {
+        // 更新の場合
+        this.bonsaiService.updateBonsai(this.bonsaiId, bonsaiData)
+          .subscribe({
+            next: (updatedBonsai) => {
+              // 編集モードをオフにする
+              this.isEditMode = false;
+              // 詳細ページに戻る
+              this.router.navigate(['/bonsai', this.bonsaiId]);
+            },
+            error: (error) => {
+              this.error = '盆栽情報の更新に失敗しました。';
+              console.error('盆栽更新エラー:', error);
+            }
+          });
+      }
   }
 
   /**

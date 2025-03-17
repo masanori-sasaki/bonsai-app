@@ -1,17 +1,20 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CalendarOptions, EventClickArg } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import { Router } from '@angular/router';
 import { CalendarDataService } from '../../services/calendar-data.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-calendar',
   templateUrl: './calendar.component.html',
   styleUrls: ['./calendar.component.scss']
 })
-export class CalendarComponent implements OnInit {
+export class CalendarComponent implements OnInit, OnDestroy {
+  private refreshSubscription!: Subscription;
+  private calendarApi: any;
   calendarOptions: CalendarOptions = {
     plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
     initialView: 'dayGridMonth',
@@ -26,6 +29,11 @@ export class CalendarComponent implements OnInit {
     locale: 'ja',
     height: 'auto',
     firstDay: 0, // 日曜日始まり
+    buttonText: {
+      today: '今日',
+      month: '月',
+      week: '週'
+    },
     dayMaxEvents: true, // trueに設定すると、スペースに基づいて自動的に「+more」リンクを表示
     moreLinkClick: 'day', // 「+more」クリック時の動作（dayビューに切り替え）
     fixedWeekCount: false, // 月によって週の数を可変にする
@@ -36,7 +44,7 @@ export class CalendarComponent implements OnInit {
     },
     views: {
       dayGridWeek: {
-        dayMaxEvents: 10, // 週表示で1日に表示する最大イベント数を増やす
+        dayMaxEvents: 15, // 週表示で1日に表示する最大イベント数を15個に増やす
         dayHeaderFormat: { // 曜日ヘッダーのフォーマット
           weekday: 'short',
           day: 'numeric',
@@ -57,6 +65,22 @@ export class CalendarComponent implements OnInit {
     const startDate = new Date(today.getFullYear(), today.getMonth(), 1);
     const endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
     this.loadCalendarData(startDate, endDate);
+    
+    // カレンダーデータの更新通知を購読
+    this.refreshSubscription = this.calendarDataService.calendarRefresh$.subscribe(() => {
+      // 現在表示中の日付範囲でカレンダーデータを再読み込み
+      if (this.calendarApi) {
+        const view = this.calendarApi.view;
+        this.loadCalendarData(view.activeStart, view.activeEnd);
+      }
+    });
+  }
+  
+  ngOnDestroy(): void {
+    // コンポーネント破棄時にSubscriptionを解除
+    if (this.refreshSubscription) {
+      this.refreshSubscription.unsubscribe();
+    }
   }
 
   handleEventClick(arg: EventClickArg): void {
@@ -71,6 +95,8 @@ export class CalendarComponent implements OnInit {
   }
 
   handleDatesSet(dateInfo: any): void {
+    // カレンダーAPIを保存
+    this.calendarApi = dateInfo.view.calendar;
     this.loadCalendarData(dateInfo.start, dateInfo.end);
   }
   

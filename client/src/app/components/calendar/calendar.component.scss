@@ -39,11 +39,11 @@
     // 週表示のスタイル調整
     .fc-dayGridWeek-view {
       .fc-daygrid-day {
-        height: 400px !important; // 日付セルの高さを大きく
+        height: 600px !important; // 日付セルの高さを15件分以上に増やす（540px + 余裕）
       }
       
       .fc-daygrid-day-events {
-        max-height: 120px !important; // イベント表示部分の高さを大きく
+        max-height: 540px !important; // イベント表示部分の高さを15件分に増やす（36px × 15 = 540px）
       }
       
       .fc-col-header-cell {
