@@ -362,6 +362,41 @@ sequenceDiagram
     Client->>Client: 作業記録情報更新
 ```
 
+### 一括水やり記録作成フロー
+
+```mermaid
+sequenceDiagram
+    actor User as ユーザー
+    participant Dashboard as ダッシュボードコンポーネント
+    participant Dialog as 一括水やりダイアログ
+    participant WorkRecordService as 作業記録サービス
+    participant API as API Gateway/Lambda
+    participant BonsaiService as 盆栽サービス
+    participant DynamoDB as DynamoDB
+
+    User->>Dashboard: 一括水やりボタンをクリック
+    Dashboard->>Dialog: 一括水やりダイアログを表示
+    Dialog->>Dialog: 「一括水やり」をデフォルト説明文として設定
+    Dialog->>Dialog: 現在日付を設定
+    User->>Dialog: 説明文を編集（任意）
+    User->>Dialog: 確認ボタンをクリック
+    Dialog->>WorkRecordService: 一括水やり記録作成リクエスト
+    WorkRecordService->>API: POST /api/bulk-watering
+    API->>BonsaiService: ユーザーの全盆栽取得
+    BonsaiService->>DynamoDB: 盆栽データ取得
+    DynamoDB->>BonsaiService: 盆栽一覧
+    BonsaiService->>API: 盆栽一覧
+    
+    loop 各盆栽に対して
+        API->>DynamoDB: 水やり作業記録作成
+        DynamoDB->>API: 作成確認
+    end
+    
+    API->>WorkRecordService: 作成結果返却
+    WorkRecordService->>Dialog: 作成結果
+    Dialog->>User: 完了メッセージ表示（「○件の盆栽に水やり記録を作成しました」）
+```
+
 ## 作業予定管理フロー
 
 ### 作業予定登録フロー

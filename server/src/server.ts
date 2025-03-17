@@ -134,6 +134,9 @@ app.get('/api/reports/:year/:month', (req: Request, res: Response) => {
   lambdaToExpress(path, 'GET')(req, res);
 });
 
+// 一括水やり関連のルート
+app.post('/api/bulk-watering', lambdaToExpress('/api/bulk-watering', 'POST'));
+
 // 認証関連のルート
 app.post('/api/auth/login', (req: Request, res: Response) => {
   // 簡易的な認証処理

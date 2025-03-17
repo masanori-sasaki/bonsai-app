@@ -23,19 +23,6 @@
   },
   {
     "userId": "dev-user-123",
-    "name": "長寿梅",
-    "species": "長寿梅",
-    "registrationDate": "2025-03-11T07:05:54.775Z",
-    "history": "",
-    "imageUrls": [
-      "https://bonsai-app-dev-171278323216-ap-northeast-1.s3.amazonaws.com/images/dev-user-123/36b7f59d-dc25-44de-8e9f-a468f591a1eb.jpg"
-    ],
-    "id": "9c069747-e892-46e1-813b-fdaad13bcb60",
-    "createdAt": "2025-03-11T07:06:03.246Z",
-    "updatedAt": "2025-03-11T07:06:03.246Z"
-  },
-  {
-    "userId": "dev-user-123",
     "name": "test",
     "species": "test",
     "registrationDate": "2025-03-13T13:47:41.594Z",

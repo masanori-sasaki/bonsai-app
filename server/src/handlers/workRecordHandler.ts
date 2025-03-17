@@ -5,7 +5,11 @@
  */
 
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { CreateWorkRecordRequest, UpdateWorkRecordRequest } from '../models/workRecord';
+import { 
+  CreateWorkRecordRequest, 
+  UpdateWorkRecordRequest, 
+  BulkWateringRequest 
+} from '../models/workRecord';
 import { getUserIdFromRequest } from '../utils/auth';
 import { InvalidRequestError } from '../utils/errors';
 import { createSuccessResponse, createErrorResponse } from '../utils/response';
@@ -175,6 +179,43 @@ export async function deleteWorkRecord(event: APIGatewayProxyEvent): Promise<API
       message: '作業記録が正常に削除されました',
       id: recordId
     });
+  } catch (error) {
+    // エラーレスポンスを返す
+    return createErrorResponse(error as Error);
+  }
+}
+
+/**
+ * 一括水やり記録を作成
+ * 
+ * @param event APIGatewayProxyEvent
+ * @returns APIGatewayProxyResult
+ */
+export async function createBulkWateringRecords(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
+  try {
+    // ユーザーIDを取得
+    const userId = getUserIdFromRequest(event);
+    
+    // リクエストボディをパース
+    if (!event.body) {
+      throw new InvalidRequestError('リクエストボディが空です');
+    }
+    
+    const data: BulkWateringRequest = JSON.parse(event.body);
+    
+    // バリデーション
+    if (!data.description) {
+      throw new InvalidRequestError('説明は必須です');
+    }
+    if (!data.date) {
+      throw new InvalidRequestError('日付は必須です');
+    }
+    
+    // 一括水やり記録を作成
+    const result = await workRecordService.createBulkWateringRecords(userId, data);
+    
+    // 成功レスポンスを返す（201 Created）
+    return createSuccessResponse(result, 201);
   } catch (error) {
     // エラーレスポンスを返す
     return createErrorResponse(error as Error);

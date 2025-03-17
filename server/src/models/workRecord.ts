@@ -5,6 +5,28 @@
  */
 
 /**
+ * 一括水やりリクエスト
+ */
+export interface BulkWateringRequest {
+  description: string;
+  date: string;
+}
+
+/**
+ * 一括水やりレスポンス
+ */
+export interface BulkWateringResponse {
+  success: boolean;
+  message: string;
+  recordCount: number;
+  records: {
+    id: string;
+    bonsaiId: string;
+    bonsaiName: string;
+  }[];
+}
+
+/**
  * 作業タイプ
  */
 export type WorkType = 'pruning' | 'repotting' | 'watering' | 'fertilizing' |'wire'|'wireremove'|'leafpull'|'leafcut'|'leafpeel'|'disinfection'|'carving'|'replant'|'protection'| 'other';

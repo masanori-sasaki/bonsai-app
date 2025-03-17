@@ -480,6 +480,44 @@ DELETE /api/records/{recordId}
 }
 ```
 
+#### 一括水やり記録作成
+
+```
+POST /api/bulk-watering
+```
+
+**認証**: 必須
+
+**リクエストボディ**:
+```json
+{
+  "description": "一括水やり",
+  "date": "2025-03-16T00:00:00Z"
+}
+```
+
+**レスポンス**:
+```json
+{
+  "success": true,
+  "message": "5件の盆栽に水やり記録を作成しました",
+  "recordCount": 5,
+  "records": [
+    {
+      "id": "record123",
+      "bonsaiId": "bonsai123",
+      "bonsaiName": "五葉松"
+    },
+    {
+      "id": "record124",
+      "bonsaiId": "bonsai456",
+      "bonsaiName": "真柏"
+    }
+    // 他の記録...
+  ]
+}
+```
+
 ### 作業予定
 
 #### 作業予定一覧取得

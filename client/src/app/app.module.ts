@@ -1,8 +1,16 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FullCalendarModule } from '@fullcalendar/angular';
+
+// Angular Material
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatButtonModule } from '@angular/material/button';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -34,6 +42,9 @@ import { CalendarComponent } from './components/calendar/calendar.component';
 import { MonthlyReportListComponent } from './components/monthly-report/monthly-report-list/monthly-report-list.component';
 import { MonthlyReportDetailComponent } from './components/monthly-report/monthly-report-detail/monthly-report-detail.component';
 
+// ダイアログコンポーネント
+import { BulkWateringDialogComponent } from './components/dialogs/bulk-watering-dialog/bulk-watering-dialog.component';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -49,15 +60,22 @@ import { MonthlyReportDetailComponent } from './components/monthly-report/monthl
     WorkScheduleFormComponent,
     CalendarComponent,
     MonthlyReportListComponent,
-    MonthlyReportDetailComponent
+    MonthlyReportDetailComponent,
+    BulkWateringDialogComponent
   ],
   imports: [
     BrowserModule,
+    BrowserAnimationsModule,
     AppRoutingModule,
     HttpClientModule,
     FormsModule,
     ReactiveFormsModule,
-    FullCalendarModule
+    FullCalendarModule,
+    MatDialogModule,
+    MatButtonModule,
+    MatInputModule,
+    MatFormFieldModule,
+    MatSnackBarModule
   ],
   providers: [],
   bootstrap: [AppComponent]
