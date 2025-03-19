@@ -32,6 +32,8 @@ app.get('/api/health', (req: Request, res: Response) => {
 const lambdaToExpress = (path: string, method: string) => {
   return async (req: Request, res: Response) => {
     try {
+      console.log('Lambda関数を呼び出し:', path, method);
+
       // ExpressリクエストをAPI Gateway形式に変換
       const event: Partial<APIGatewayProxyEvent> = {
         path,
@@ -45,7 +47,13 @@ const lambdaToExpress = (path: string, method: string) => {
       // Lambda関数を呼び出し
       const result = await handler(event as APIGatewayProxyEvent);
       
-      // レスポンスを返す
+      // CloudWatch Eventsからのトリガーの場合はvoidが返るため、その場合は200 OKを返す
+      if (!result) {
+        res.status(200).json({ message: 'OK' });
+        return;
+      }
+      
+      // APIGatewayProxyResultの場合はレスポンスを返す
       res.status(result.statusCode).json(JSON.parse(result.body));
     } catch (error) {
       console.error('ルートハンドラーエラー:', error);
@@ -117,6 +125,17 @@ app.delete('/api/schedules/:scheduleId', (req: Request, res: Response) => {
 
 // 画像アップロード関連のルート
 app.post('/api/images/presigned-url', lambdaToExpress('/api/images/presigned-url', 'POST'));
+
+// 月次レポート関連のルート
+app.get('/api/reports', lambdaToExpress('/api/reports', 'GET'));
+app.post('/api/reports', lambdaToExpress('/api/reports', 'POST'));
+app.get('/api/reports/:year/:month', (req: Request, res: Response) => {
+  const path = `/api/reports/${req.params.year}/${req.params.month}`;
+  lambdaToExpress(path, 'GET')(req, res);
+});
+
+// 一括水やり関連のルート
+app.post('/api/bulk-watering', lambdaToExpress('/api/bulk-watering', 'POST'));
 
 // 認証関連のルート
 app.post('/api/auth/login', (req: Request, res: Response) => {

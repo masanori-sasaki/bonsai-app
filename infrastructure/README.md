@@ -92,6 +92,10 @@ npm run deploy:all
 set ENVIRONMENT=prod
 set ADMIN_EMAIL=your-email@example.com
 npm run deploy:all
+  
+# PowerShell
+$env:ENVIRONMENT = "prod"
+$env:ADMIN_EMAIL= "your-email@example.com"
 
 # macOS/Linux
 ENVIRONMENT=prod ADMIN_EMAIL=your-email@example.com npm run deploy:all

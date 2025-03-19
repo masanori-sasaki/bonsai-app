@@ -3,7 +3,7 @@
     <button class="btn btn-outline-secondary" (click)="goBack()">
       <i class="fas fa-arrow-left"></i> 戻る
     </button>
-    <h2 *ngIf="workSchedule">{{ workTypeLabels[workSchedule.workType] }}の予定</h2>
+    <h2 *ngIf="workSchedule">作業予定</h2>
     <div class="work-schedule-actions" *ngIf="workSchedule">
       <button class="btn btn-primary" (click)="editWorkSchedule()">
         <i class="fas fa-edit"></i> 編集
@@ -53,7 +53,16 @@
     <div class="work-schedule-info">
       <div class="info-row">
         <div class="info-label">作業タイプ</div>
-        <div class="info-value">{{ workTypeLabels[workSchedule.workType] }}</div>
+        <div class="info-value">
+          <div class="work-type-tags">
+            <span *ngFor="let type of workSchedule.workTypes" class="work-type-tag">
+              {{ workTypeLabels[type] }}
+            </span>
+            <span *ngIf="!workSchedule.workTypes || workSchedule.workTypes.length === 0" class="work-type-tag empty">
+              未設定
+            </span>
+          </div>
+        </div>
       </div>
       <div class="info-row">
         <div class="info-label">予定日</div>

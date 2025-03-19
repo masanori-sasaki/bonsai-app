@@ -45,6 +45,32 @@
   gap: 30px;
 }
 
+.dashboard-layout {
+  display: flex;
+  gap: 30px;
+  margin-bottom: 30px;
+  
+  @media (max-width: 991px) {
+    flex-direction: column;
+  }
+}
+
+.dashboard-column {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  flex: 1;
+  min-width: 0; /* Flexboxのバグ防止 */
+}
+
+.calendar-column {
+  flex: 2;
+}
+
+.info-column {
+  flex: 1;
+}
+
 .dashboard-section {
   background-color: $card-bg;
   border-radius: 8px;
@@ -349,6 +375,31 @@
   margin-bottom: 20px;
 }
 
+.bulk-watering-button {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 1000;
+  
+  button {
+    padding: 0.75rem 1.25rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    border-radius: 2rem;
+    
+    i {
+      font-size: 1.25rem;
+      margin-right: 0.5rem;
+    }
+    
+    .button-text {
+      font-weight: 500;
+      font-size: 0.9rem;
+    }
+  }
+}
+
 .dashboard-section {
   background-color: $card-bg;
   border-radius: 8px;
@@ -358,6 +409,14 @@
   @media (max-width: 575px) {
     padding: 15px;
     border-radius: 6px;
+  }
+  
+  &.calendar-section {
+    padding: 10px;
+    
+    @media (max-width: 575px) {
+      padding: 5px;
+    }
   }
   
   .section-header {

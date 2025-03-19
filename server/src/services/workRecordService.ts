@@ -4,7 +4,14 @@
  * このファイルは作業記録データの操作に関するビジネスロジックを提供します。
  */
 
-import { WorkRecord, WorkRecordListResponse, CreateWorkRecordRequest, UpdateWorkRecordRequest } from '../models/workRecord';
+import { 
+  WorkRecord, 
+  WorkRecordListResponse, 
+  CreateWorkRecordRequest, 
+  UpdateWorkRecordRequest,
+  BulkWateringRequest,
+  BulkWateringResponse
+} from '../models/workRecord';
 import { ResourceNotFoundError } from '../utils/errors';
 import * as bonsaiService from './bonsaiService';
 import { createDataStore, DataStore } from '../data/dataStore';
@@ -17,7 +24,7 @@ const workRecordStore: DataStore<WorkRecord> = createDataStore<WorkRecord>('work
  * 
  * @param userId ユーザーID
  * @param bonsaiId 盆栽ID
- * @param workType 作業タイプでフィルタリング（オプション）
+ * @param workTypes 作業タイプでフィルタリング（オプション）
  * @param limit 取得件数（オプション）
  * @param nextToken ページネーショントークン（オプション）
  * @returns 作業記録一覧レスポンス
@@ -25,7 +32,7 @@ const workRecordStore: DataStore<WorkRecord> = createDataStore<WorkRecord>('work
 export async function listWorkRecords(
   userId: string,
   bonsaiId: string,
-  workType?: string,
+  workTypes?: string[],
   limit?: number,
   nextToken?: string
 ): Promise<WorkRecordListResponse> {
@@ -39,8 +46,11 @@ export async function listWorkRecords(
   let records = allRecords.filter(record => record.bonsaiId === bonsaiId);
   
   // 作業タイプでフィルタリング
-  if (workType) {
-    records = records.filter(record => record.workType === workType);
+  if (workTypes && workTypes.length > 0) {
+    records = records.filter(record => {
+      // 少なくとも1つの作業タイプが一致する場合に含める
+      return record.workTypes.some(type => workTypes.includes(type));
+    });
   }
   
   // ページネーション処理
@@ -107,7 +117,7 @@ export async function createWorkRecord(userId: string, data: CreateWorkRecordReq
   // 新しい作業記録データを作成
   const newRecord = await workRecordStore.create({
     bonsaiId: data.bonsaiId,
-    workType: data.workType,
+    workTypes: data.workTypes,
     date: data.date,
     description: data.description,
     imageUrls: data.imageUrls || []
@@ -132,7 +142,7 @@ export async function updateWorkRecord(
   
   // 更新データを作成
   const updatedRecord = await workRecordStore.update(recordId, {
-    workType: data.workType,
+    workTypes: data.workTypes,
     date: data.date,
     description: data.description,
     imageUrls: data.imageUrls
@@ -152,4 +162,59 @@ export async function deleteWorkRecord(recordId: string): Promise<void> {
   
   // データストアから削除
   await workRecordStore.delete(recordId);
+}
+
+/**
+ * 一括水やり記録を作成
+ * 
+ * @param userId ユーザーID
+ * @param data 一括水やりリクエスト
+ * @returns 一括水やりレスポンス
+ */
+export async function createBulkWateringRecords(
+  userId: string,
+  data: BulkWateringRequest
+): Promise<BulkWateringResponse> {
+  // バリデーション
+  if (!data.description) {
+    throw new Error('説明は必須です');
+  }
+  
+  // ユーザーの全盆栽を取得
+  const bonsaiResponse = await bonsaiService.listBonsai(userId);
+  const bonsaiList = bonsaiResponse.items;
+  
+  // 盆栽が存在しない場合はエラー
+  if (bonsaiList.length === 0) {
+    throw new Error('水やり記録を作成する盆栽がありません');
+  }
+  
+  // 各盆栽に対して水やり記録を作成
+  const createdRecords = [];
+  
+  for (const bonsai of bonsaiList) {
+    // 水やり記録を作成
+    const newRecord = await workRecordStore.create({
+      bonsaiId: bonsai.id,
+      workTypes: ['watering'],
+      date: data.date,
+      description: data.description,
+      imageUrls: []
+    });
+    
+    // 作成された記録を配列に追加
+    createdRecords.push({
+      id: newRecord.id,
+      bonsaiId: bonsai.id,
+      bonsaiName: bonsai.name
+    });
+  }
+  
+  // レスポンスを作成
+  return {
+    success: true,
+    message: `${createdRecords.length}件の盆栽に水やり記録を作成しました`,
+    recordCount: createdRecords.length,
+    records: createdRecords
+  };
 }

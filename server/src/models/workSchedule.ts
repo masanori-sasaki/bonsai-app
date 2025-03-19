@@ -12,7 +12,7 @@ import { WorkType } from './workRecord';
 export interface WorkSchedule {
   id: string;
   bonsaiId: string;
-  workType: WorkType;     // 作業タイプ
+  workTypes: WorkType[];  // 作業タイプの配列
   scheduledDate: string;  // 予定日（ISO 8601形式）
   description: string;    // 予定内容
   completed: boolean;     // 完了フラグ
@@ -25,7 +25,7 @@ export interface WorkSchedule {
  */
 export interface CreateWorkScheduleRequest {
   bonsaiId: string;
-  workType: WorkType;
+  workTypes: WorkType[];
   scheduledDate: string;
   description: string;
 }
@@ -34,7 +34,7 @@ export interface CreateWorkScheduleRequest {
  * 作業予定更新リクエスト
  */
 export interface UpdateWorkScheduleRequest {
-  workType?: WorkType;
+  workTypes?: WorkType[];
   scheduledDate?: string;
   description?: string;
   completed?: boolean;

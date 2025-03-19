@@ -231,6 +231,15 @@ describe('BonsaiListComponent', () => {
     expect(component.getWorkTypeLabel('repotting')).toBe('植替え');
     expect(component.getWorkTypeLabel('watering')).toBe('水やり');
     expect(component.getWorkTypeLabel('fertilizing')).toBe('肥料');
+    expect(component.getWorkTypeLabel('wire')).toBe('針金かけ');
+    expect(component.getWorkTypeLabel('wireremove')).toBe('針金はずし');
+    expect(component.getWorkTypeLabel('leafpull')).toBe('芽摘み');
+    expect(component.getWorkTypeLabel('leafcut')).toBe('芽切り');
+    expect(component.getWorkTypeLabel('leafpeel')).toBe('葉透かし');
+    expect(component.getWorkTypeLabel('disinfection')).toBe('消毒');
+    expect(component.getWorkTypeLabel('carving')).toBe('彫刻');
+    expect(component.getWorkTypeLabel('replant')).toBe('改作');
+    expect(component.getWorkTypeLabel('protection')).toBe('保護');
     expect(component.getWorkTypeLabel('other')).toBe('その他');
     expect(component.getWorkTypeLabel('unknown')).toBe('unknown');
   });

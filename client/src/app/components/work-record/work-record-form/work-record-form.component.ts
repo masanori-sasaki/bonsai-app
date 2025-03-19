@@ -27,7 +27,8 @@ export class WorkRecordFormComponent implements OnInit {
   saving = false;
   error = '';
   workTypeLabels = WORK_TYPE_LABELS;
-  workTypes: WorkType[] = ['pruning', 'repotting', 'watering', 'fertilizing', 'other'];
+  workTypes: WorkType[] = ['pruning', 'repotting', 'watering', 'fertilizing', 'wire', 'wireremove', 'leafpull', 'leafcut', 'leafpeel', 'disinfection', 'carving', 'replant', 'protection', 'other'];
+  selectedWorkTypes: WorkType[] = [];
   
   // 画像アップロード関連のプロパティ
   imageFiles: File[] = [];
@@ -98,7 +99,7 @@ export class WorkRecordFormComponent implements OnInit {
     const formattedDate = this.formatDateForInput(today.toISOString());
     
     this.recordForm = this.fb.group({
-      workType: ['pruning', Validators.required],
+      workTypes: [[]],
       date: [formattedDate, Validators.required],
       startTime: ['09:00'],
       endTime: ['10:00'],
@@ -168,9 +169,12 @@ export class WorkRecordFormComponent implements OnInit {
     // 既存の画像URLをプレビューに設定
     this.imagePreviewUrls = [...record.imageUrls];
     
+    // 選択された作業タイプを設定
+    this.selectedWorkTypes = [...record.workTypes];
+    
     // フォームに値を設定
     this.recordForm.patchValue({
-      workType: record.workType,
+      workTypes: record.workTypes,
       date: this.formatDateForInput(record.date),
       description: record.description,
       // カレンダー拡張プロパティ（存在する場合）
@@ -181,6 +185,34 @@ export class WorkRecordFormComponent implements OnInit {
     
     // 終日イベントフラグを設定
     this.isAllDay = record.isAllDay !== undefined ? record.isAllDay : true;
+  }
+  
+  /**
+   * 作業タイプが選択されているかチェック
+   * 
+   * @param type 作業タイプ
+   * @returns 選択されている場合はtrue
+   */
+  isWorkTypeSelected(type: WorkType): boolean {
+    return this.selectedWorkTypes.includes(type);
+  }
+  
+  /**
+   * 作業タイプの選択/解除を切り替える
+   * 
+   * @param type 作業タイプ
+   */
+  toggleWorkType(type: WorkType): void {
+    const index = this.selectedWorkTypes.indexOf(type);
+    if (index === -1) {
+      // 未選択の場合は追加
+      this.selectedWorkTypes.push(type);
+    } else {
+      // 選択済みの場合は削除
+      this.selectedWorkTypes.splice(index, 1);
+    }
+    // フォームの値を更新
+    this.recordForm.get('workTypes')?.setValue([...this.selectedWorkTypes]);
   }
 
   /**
@@ -346,7 +378,7 @@ export class WorkRecordFormComponent implements OnInit {
     // 作業記録データを作成
     const workRecordData: any = {
       bonsaiId: this.bonsaiId,
-      workType: formValues.workType,
+      workTypes: this.selectedWorkTypes,
       date: isoDate,
       description: formValues.description,
       imageUrls: imageUrls,

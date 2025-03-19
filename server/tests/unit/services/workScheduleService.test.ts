@@ -44,7 +44,7 @@ describe('作業予定サービス', () => {
     {
       id: 'schedule1',
       bonsaiId: 'bonsai1',
-      workType: 'pruning',
+      workTypes: ['pruning'],
       scheduledDate: '2025-04-15T00:00:00Z',
       description: '上部の枝を剪定する予定',
       completed: false,
@@ -54,7 +54,7 @@ describe('作業予定サービス', () => {
     {
       id: 'schedule2',
       bonsaiId: 'bonsai1',
-      workType: 'repotting',
+      workTypes: ['repotting'],
       scheduledDate: '2025-05-10T00:00:00Z',
       description: '新しい鉢に植え替える予定',
       completed: true,
@@ -64,7 +64,7 @@ describe('作業予定サービス', () => {
     {
       id: 'schedule3',
       bonsaiId: 'bonsai2',
-      workType: 'fertilizing',
+      workTypes: ['fertilizing'],
       scheduledDate: '2025-04-20T00:00:00Z',
       description: '肥料を与える予定',
       completed: false,
@@ -289,7 +289,7 @@ describe('作業予定サービス', () => {
       // 結果の検証
       expect(result.id).toBe('schedule1');
       expect(result.bonsaiId).toBe('bonsai1');
-      expect(result.workType).toBe('pruning');
+      expect(result.workTypes).toContain('pruning');
       expect(result.completed).toBe(false);
       
       // 関数が正しく呼び出されたことを検証
@@ -316,7 +316,7 @@ describe('作業予定サービス', () => {
       // 作成データ
       const createData = {
         bonsaiId: 'bonsai1',
-        workType: 'watering' as WorkType,
+        workTypes: ['watering'] as WorkType[],
         scheduledDate: '2025-04-01T00:00:00Z',
         description: '水やりを行う予定'
       };
@@ -325,7 +325,7 @@ describe('作業予定サービス', () => {
       (workScheduleService.createWorkSchedule as jest.Mock).mockResolvedValue({
         id: 'new-schedule-id',
         bonsaiId: 'bonsai1',
-        workType: 'watering',
+        workTypes: ['watering'],
         scheduledDate: '2025-04-01T00:00:00Z',
         description: '水やりを行う予定',
         completed: false,
@@ -339,7 +339,7 @@ describe('作業予定サービス', () => {
       // 結果の検証
       expect(result.id).toBe('new-schedule-id');
       expect(result.bonsaiId).toBe('bonsai1');
-      expect(result.workType).toBe('watering');
+      expect(result.workTypes).toContain('watering');
       expect(result.scheduledDate).toBe('2025-04-01T00:00:00Z');
       expect(result.description).toBe('水やりを行う予定');
       expect(result.completed).toBe(false); // 初期値はfalse
@@ -352,7 +352,7 @@ describe('作業予定サービス', () => {
       // 作成データ
       const createData = {
         bonsaiId: 'nonexistent-bonsai',
-        workType: 'watering' as WorkType,
+        workTypes: ['watering'] as WorkType[],
         scheduledDate: '2025-04-01T00:00:00Z',
         description: '水やりを行う予定'
       };
@@ -375,7 +375,7 @@ describe('作業予定サービス', () => {
     it('既存の作業予定を更新して返すこと', async () => {
       // 更新データ
       const updateData = {
-        workType: 'other' as WorkType,
+        workTypes: ['other'] as WorkType[],
         description: '剪定から作業タイプを変更しました',
         completed: true
       };
@@ -383,7 +383,7 @@ describe('作業予定サービス', () => {
       // モック関数の実装を設定
       (workScheduleService.updateWorkSchedule as jest.Mock).mockResolvedValue({
         ...mockWorkScheduleData[0],
-        workType: 'other',
+        workTypes: ['other'],
         description: '剪定から作業タイプを変更しました',
         completed: true,
         updatedAt: '2025-03-09T00:00:00Z'
@@ -394,7 +394,7 @@ describe('作業予定サービス', () => {
       
       // 結果の検証
       expect(result.id).toBe('schedule1');
-      expect(result.workType).toBe('other');
+      expect(result.workTypes).toContain('other');
       expect(result.description).toBe('剪定から作業タイプを変更しました');
       expect(result.completed).toBe(true);
       expect(result.scheduledDate).toBe('2025-04-15T00:00:00Z'); // 更新されていない項目は元の値を保持

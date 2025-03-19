@@ -1,7 +1,16 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FullCalendarModule } from '@fullcalendar/angular';
+
+// Angular Material
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatButtonModule } from '@angular/material/button';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -26,6 +35,16 @@ import { WorkScheduleDetailComponent } from './components/work-schedule/work-sch
 import { WorkRecordFormComponent } from './components/work-record/work-record-form/work-record-form.component';
 import { WorkScheduleFormComponent } from './components/work-schedule/work-schedule-form/work-schedule-form.component';
 
+// カレンダーコンポーネント
+import { CalendarComponent } from './components/calendar/calendar.component';
+
+// 月次レポート関連コンポーネント
+import { MonthlyReportListComponent } from './components/monthly-report/monthly-report-list/monthly-report-list.component';
+import { MonthlyReportDetailComponent } from './components/monthly-report/monthly-report-detail/monthly-report-detail.component';
+
+// ダイアログコンポーネント
+import { BulkWateringDialogComponent } from './components/dialogs/bulk-watering-dialog/bulk-watering-dialog.component';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -38,14 +57,25 @@ import { WorkScheduleFormComponent } from './components/work-schedule/work-sched
     WorkScheduleListComponent,
     WorkScheduleDetailComponent,
     WorkRecordFormComponent,
-    WorkScheduleFormComponent
+    WorkScheduleFormComponent,
+    CalendarComponent,
+    MonthlyReportListComponent,
+    MonthlyReportDetailComponent,
+    BulkWateringDialogComponent
   ],
   imports: [
     BrowserModule,
+    BrowserAnimationsModule,
     AppRoutingModule,
     HttpClientModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    FullCalendarModule,
+    MatDialogModule,
+    MatButtonModule,
+    MatInputModule,
+    MatFormFieldModule,
+    MatSnackBarModule
   ],
   providers: [],
   bootstrap: [AppComponent]

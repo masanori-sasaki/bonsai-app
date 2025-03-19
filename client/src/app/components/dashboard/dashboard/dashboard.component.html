@@ -1,7 +1,15 @@
 <div class="dashboard-container">
   <div class="dashboard-header">
     <!-- ウェルカムメッセージとサインアウトボタンを削除 -->
-  </div>
+</div>
+
+<!-- 一括水やりボタン -->
+<div class="bulk-watering-button">
+  <button class="btn btn-primary" (click)="showBulkWateringDialog()">
+    <i class="fas fa-tint"></i>
+    <span class="button-text">一括水やり</span>
+  </button>
+</div>
 
   <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
 
@@ -13,86 +21,108 @@
   </div>
 
   <div *ngIf="!loading" class="dashboard-content">
-    <div class="dashboard-section">
-      <div class="section-header">
-        <h2>盆栽一覧</h2>
-        <div class="section-actions">
-          <button class="btn btn-primary" (click)="createNewBonsai()">
-            <i class="fas fa-plus"></i> 新規登録
-          </button>
-          <button class="btn btn-outline-primary" (click)="viewAllBonsai()">
-            <i class="fas fa-list"></i> すべて表示
-          </button>
+    <!-- 上部：カレンダーと盆栽一覧 -->
+    <div class="dashboard-layout">
+      <!-- 左上：カレンダー -->
+      <div class="dashboard-column calendar-column">
+        <div class="dashboard-section calendar-section">
+          <app-calendar></app-calendar>
         </div>
       </div>
-
-      <div *ngIf="bonsaiList.length === 0" class="empty-state">
-        <div class="empty-state-icon">
-          <i class="fas fa-tree"></i>
-        </div>
-        <h3>盆栽が登録されていません</h3>
-        <p>「新規登録」ボタンから盆栽を登録してください。</p>
-      </div>
-
-      <div *ngIf="bonsaiList.length > 0" class="bonsai-grid">
-        <div *ngFor="let bonsai of bonsaiList.slice(0, 4)" class="bonsai-card" (click)="viewBonsaiDetail(bonsai.id)">
-          <div class="bonsai-card-image">
-            <img *ngIf="bonsai.imageUrls && bonsai.imageUrls.length > 0" [src]="bonsai.imageUrls[0]" alt="{{ bonsai.name }}">
-            <div *ngIf="!bonsai.imageUrls || bonsai.imageUrls.length === 0" class="no-image">
-              <i class="fas fa-tree"></i>
+      
+      <!-- 右上：盆栽一覧 -->
+      <div class="dashboard-column info-column">
+        <div class="dashboard-section">
+          <div class="section-header">
+            <h2>盆栽一覧</h2>
+            <div class="section-actions">
+              <button class="btn btn-primary" (click)="createNewBonsai()">
+                <i class="fas fa-plus"></i> 新規登録
+              </button>
+              <button class="btn btn-outline-primary" (click)="viewAllBonsai()">
+                <i class="fas fa-list"></i> すべて表示
+              </button>
             </div>
           </div>
-          <div class="bonsai-card-content">
-            <h3 class="bonsai-name">{{ bonsai.name }}</h3>
-            <p class="bonsai-species">{{ bonsai.species }}</p>
+
+          <div *ngIf="bonsaiList.length === 0" class="empty-state">
+            <div class="empty-state-icon">
+              <i class="fas fa-tree"></i>
+            </div>
+            <h3>盆栽が登録されていません</h3>
+            <p>「新規登録」ボタンから盆栽を登録してください。</p>
+          </div>
+
+          <div *ngIf="bonsaiList.length > 0" class="bonsai-grid">
+            <div *ngFor="let bonsai of bonsaiList.slice(0, 3)" class="bonsai-card" (click)="viewBonsaiDetail(bonsai.id)">
+              <div class="bonsai-card-image">
+                <img *ngIf="bonsai.imageUrls && bonsai.imageUrls.length > 0" [src]="bonsai.imageUrls[0]" alt="{{ bonsai.name }}">
+                <div *ngIf="!bonsai.imageUrls || bonsai.imageUrls.length === 0" class="no-image">
+                  <i class="fas fa-tree"></i>
+                </div>
+              </div>
+              <div class="bonsai-card-content">
+                <h3 class="bonsai-name">{{ bonsai.name }}</h3>
+                <p class="bonsai-species">{{ bonsai.species }}</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
+    
+    <!-- 下部：最近の更新とクイックアクセス -->
+    <div class="dashboard-layout">
+      <!-- 左下：最近の更新 -->
+      <div class="dashboard-column">
+        <div class="dashboard-section">
+          <div class="section-header">
+            <h2>最近の更新</h2>
+          </div>
 
-    <div class="dashboard-section">
-      <div class="section-header">
-        <h2>最近の更新</h2>
-      </div>
+          <div *ngIf="recentBonsai.length === 0" class="empty-state">
+            <p>最近更新された盆栽はありません。</p>
+          </div>
 
-      <div *ngIf="recentBonsai.length === 0" class="empty-state">
-        <p>最近更新された盆栽はありません。</p>
-      </div>
-
-      <div *ngIf="recentBonsai.length > 0" class="recent-updates">
-        <div *ngFor="let bonsai of recentBonsai" class="recent-update-item" (click)="viewBonsaiDetail(bonsai.id)">
-          <div class="recent-update-image">
-            <img *ngIf="bonsai.imageUrls && bonsai.imageUrls.length > 0" [src]="bonsai.imageUrls[0]" alt="{{ bonsai.name }}">
-            <div *ngIf="!bonsai.imageUrls || bonsai.imageUrls.length === 0" class="no-image">
-              <i class="fas fa-tree"></i>
+          <div *ngIf="recentBonsai.length > 0" class="recent-updates">
+            <div *ngFor="let bonsai of recentBonsai" class="recent-update-item" (click)="viewBonsaiDetail(bonsai.id)">
+              <div class="recent-update-image">
+                <img *ngIf="bonsai.imageUrls && bonsai.imageUrls.length > 0" [src]="bonsai.imageUrls[0]" alt="{{ bonsai.name }}">
+                <div *ngIf="!bonsai.imageUrls || bonsai.imageUrls.length === 0" class="no-image">
+                  <i class="fas fa-tree"></i>
+                </div>
+              </div>
+              <div class="recent-update-content">
+                <h3>{{ bonsai.name }}</h3>
+                <p>{{ bonsai.species }}</p>
+                <p class="update-time">更新日時: {{ bonsai.updatedAt | date:'yyyy年MM月dd日 HH:mm' }}</p>
+              </div>
             </div>
           </div>
-          <div class="recent-update-content">
-            <h3>{{ bonsai.name }}</h3>
-            <p>{{ bonsai.species }}</p>
-            <p class="update-time">更新日時: {{ bonsai.updatedAt | date:'yyyy年MM月dd日 HH:mm' }}</p>
-          </div>
         </div>
       </div>
-    </div>
 
-    <div class="dashboard-section">
-      <div class="section-header">
-        <h2>クイックアクセス</h2>
-      </div>
+      <!-- 右下：クイックアクセス -->
+      <div class="dashboard-column">
+        <div class="dashboard-section">
+          <div class="section-header">
+            <h2>クイックアクセス</h2>
+          </div>
 
-      <div class="quick-access-grid">
-        <div class="quick-access-card" (click)="viewAllBonsai()">
-          <div class="quick-access-icon">
-            <i class="fas fa-list"></i>
+          <div class="quick-access-grid">
+            <div class="quick-access-card" (click)="viewAllBonsai()">
+              <div class="quick-access-icon">
+                <i class="fas fa-list"></i>
+              </div>
+              <div class="quick-access-label">盆栽一覧</div>
+            </div>
+            <div class="quick-access-card" (click)="createNewBonsai()">
+              <div class="quick-access-icon">
+                <i class="fas fa-plus-circle"></i>
+              </div>
+              <div class="quick-access-label">盆栽登録</div>
+            </div>
           </div>
-          <div class="quick-access-label">盆栽一覧</div>
-        </div>
-        <div class="quick-access-card" (click)="createNewBonsai()">
-          <div class="quick-access-icon">
-            <i class="fas fa-plus-circle"></i>
-          </div>
-          <div class="quick-access-label">盆栽登録</div>
         </div>
       </div>
     </div>

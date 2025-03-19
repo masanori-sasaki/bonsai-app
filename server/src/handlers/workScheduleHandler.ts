@@ -96,8 +96,9 @@ export async function createWorkSchedule(event: APIGatewayProxyEvent): Promise<A
     data.bonsaiId = bonsaiId; // パスパラメータの盆栽IDを設定
     
     // バリデーション
-    if (!data.workType) {
-      throw new InvalidRequestError('作業タイプは必須です');
+    if (!data.workTypes || data.workTypes.length === 0) {
+      // 作業タイプは必須ではなくなったため、空の配列を設定
+      data.workTypes = [];
     }
     if (!data.scheduledDate) {
       throw new InvalidRequestError('予定日は必須です');

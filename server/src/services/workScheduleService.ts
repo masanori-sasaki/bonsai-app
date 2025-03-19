@@ -112,7 +112,7 @@ export async function createWorkSchedule(userId: string, data: CreateWorkSchedul
   // 新しい作業予定データを作成
   const newSchedule = await workScheduleStore.create({
     bonsaiId: data.bonsaiId,
-    workType: data.workType,
+    workTypes: data.workTypes,
     scheduledDate: data.scheduledDate,
     description: data.description,
     completed: false // 初期値はfalse
@@ -137,7 +137,7 @@ export async function updateWorkSchedule(
   
   // 更新データを作成
   const updatedSchedule = await workScheduleStore.update(scheduleId, {
-    workType: data.workType,
+    workTypes: data.workTypes,
     scheduledDate: data.scheduledDate,
     description: data.description,
     completed: data.completed

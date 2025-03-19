@@ -8,6 +8,17 @@ import {
   UpdateWorkRecordRequest 
 } from '../models/work-record.model';
 
+interface BulkWateringResponse {
+  success: boolean;
+  message: string;
+  recordCount: number;
+  records: {
+    id: string;
+    bonsaiId: string;
+    bonsaiName: string;
+  }[];
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -32,7 +43,7 @@ export class WorkRecordService {
     const params: any = {};
     
     if (workType) {
-      params.workType = workType;
+      params.workTypes = workType;
     }
     
     if (limit) {
@@ -86,5 +97,15 @@ export class WorkRecordService {
    */
   deleteWorkRecord(recordId: string): Observable<{message: string, id: string}> {
     return this.apiService.delete<{message: string, id: string}>(`records/${recordId}`);
+  }
+
+  /**
+   * 一括水やり記録を作成
+   * 
+   * @param data 一括水やりデータ
+   * @returns Observable<BulkWateringResponse>
+   */
+  createBulkWateringRecords(data: { description: string; date: string }): Observable<BulkWateringResponse> {
+    return this.apiService.post<BulkWateringResponse>('bulk-watering', data);
   }
 }

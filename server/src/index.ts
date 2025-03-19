@@ -3,9 +3,10 @@
  * 
  * このファイルはアプリケーションのエントリーポイントです。
  * AWS Lambda関数のハンドラーとして機能します。
+ * また、CloudWatch Eventsからのトリガーにも対応しています。
  */
 
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+import { APIGatewayProxyEvent, APIGatewayProxyResult, ScheduledEvent } from 'aws-lambda';
 import { createSuccessResponse, createErrorResponse } from './utils/response';
 import { 
   getBonsaiList, 
@@ -20,7 +21,8 @@ import {
   getWorkRecordDetail,
   createWorkRecord,
   updateWorkRecord,
-  deleteWorkRecord
+  deleteWorkRecord,
+  createBulkWateringRecords
 } from './handlers/workRecordHandler';
 import {
   getWorkScheduleList,
@@ -29,13 +31,31 @@ import {
   updateWorkSchedule,
   deleteWorkSchedule
 } from './handlers/workScheduleHandler';
+import {
+  listMonthlyReports,
+  getMonthlyReport,
+  generateMonthlyReport,
+  handleScheduledMonthlyReportGeneration
+} from './handlers/monthlyReportHandler';
 
 /**
  * Lambda関数のハンドラー
- * API Gatewayからのリクエストを処理します
+ * API GatewayからのリクエストとCloudWatch Eventsからのトリガーを処理します
  */
-export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+export const handler = async (event: APIGatewayProxyEvent | ScheduledEvent): Promise<APIGatewayProxyResult> => {
   try {
+    // CloudWatch Eventsからのトリガーを処理
+    if (isScheduledEvent(event)) {
+      console.log('CloudWatch Eventsからのトリガーを処理します');
+      // CloudWatch Eventsからのトリガーの場合も、APIGatewayProxyResultを返す
+      await handleScheduledMonthlyReportGeneration(event);
+      return createSuccessResponse({
+        status: 'scheduled_task_completed',
+        timestamp: new Date().toISOString()
+      });
+    }
+    
+    // API Gatewayからのリクエストを処理
     // リクエストのパスとメソッドを取得（Lambda Function URLとAPI Gateway両方に対応）
     let path = event.path;
     let method = event.httpMethod;
@@ -146,39 +166,8 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       }
     }
     
-    // 作業記録詳細のエンドポイント
-    const workRecordDetailMatch = path.match(/^\/api\/records\/([^\/\?]+)/);
-    if (workRecordDetailMatch) {
-      const recordId = workRecordDetailMatch[1];
-      console.log('作業記録詳細 recordId:', recordId);
-      event.pathParameters = { ...event.pathParameters, recordId };
-      
-      if (method === 'GET') {
-        return await getWorkRecordDetail(event);
-      } else if (method === 'PUT') {
-        return await updateWorkRecord(event);
-      } else if (method === 'DELETE') {
-        return await deleteWorkRecord(event);
-      }
-    }
-    
-    // 作業予定一覧のエンドポイント
-    // クエリパラメータを含まないパスパターンに変更
-    const workScheduleListMatch = path.match(/^\/api\/bonsai\/([^\/\?]+)\/schedules/);
-    if (workScheduleListMatch) {
-      const bonsaiId = workScheduleListMatch[1];
-      console.log('作業予定一覧 bonsaiId:', bonsaiId);
-      event.pathParameters = { ...event.pathParameters, bonsaiId };
-      
-      if (method === 'GET') {
-        return await getWorkScheduleList(event);
-      } else if (method === 'POST') {
-        return await createWorkSchedule(event);
-      }
-    }
-    
-    // 作業予定詳細のエンドポイント
-    const workScheduleDetailMatch = path.match(/^\/api\/schedules\/([^\/\?]+)/);
+    // 作業予定詳細のエンドポイント - 作業記録詳細よりも先に処理
+    const workScheduleDetailMatch = path.match(/^\/api\/schedules\/([^\/\?]+)$/);
     if (workScheduleDetailMatch) {
       const scheduleId = workScheduleDetailMatch[1];
       console.log('作業予定詳細 scheduleId:', scheduleId);
@@ -193,9 +182,53 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       }
     }
     
+    // 作業記録詳細のエンドポイント
+    const workRecordDetailMatch = path.match(/^\/api\/records\/([^\/\?]+)$/);
+    if (workRecordDetailMatch) {
+      const recordId = workRecordDetailMatch[1];
+      console.log('作業記録詳細 recordId:', recordId);
+      event.pathParameters = { ...event.pathParameters, recordId };
+      
+      if (method === 'GET') {
+        return await getWorkRecordDetail(event);
+      } else if (method === 'PUT') {
+        return await updateWorkRecord(event);
+      } else if (method === 'DELETE') {
+        return await deleteWorkRecord(event);
+      }
+    }
+    
     // 画像アップロード用の署名付きURL生成エンドポイント
     if (path === '/api/images/presigned-url' && method === 'POST') {
       return await generatePresignedUrl(event);
+    }
+    
+    // 月次レポート一覧のエンドポイント
+    if (path === '/api/reports' && method === 'GET') {
+      return await listMonthlyReports(event);
+    }
+    
+    // 月次レポート生成のエンドポイント
+    if (path === '/api/reports' && method === 'POST') {
+      return await generateMonthlyReport(event);
+    }
+    
+    // 月次レポート詳細のエンドポイント
+    const monthlyReportDetailMatch = path.match(/^\/api\/reports\/(\d+)\/(\d+)$/);
+    if (monthlyReportDetailMatch) {
+      const year = monthlyReportDetailMatch[1];
+      const month = monthlyReportDetailMatch[2];
+      console.log('月次レポート詳細 year:', year, 'month:', month);
+      event.pathParameters = { ...event.pathParameters, year, month };
+      
+      if (method === 'GET') {
+        return await getMonthlyReport(event);
+      }
+    }
+    
+    // 一括水やりのエンドポイント
+    if (path === '/api/bulk-watering' && method === 'POST') {
+      return await createBulkWateringRecords(event);
     }
     
     // 未実装のエンドポイント
@@ -207,3 +240,15 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     return createErrorResponse(error as Error);
   }
 };
+
+/**
+ * イベントがScheduledEventかどうかを判定
+ * 
+ * @param event イベント
+ * @returns ScheduledEventかどうか
+ */
+function isScheduledEvent(event: any): event is ScheduledEvent {
+  return event.source === 'aws.events' && 
+         event['detail-type'] === 'Scheduled Event' &&
+         Array.isArray(event.resources);
+}

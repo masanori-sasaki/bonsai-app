@@ -1,0 +1,37 @@
+:host {
+  display: block;
+}
+
+::ng-deep {
+  .mat-dialog-container {
+    padding: 24px;
+    border-radius: 8px;
+  }
+
+  .mat-dialog-title {
+    margin-bottom: 16px;
+    color: #333;
+  }
+
+  .mat-dialog-content {
+    margin: 0 -24px;
+    padding: 0 24px;
+    max-height: 65vh;
+  }
+
+  .mat-dialog-actions {
+    margin-bottom: 0;
+    padding: 16px 0 0;
+  }
+}
+
+.full-width {
+  width: 100%;
+}
+
+.validation-error {
+  color: #f44336;
+  font-size: 12px;
+  margin-top: -16px;
+  margin-bottom: 16px;
+}

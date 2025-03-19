@@ -9,7 +9,8 @@
 3. [盆栽管理イベント](#盆栽管理イベント)
 4. [作業記録イベント](#作業記録イベント)
 5. [作業予定イベント](#作業予定イベント)
-6. [通知イベント](#通知イベント)
+6. [ダッシュボードカレンダーイベント](#ダッシュボードカレンダーイベント)
+7. [通知イベント](#通知イベント)
 
 ## 認証関連イベント
 
@@ -185,6 +186,24 @@
 2. 取得した作業記録を日付の降順でソートして表示
 3. 作業記録項目クリック時：対応する作業記録詳細ページに遷移
 
+### 盆栽詳細画面での作業予定タブ表示
+
+**イベント名**: `VIEW_WORK_SCHEDULES_TAB`
+
+**トリガー**: ユーザーが盆栽詳細画面の作業予定タブをクリックしたとき
+
+**データ**:
+```typescript
+{
+  bonsaiId: string;
+}
+```
+
+**処理フロー**:
+1. 作業予定タブがクリックされたとき、盆栽IDに紐づくすべての作業予定を取得
+2. 取得した作業予定を予定日の昇順でソートして表示
+3. 作業予定項目クリック時：対応する作業予定詳細ページに遷移
+
 ### 盆栽情報更新
 
 **イベント名**: `UPDATE_BONSAI`
@@ -243,7 +262,7 @@
 ```typescript
 {
   bonsaiId: string;
-  workType: 'pruning' | 'repotting' | 'watering' | 'fertilizing' | 'other';
+  workTypes: ('pruning' | 'repotting' | 'watering' | 'fertilizing' |'wire'|'wireremove'|'leafpull'|'leafcut'|'leafpeel'|'disinfection'|'carving'|'replant'|'protection'| 'other')[]; // 作業タイプ（剪定、植替え、水やり、肥料、針金かけ、針金はずし、芽摘み、芽切り、葉透かし、消毒、彫刻、改作、その他）の配列
   date: string;
   description: string;
   imageFiles?: File[];
@@ -274,7 +293,7 @@
 ```typescript
 {
   id: string;
-  workType?: 'pruning' | 'repotting' | 'watering' | 'fertilizing' | 'other';
+  workTypes?: ('pruning' | 'repotting' | 'watering' | 'fertilizing' |'wire'|'wireremove'|'leafpull'|'leafcut'|'leafpeel'|'disinfection'|'carving'|'replant'|'protection'| 'other')[];
   date?: string;
   description?: string;
   imageFiles?: File[];
@@ -316,6 +335,26 @@
 3. 成功時：成功メッセージ表示、作業記録一覧の更新
 4. 失敗時：エラーメッセージ表示
 
+### 一括水やり
+
+**イベント名**: `BULK_WATERING`
+
+**トリガー**: ユーザーがダッシュボード画面の一括水やりボタンをクリックし、確認ダイアログで確認したとき
+
+**データ**:
+```typescript
+{
+  description: string; // 水やり記録の説明
+  date: string;        // ISO 8601形式の日付
+}
+```
+
+**処理フロー**:
+1. 一括水やり確認ダイアログ表示（説明入力欄付き）
+2. 確認後、APIを通じてバックエンドに一括水やりリクエスト送信
+3. 成功時：成功メッセージ表示（「○件の盆栽に水やり記録を作成しました」）
+4. 失敗時：エラーメッセージ表示
+
 ## 作業予定イベント
 
 ### 作業予定登録
@@ -328,7 +367,7 @@
 ```typescript
 {
   bonsaiId: string;
-  workType: 'pruning' | 'repotting' | 'watering' | 'fertilizing' | 'other';
+  workTypes: ('pruning' | 'repotting' | 'watering' | 'fertilizing' |'wire'|'wireremove'|'leafpull'|'leafcut'|'leafpeel'|'disinfection'|'carving'|'replant'|'protection'| 'other')[];
   scheduledDate: string;
   description: string;
   
@@ -370,7 +409,7 @@
 ```typescript
 {
   id: string;
-  workType?: 'pruning' | 'repotting' | 'watering' | 'fertilizing' | 'other';
+  workTypes?: ('pruning' | 'repotting' | 'watering' | 'fertilizing' |'wire'|'wireremove'|'leafpull'|'leafcut'|'leafpeel'|'disinfection'|'carving'|'replant'|'protection'| 'other')[];
   scheduledDate?: string;
   description?: string;
   completed?: boolean;
@@ -469,3 +508,82 @@
 2. モーダルを表示
 3. ユーザーのアクション（ボタンクリックなど）に応じて指定されたハンドラを実行
 4. モーダルを閉じる
+
+## ダッシュボードカレンダーイベント
+
+### カレンダー表示切り替え
+
+**イベント名**: `CHANGE_CALENDAR_VIEW`
+
+**トリガー**: ユーザーがカレンダーの表示モード（月表示/週表示）を切り替えるボタンをクリックしたとき
+
+**データ**:
+```typescript
+{
+  viewMode: 'month' | 'week';
+}
+```
+
+**処理フロー**:
+1. カレンダーコンポーネントの表示モードを変更
+2. 選択されたモードに応じてカレンダーを再描画
+3. 現在の日付範囲に基づいてイベントデータを再取得
+
+### カレンダー期間移動
+
+**イベント名**: `NAVIGATE_CALENDAR`
+
+**トリガー**: ユーザーがカレンダーの前月/次月または前週/次週ボタンをクリックしたとき
+
+**データ**:
+```typescript
+{
+  direction: 'prev' | 'next';
+  unit: 'month' | 'week';
+}
+```
+
+**処理フロー**:
+1. カレンダーの表示期間を更新
+2. 新しい期間に基づいてイベントデータを再取得
+3. 更新されたカレンダーを表示
+
+### カレンダーイベントクリック
+
+**イベント名**: `CALENDAR_EVENT_CLICK`
+
+**トリガー**: ユーザーがカレンダー上のイベント（作業予定または作業記録）をクリックしたとき
+
+**データ**:
+```typescript
+{
+  eventType: 'schedule' | 'record';
+  id: string;
+  bonsaiId: string;
+}
+```
+
+**処理フロー**:
+1. イベントタイプ（作業予定または作業記録）を判定
+2. 作業予定の場合：作業予定詳細画面（/schedules/:id）に遷移
+3. 作業記録の場合：作業記録詳細画面（/records/:id）に遷移
+
+### カレンダーデータ読み込み
+
+**イベント名**: `LOAD_CALENDAR_DATA`
+
+**トリガー**: カレンダーコンポーネントが初期化されたとき、または表示期間が変更されたとき
+
+**データ**:
+```typescript
+{
+  startDate: string; // ISO 8601形式
+  endDate: string;   // ISO 8601形式
+}
+```
+
+**処理フロー**:
+1. 盆栽一覧を取得
+2. 各盆栽の作業予定と作業記録を指定された期間で取得
+3. 取得したデータをカレンダーイベント形式に変換
+4. カレンダーにイベントを表示

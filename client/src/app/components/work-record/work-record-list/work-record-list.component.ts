@@ -26,6 +26,12 @@ export class WorkRecordListComponent implements OnInit {
     { value: 'repotting', label: '植替え' },
     { value: 'watering', label: '水やり' },
     { value: 'fertilizing', label: '肥料' },
+    { value: 'wire', label: '針金かけ' },
+    { value: 'wireremove', label: '針金はずし' },
+    { value: 'leafpull', label: '芽摘み' },
+    { value: 'leafcut', label: '芽切り' },
+    { value: 'leafpeel', label: '葉透かし' },
+    { value: 'disinfection', label: '消毒' },
     { value: 'other', label: 'その他' }
   ];
 

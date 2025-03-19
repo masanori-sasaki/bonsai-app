@@ -1,4 +1,6 @@
 @import 'src/assets/scss/variables';
+$m:575px;
+@mixin m{@media(max-width:$m){@content}}
 
 .work-record-detail-container {
   padding: 20px 0;
@@ -41,7 +43,7 @@
   padding: 15px;
 }
 
-.bonsai-info-bar {
+.bonsai-info {
   display: flex;
   align-items: center;
   padding: 15px;
@@ -55,16 +57,21 @@
   }
   
   .bonsai-image {
-    width: 60px;
-    height: 60px;
-    border-radius: 4px;
+    width: 120px;
+    height: 120px;
+    border-radius: 8px;
     overflow: hidden;
     margin-right: 15px;
+    
+    @include m {
+      width: 100px;
+      height: 100px;
+    }
     
     img {
       width: 100%;
       height: 100%;
-      object-fit: cover;
+      object-fit: contain;
     }
     
     .no-image {
@@ -115,6 +122,25 @@
     .info-value {
       flex-grow: 1;
       color: $text-dark;
+      
+      .work-type-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        
+        .work-type-tag {
+          padding: 4px 10px;
+          border-radius: 16px;
+          background-color: $primary;
+          color: $white;
+          font-size: 14px;
+          
+          &.empty {
+            background-color: $bg-dark;
+            color: $text-light;
+          }
+        }
+      }
     }
   }
   
@@ -130,57 +156,99 @@
       white-space: pre-line;
     }
   }
-  
-  .work-record-images {
+}
+
+.work-record-images {
     h4 {
       margin-bottom: 15px;
       color: $text-dark;
     }
     
-    .images-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 15px;
-      
-      .image-container {
+    .image-gallery {
+      .main-image-container {
         position: relative;
-        border-radius: 8px;
-        overflow: hidden;
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
         
-        img {
+        .main-image {
           width: 100%;
-          object-fit: contain;
+          height: 400px;
+          overflow: hidden;
           border-radius: 8px;
-          background-color: $bg-light;
+          
+          @include m {
+            height: 200px;
+          }
+          
+          img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background-color: $bg-light;
+          }
         }
         
-        .image-actions {
+        .nav-button {
           position: absolute;
-          top: 10px;
-          right: 10px;
+          background-color: rgba(255, 255, 255, 0.7);
+          border: none;
+          border-radius: 50%;
+          width: 40px;
+          height: 40px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          z-index: 1;
           
-          button {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            background-color: rgba(255, 255, 255, 0.8);
-            border: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: $text-medium;
-            cursor: pointer;
-            
-            &:hover {
-              background-color: rgba(255, 255, 255, 0.9);
-              color: $text-dark;
-            }
+          &:hover {
+            background-color: rgba(255, 255, 255, 0.9);
+          }
+          
+          &.prev-button {
+            left: 10px;
+          }
+          
+          &.next-button {
+            right: 10px;
+          }
+        }
+      }
+      
+      .thumbnail-images {
+        display: flex;
+        gap: 10px;
+        overflow-x: auto;
+        padding-bottom: 10px;
+        
+        .thumbnail {
+          width: 80px;
+          height: 80px;
+          flex-shrink: 0;
+          border-radius: 4px;
+          overflow: hidden;
+          cursor: pointer;
+          border: 2px solid transparent;
+          
+          @include m {
+            width: 60px;
+            height: 60px;
+          }
+          
+          &.active {
+            border-color: $primary;
+          }
+          
+          img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
           }
         }
       }
     }
   }
-}
 
 .work-record-meta {
   padding: 15px 20px;
@@ -197,10 +265,17 @@
   margin-bottom: 20px;
 }
 
-@media (max-width: 768px) {
-  .work-record-detail-header {
+.work-record-detail-container {
+  @include m {
+    padding: 10px 0;
+  }
+}
+
+.work-record-detail-header {
+  @include m {
     flex-direction: column;
     gap: 10px;
+    margin-bottom: 15px;
     
     h2 {
       margin-bottom: 10px;
@@ -214,8 +289,10 @@
       }
     }
   }
-  
-  .bonsai-info-bar {
+}
+
+.bonsai-info {
+  @include m {
     flex-direction: column;
     text-align: center;
     
@@ -228,17 +305,28 @@
       margin-top: 10px;
     }
   }
-  
-  .info-row {
-    flex-direction: column;
-    
-    .info-label {
-      width: 100%;
-      margin-bottom: 5px;
-    }
+}
+
+// 画像サイズを制限
+.work-record-images img {
+  max-width: 100%;
+  max-height: 400px;
+  @include m {
+    max-height: 200px;
   }
-  
-  .images-grid {
-    grid-template-columns: 1fr !important;
+}
+
+.work-record-info {
+  @include m {
+    padding: 15px 10px;
+    
+    .info-row {
+      flex-direction: column;
+      
+      .info-label {
+        width: 100%;
+        margin-bottom: 5px;
+      }
+    }
   }
 }

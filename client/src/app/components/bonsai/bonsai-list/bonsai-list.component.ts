@@ -105,6 +105,15 @@ export class BonsaiListComponent implements OnInit {
       'repotting': '植替え',
       'watering': '水やり',
       'fertilizing': '肥料',
+      'wire': '針金かけ',
+      'wireremove': '針金はずし',
+      'leafpull': '芽摘み',
+      'leafcut': '芽切り',
+      'leafpeel': '葉透かし',
+      'disinfection': '消毒',
+      'carving': '彫刻',
+      'replant': '改作',
+      'protection': '保護',
       'other': 'その他'
     };
     

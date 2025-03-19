@@ -7,8 +7,10 @@ import {
   WorkSchedule, 
   WorkScheduleListResponse, 
   CreateWorkScheduleRequest, 
-  UpdateWorkScheduleRequest 
+  UpdateWorkScheduleRequest,
+  RecurrencePattern
 } from '../models/work-schedule.model';
+import { WorkType, PriorityType } from '../models/work-record.model';
 
 describe('WorkScheduleService', () => {
   let service: WorkScheduleService;
@@ -35,22 +37,28 @@ describe('WorkScheduleService', () => {
           {
             id: 'schedule1',
             bonsaiId: 'bonsai1',
-            workType: 'pruning',
+            workTypes: ['pruning' as WorkType],
             scheduledDate: '2025-04-15T10:00:00Z',
             description: '剪定予定',
             completed: false,
             createdAt: '2025-02-15T10:30:00Z',
-            updatedAt: '2025-02-15T10:30:00Z'
+            updatedAt: '2025-02-15T10:30:00Z',
+            startTime: '10:00',
+            endTime: '12:00',
+            isAllDay: false,
+            priority: 'high' as PriorityType,
+            colorCode: '#1A73E8'
           },
           {
             id: 'schedule2',
             bonsaiId: 'bonsai1',
-            workType: 'watering',
+            workTypes: ['watering' as WorkType, 'fertilizing' as WorkType],
             scheduledDate: '2025-03-20T09:00:00Z',
-            description: '水やり予定',
+            description: '水やりと肥料予定',
             completed: true,
             createdAt: '2025-02-10T09:15:00Z',
-            updatedAt: '2025-03-20T09:30:00Z'
+            updatedAt: '2025-03-20T09:30:00Z',
+            isAllDay: true
           }
         ],
         nextToken: undefined
@@ -64,8 +72,9 @@ describe('WorkScheduleService', () => {
       service.getWorkScheduleList(bonsaiId).subscribe(response => {
         expect(response).toEqual(mockResponse);
         expect(response.items.length).toBe(2);
-        expect(response.items[0].workType).toBe('pruning');
+        expect(response.items[0].workTypes[0]).toBe('pruning');
         expect(response.items[1].completed).toBeTrue();
+        expect(response.items[1].workTypes.length).toBe(2);
         expect(response.nextToken).toBeUndefined();
       });
 
@@ -80,7 +89,7 @@ describe('WorkScheduleService', () => {
           {
             id: 'schedule2',
             bonsaiId: 'bonsai1',
-            workType: 'watering',
+            workTypes: ['watering' as WorkType],
             scheduledDate: '2025-03-20T09:00:00Z',
             description: '水やり予定',
             completed: true,
@@ -114,7 +123,7 @@ describe('WorkScheduleService', () => {
           {
             id: 'schedule1',
             bonsaiId: 'bonsai1',
-            workType: 'pruning',
+            workTypes: ['pruning' as WorkType],
             scheduledDate: '2025-04-15T10:00:00Z',
             description: '剪定予定',
             completed: false,
@@ -152,7 +161,7 @@ describe('WorkScheduleService', () => {
       const mockResponse: WorkSchedule = {
         id: 'schedule1',
         bonsaiId: 'bonsai1',
-        workType: 'pruning',
+        workTypes: ['pruning' as WorkType],
         scheduledDate: '2025-04-15T10:00:00Z',
         description: '剪定予定。上部の枝を中心に整える。',
         completed: false,
@@ -168,7 +177,7 @@ describe('WorkScheduleService', () => {
       service.getWorkScheduleDetail(scheduleId).subscribe(response => {
         expect(response).toEqual(mockResponse);
         expect(response.id).toBe(scheduleId);
-        expect(response.workType).toBe('pruning');
+        expect(response.workTypes[0]).toBe('pruning');
         expect(response.description).toContain('剪定予定');
         expect(response.completed).toBeFalse();
       });
@@ -183,7 +192,7 @@ describe('WorkScheduleService', () => {
       // リクエストデータ
       const createRequest: CreateWorkScheduleRequest = {
         bonsaiId: 'bonsai1',
-        workType: 'repotting',
+        workTypes: ['repotting' as WorkType],
         scheduledDate: '2025-05-10T11:00:00Z',
         description: '植え替え予定',
         completed: false
@@ -193,7 +202,7 @@ describe('WorkScheduleService', () => {
       const mockResponse: WorkSchedule = {
         id: 'new-schedule-id',
         bonsaiId: 'bonsai1',
-        workType: 'repotting',
+        workTypes: ['repotting' as WorkType],
         scheduledDate: '2025-05-10T11:00:00Z',
         description: '植え替え予定',
         completed: false,
@@ -210,7 +219,7 @@ describe('WorkScheduleService', () => {
         expect(response).toEqual(mockResponse);
         expect(response.id).toBe('new-schedule-id');
         expect(response.bonsaiId).toBe(bonsaiId);
-        expect(response.workType).toBe('repotting');
+        expect(response.workTypes[0]).toBe('repotting');
         expect(response.description).toBe('植え替え予定');
         expect(response.completed).toBeFalse();
       });
@@ -224,6 +233,7 @@ describe('WorkScheduleService', () => {
     it('should update work schedule', () => {
       // リクエストデータ
       const updateRequest: UpdateWorkScheduleRequest = {
+        workTypes: ['pruning' as WorkType, 'wire' as WorkType],
         description: '剪定予定。上部の枝を中心に整える。必要に応じて針金を使用。',
         completed: true
       };
@@ -232,7 +242,7 @@ describe('WorkScheduleService', () => {
       const mockResponse: WorkSchedule = {
         id: 'schedule1',
         bonsaiId: 'bonsai1',
-        workType: 'pruning',
+        workTypes: ['pruning' as WorkType, 'wire' as WorkType],
         scheduledDate: '2025-04-15T10:00:00Z',
         description: '剪定予定。上部の枝を中心に整える。必要に応じて針金を使用。',
         completed: true,

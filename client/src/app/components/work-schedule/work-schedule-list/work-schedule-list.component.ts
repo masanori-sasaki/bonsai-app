@@ -139,16 +139,30 @@ export class WorkScheduleListComponent implements OnInit {
   toggleCompleted(schedule: WorkSchedule, event: Event): void {
     event.stopPropagation();
     
-    const updatedSchedule = {
-      ...schedule,
-      completed: !schedule.completed
+    // 完了状態を反転
+    const newCompletedState = !schedule.completed;
+    
+    // 更新に必要なすべてのプロパティを含むオブジェクトを作成
+    const updateData = {
+      workTypes: schedule.workTypes,
+      scheduledDate: schedule.scheduledDate,
+      description: schedule.description,
+      completed: newCompletedState,
+      // オプショナルなプロパティも含める
+      startTime: schedule.startTime,
+      endTime: schedule.endTime,
+      isAllDay: schedule.isAllDay,
+      priority: schedule.priority,
+      colorCode: schedule.colorCode,
+      recurrencePattern: schedule.recurrencePattern,
+      reminderDays: schedule.reminderDays
     };
     
-    this.workScheduleService.updateWorkSchedule(schedule.id, { completed: !schedule.completed })
+    this.workScheduleService.updateWorkSchedule(schedule.id, updateData)
       .subscribe({
         next: () => {
           // 更新成功
-          schedule.completed = !schedule.completed;
+          schedule.completed = newCompletedState;
           
           // 完了に変更された場合、作業記録作成の提案
           if (schedule.completed) {
@@ -171,7 +185,7 @@ export class WorkScheduleListComponent implements OnInit {
     if (confirm('作業記録を作成しますか？')) {
       this.router.navigate(['/bonsai', this.bonsaiId, 'records', 'new'], {
         queryParams: {
-          workType: schedule.workType,
+          workTypes: schedule.workTypes,
           date: schedule.scheduledDate,
           description: schedule.description
         }
@@ -180,12 +194,12 @@ export class WorkScheduleListComponent implements OnInit {
   }
 
   /**
-   * 作業予定編集ページに遷移
+   * 作業予定詳細ページに遷移
    * 
    * @param scheduleId 作業予定ID
    */
   viewWorkSchedule(scheduleId: string): void {
-    this.router.navigate(['/schedules', scheduleId, 'edit']);
+    this.router.navigate(['/schedules', scheduleId]);
   }
 
   /**

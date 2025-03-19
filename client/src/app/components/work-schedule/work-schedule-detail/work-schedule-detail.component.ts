@@ -36,6 +36,21 @@ export class WorkScheduleDetailComponent implements OnInit {
     'low': '低'
   };
 
+  /**
+   * 作業タイプのラベルを取得
+   * 
+   * @returns 作業タイプのラベル（複数の場合は結合）
+   */
+  getWorkTypeLabels(): string {
+    if (!this.workSchedule || !this.workSchedule.workTypes || this.workSchedule.workTypes.length === 0) {
+      return '作業';
+    }
+    
+    return this.workSchedule.workTypes
+      .map(type => this.workTypeLabels[type])
+      .join('・');
+  }
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -149,10 +164,25 @@ export class WorkScheduleDetailComponent implements OnInit {
    */
   toggleCompleted(): void {
     if (this.workSchedule) {
-      const updatedSchedule = {
-        completed: !this.workSchedule.completed
+      // const updatedSchedule = {
+      //   completed: !this.workSchedule.completed
+      // };
+       // 更新に必要なすべてのプロパティを含むオブジェクトを作成
+       const updatedSchedule = {
+        workTypes: this.workSchedule.workTypes,
+        scheduledDate: this.workSchedule.scheduledDate,
+        description: this.workSchedule.description,
+        completed: !this.workSchedule.completed,
+        // オプショナルなプロパティも含める
+        startTime: this.workSchedule.startTime,
+        endTime: this.workSchedule.endTime,
+        isAllDay: this.workSchedule.isAllDay,
+        priority: this.workSchedule.priority,
+        colorCode: this.workSchedule.colorCode,
+        recurrencePattern: this.workSchedule.recurrencePattern,
+        reminderDays: this.workSchedule.reminderDays
       };
-      
+
       this.workScheduleService.updateWorkSchedule(this.scheduleId, updatedSchedule)
         .subscribe({
           next: (schedule: WorkSchedule) => {

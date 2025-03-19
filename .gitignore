@@ -65,6 +65,7 @@ dist/
 *.tsbuildinfo
 
 # テスト
+server/data/
 coverage/
 .nyc_output/
 *.lcov
@@ -98,6 +99,9 @@ infrastructure/package/*
 
 # Cline用プロンプト
 prompts/
+
+# Angular環境設定
+client/src/environments/environment.prod.ts
 
 # その他
 .cache/

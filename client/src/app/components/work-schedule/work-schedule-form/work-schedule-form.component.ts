@@ -32,7 +32,8 @@ export class WorkScheduleFormComponent implements OnInit {
   saving = false;
   error = '';
   workTypeLabels = WORK_TYPE_LABELS;
-  workTypes: WorkType[] = ['pruning', 'repotting', 'watering', 'fertilizing', 'other'];
+  workTypes: WorkType[] = ['pruning', 'repotting', 'watering', 'fertilizing', 'wire', 'wireremove', 'leafpull', 'leafcut', 'leafpeel', 'disinfection', 'carving', 'replant', 'protection', 'other'];
+  selectedWorkTypes: WorkType[] = [];
   
   // カレンダー機能のための拡張プロパティ
   isAllDay = true;
@@ -95,7 +96,9 @@ export class WorkScheduleFormComponent implements OnInit {
         // URLクエリパラメータから初期値を設定
         this.route.queryParams.subscribe(params => {
           if (params['workType']) {
-            this.scheduleForm.get('workType')?.setValue(params['workType']);
+            // 単一の作業タイプを配列に変換して設定
+            this.selectedWorkTypes = [params['workType']];
+            this.scheduleForm.get('workTypes')?.setValue(this.selectedWorkTypes);
           }
           
           if (params['scheduledDate']) {
@@ -120,7 +123,7 @@ export class WorkScheduleFormComponent implements OnInit {
     const formattedDate = this.formatDateForInput(defaultDate.toISOString());
     
     this.scheduleForm = this.fb.group({
-      workType: ['pruning', Validators.required],
+      workTypes: [[]],
       scheduledDate: [formattedDate, Validators.required],
       startTime: ['09:00'],
       endTime: ['10:00'],
@@ -207,9 +210,12 @@ export class WorkScheduleFormComponent implements OnInit {
    * @param schedule 作業予定
    */
   populateForm(schedule: WorkSchedule): void {
+    // 選択された作業タイプを設定
+    this.selectedWorkTypes = [...schedule.workTypes];
+    
     // フォームに値を設定
     this.scheduleForm.patchValue({
-      workType: schedule.workType,
+      workTypes: schedule.workTypes,
       scheduledDate: this.formatDateForInput(schedule.scheduledDate),
       description: schedule.description,
       // カレンダー拡張プロパティ（存在する場合）
@@ -250,6 +256,34 @@ export class WorkScheduleFormComponent implements OnInit {
     
     // 終日イベントフラグを設定
     this.isAllDay = schedule.isAllDay !== undefined ? schedule.isAllDay : true;
+  }
+
+  /**
+   * 作業タイプが選択されているかチェック
+   * 
+   * @param type 作業タイプ
+   * @returns 選択されている場合はtrue
+   */
+  isWorkTypeSelected(type: WorkType): boolean {
+    return this.selectedWorkTypes.includes(type);
+  }
+  
+  /**
+   * 作業タイプの選択/解除を切り替える
+   * 
+   * @param type 作業タイプ
+   */
+  toggleWorkType(type: WorkType): void {
+    const index = this.selectedWorkTypes.indexOf(type);
+    if (index === -1) {
+      // 未選択の場合は追加
+      this.selectedWorkTypes.push(type);
+    } else {
+      // 選択済みの場合は削除
+      this.selectedWorkTypes.splice(index, 1);
+    }
+    // フォームの値を更新
+    this.scheduleForm.get('workTypes')?.setValue([...this.selectedWorkTypes]);
   }
 
   /**
@@ -337,7 +371,7 @@ export class WorkScheduleFormComponent implements OnInit {
     // 作業予定データを作成
     const workScheduleData: any = {
       bonsaiId: this.bonsaiId,
-      workType: formValues.workType,
+      workTypes: this.selectedWorkTypes,
       scheduledDate: isoDate,
       description: formValues.description,
       completed: this.workSchedule?.completed || false,
@@ -448,7 +482,12 @@ export class WorkScheduleFormComponent implements OnInit {
    * キャンセルして前の画面に戻る
    */
   cancel(): void {
-    // 盆栽詳細ページに戻る
-    this.router.navigate(['/bonsai', this.bonsaiId]);
+    if (this.isEditMode) {
+      // 編集モードの場合は作業予定詳細ページに戻る
+      this.router.navigate(['/schedules', this.scheduleId]);
+    } else {
+      // 新規作成モードの場合は盆栽詳細ページに戻る
+      this.router.navigate(['/bonsai', this.bonsaiId]);
+    }
   }
 }

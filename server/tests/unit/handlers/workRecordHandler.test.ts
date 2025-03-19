@@ -63,7 +63,7 @@ describe('作業記録ハンドラー', () => {
         {
           id: 'record1',
           bonsaiId: 'bonsai1',
-          workType: 'pruning',
+          workTypes: ['pruning'],
           date: '2025-01-20T00:00:00Z',
           description: '上部の枝を剪定しました。',
           imageUrls: ['https://example.com/images/record1-1.jpg', 'https://example.com/images/record1-2.jpg'],
@@ -73,7 +73,7 @@ describe('作業記録ハンドラー', () => {
         {
           id: 'record2',
           bonsaiId: 'bonsai1',
-          workType: 'watering',
+          workTypes: ['watering'],
           date: '2025-02-05T00:00:00Z',
           description: '水やりを行いました。',
           imageUrls: ['https://example.com/images/record2-1.jpg'],
@@ -87,7 +87,7 @@ describe('作業記録ハンドラー', () => {
     (workRecordService.getWorkRecord as jest.Mock).mockResolvedValue({
       id: 'record1',
       bonsaiId: 'bonsai1',
-      workType: 'pruning',
+      workTypes: ['pruning'],
       date: '2025-01-20T00:00:00Z',
       description: '上部の枝を剪定しました。',
       imageUrls: ['https://example.com/images/record1-1.jpg', 'https://example.com/images/record1-2.jpg'],
@@ -98,7 +98,7 @@ describe('作業記録ハンドラー', () => {
     (workRecordService.createWorkRecord as jest.Mock).mockResolvedValue({
       id: 'new-record-id',
       bonsaiId: 'bonsai1',
-      workType: 'fertilizing',
+      workTypes: ['fertilizing'],
       date: '2025-03-09T00:00:00Z',
       description: '肥料を与えました。',
       imageUrls: ['https://example.com/images/new-record.jpg'],
@@ -109,7 +109,7 @@ describe('作業記録ハンドラー', () => {
     (workRecordService.updateWorkRecord as jest.Mock).mockResolvedValue({
       id: 'record1',
       bonsaiId: 'bonsai1',
-      workType: 'other',
+      workTypes: ['other'],
       date: '2025-01-20T00:00:00Z',
       description: '剪定から作業タイプを変更しました。',
       imageUrls: ['https://example.com/images/record1-1.jpg', 'https://example.com/images/record1-2.jpg'],
@@ -141,9 +141,9 @@ describe('作業記録ハンドラー', () => {
       expect(body).toHaveProperty('items');
       expect(body.items).toHaveLength(2);
       expect(body.items[0]).toHaveProperty('id', 'record1');
-      expect(body.items[0]).toHaveProperty('workType', 'pruning');
+      expect(body.items[0].workTypes).toContain('pruning');
       expect(body.items[1]).toHaveProperty('id', 'record2');
-      expect(body.items[1]).toHaveProperty('workType', 'watering');
+      expect(body.items[1].workTypes).toContain('watering');
       expect(body).toHaveProperty('nextToken', 'mock-next-token');
       
       // サービス関数が正しく呼ばれたことを検証
@@ -178,7 +178,7 @@ describe('作業記録ハンドラー', () => {
         ...createMockEvent('/api/bonsai/bonsai1/records', 'GET'),
         pathParameters: { bonsaiId: 'bonsai1' },
         queryStringParameters: {
-          workType: 'pruning',
+          workTypes: 'pruning',
           limit: '10',
           nextToken: 'previous-page-token'
         }
@@ -188,7 +188,7 @@ describe('作業記録ハンドラー', () => {
       await getWorkRecordList(mockEvent);
       
       // サービス関数が正しいパラメータで呼ばれたことを検証
-      expect(workRecordService.listWorkRecords).toHaveBeenCalledWith('user123', 'bonsai1', 'pruning', 10, 'previous-page-token');
+      expect(workRecordService.listWorkRecords).toHaveBeenCalledWith('user123', 'bonsai1', ['pruning'], 10, 'previous-page-token');
     });
     
     it('盆栽が存在しない場合、404エラーを返すこと', async () => {
@@ -237,7 +237,7 @@ describe('作業記録ハンドラー', () => {
       // 期待される値の検証
       expect(body).toHaveProperty('id', 'record1');
       expect(body).toHaveProperty('bonsaiId', 'bonsai1');
-      expect(body).toHaveProperty('workType', 'pruning');
+      expect(body.workTypes).toContain('pruning');
       expect(body).toHaveProperty('description', '上部の枝を剪定しました。');
       
       // サービス関数が正しく呼ばれたことを検証
@@ -298,7 +298,7 @@ describe('作業記録ハンドラー', () => {
         ...createMockEvent('/api/bonsai/bonsai1/records', 'POST'),
         pathParameters: { bonsaiId: 'bonsai1' },
         body: JSON.stringify({
-          workType: 'fertilizing',
+          workTypes: ['fertilizing'],
           date: '2025-03-09T00:00:00Z',
           description: '肥料を与えました。',
           imageUrls: ['https://example.com/images/new-record.jpg']
@@ -317,14 +317,14 @@ describe('作業記録ハンドラー', () => {
       // 期待される値の検証
       expect(body).toHaveProperty('id', 'new-record-id');
       expect(body).toHaveProperty('bonsaiId', 'bonsai1');
-      expect(body).toHaveProperty('workType', 'fertilizing');
+      expect(body.workTypes).toContain('fertilizing');
       expect(body).toHaveProperty('description', '肥料を与えました。');
       
       // サービス関数が正しく呼ばれたことを検証
       expect(authUtils.getUserIdFromRequest).toHaveBeenCalledWith(mockEvent);
       expect(workRecordService.createWorkRecord).toHaveBeenCalledWith('user123', {
         bonsaiId: 'bonsai1',
-        workType: 'fertilizing',
+        workTypes: ['fertilizing'],
         date: '2025-03-09T00:00:00Z',
         description: '肥料を与えました。',
         imageUrls: ['https://example.com/images/new-record.jpg']
@@ -336,7 +336,7 @@ describe('作業記録ハンドラー', () => {
       const mockEvent = {
         ...createMockEvent('/api/bonsai/undefined/records', 'POST'),
         body: JSON.stringify({
-          workType: 'fertilizing',
+          workTypes: ['fertilizing'],
           date: '2025-03-09T00:00:00Z',
           description: '肥料を与えました。'
         })
@@ -390,7 +390,7 @@ describe('作業記録ハンドラー', () => {
         ...createMockEvent('/api/bonsai/bonsai1/records', 'POST'),
         pathParameters: { bonsaiId: 'bonsai1' },
         body: JSON.stringify({
-          workType: 'fertilizing',
+          workTypes: ['fertilizing'],
           // date: 欠落
           // description: 欠落
           imageUrls: ['https://example.com/images/new-record.jpg']
@@ -424,7 +424,7 @@ describe('作業記録ハンドラー', () => {
         ...createMockEvent('/api/bonsai/nonexistent/records', 'POST'),
         pathParameters: { bonsaiId: 'nonexistent' },
         body: JSON.stringify({
-          workType: 'fertilizing',
+          workTypes: ['fertilizing'],
           date: '2025-03-09T00:00:00Z',
           description: '肥料を与えました。'
         })
@@ -451,7 +451,7 @@ describe('作業記録ハンドラー', () => {
         ...createMockEvent('/api/records/record1', 'PUT'),
         pathParameters: { recordId: 'record1' },
         body: JSON.stringify({
-          workType: 'other',
+          workTypes: ['other'],
           description: '剪定から作業タイプを変更しました。'
         })
       };
@@ -467,12 +467,12 @@ describe('作業記録ハンドラー', () => {
       
       // 期待される値の検証
       expect(body).toHaveProperty('id', 'record1');
-      expect(body).toHaveProperty('workType', 'other');
+      expect(body.workTypes).toContain('other');
       expect(body).toHaveProperty('description', '剪定から作業タイプを変更しました。');
       
       // サービス関数が正しく呼ばれたことを検証
       expect(workRecordService.updateWorkRecord).toHaveBeenCalledWith('record1', {
-        workType: 'other',
+        workTypes: ['other'],
         description: '剪定から作業タイプを変更しました。'
       });
     });
@@ -482,7 +482,7 @@ describe('作業記録ハンドラー', () => {
       const mockEvent = {
         ...createMockEvent('/api/records/undefined', 'PUT'),
         body: JSON.stringify({
-          workType: 'other'
+          workTypes: ['other']
         })
       };
       

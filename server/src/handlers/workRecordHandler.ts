@@ -5,7 +5,11 @@
  */
 
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { CreateWorkRecordRequest, UpdateWorkRecordRequest } from '../models/workRecord';
+import { 
+  CreateWorkRecordRequest, 
+  UpdateWorkRecordRequest, 
+  BulkWateringRequest 
+} from '../models/workRecord';
 import { getUserIdFromRequest } from '../utils/auth';
 import { InvalidRequestError } from '../utils/errors';
 import { createSuccessResponse, createErrorResponse } from '../utils/response';
@@ -30,12 +34,15 @@ export async function getWorkRecordList(event: APIGatewayProxyEvent): Promise<AP
     
     // クエリパラメータを取得
     const queryParams = event.queryStringParameters || {};
-    const workType = queryParams.workType;
+    // workTypesパラメータを処理（単一の値または複数の値をカンマ区切りで受け取る）
+    const workTypes = queryParams.workTypes ? 
+      (queryParams.workTypes.includes(',') ? queryParams.workTypes.split(',') : [queryParams.workTypes]) 
+      : undefined;
     const limit = queryParams.limit ? parseInt(queryParams.limit, 10) : undefined;
     const nextToken = queryParams.nextToken;
     
     // 作業記録一覧を取得
-    const result = await workRecordService.listWorkRecords(userId, bonsaiId, workType, limit, nextToken);
+    const result = await workRecordService.listWorkRecords(userId, bonsaiId, workTypes, limit, nextToken);
     
     // 成功レスポンスを返す
     return createSuccessResponse(result);
@@ -96,8 +103,9 @@ export async function createWorkRecord(event: APIGatewayProxyEvent): Promise<API
     data.bonsaiId = bonsaiId; // パスパラメータの盆栽IDを設定
     
     // バリデーション
-    if (!data.workType) {
-      throw new InvalidRequestError('作業タイプは必須です');
+    if (!data.workTypes || data.workTypes.length === 0) {
+      // 作業タイプは必須ではなくなったため、空の配列を設定
+      data.workTypes = [];
     }
     if (!data.date) {
       throw new InvalidRequestError('作業日は必須です');
@@ -171,6 +179,43 @@ export async function deleteWorkRecord(event: APIGatewayProxyEvent): Promise<API
       message: '作業記録が正常に削除されました',
       id: recordId
     });
+  } catch (error) {
+    // エラーレスポンスを返す
+    return createErrorResponse(error as Error);
+  }
+}
+
+/**
+ * 一括水やり記録を作成
+ * 
+ * @param event APIGatewayProxyEvent
+ * @returns APIGatewayProxyResult
+ */
+export async function createBulkWateringRecords(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
+  try {
+    // ユーザーIDを取得
+    const userId = getUserIdFromRequest(event);
+    
+    // リクエストボディをパース
+    if (!event.body) {
+      throw new InvalidRequestError('リクエストボディが空です');
+    }
+    
+    const data: BulkWateringRequest = JSON.parse(event.body);
+    
+    // バリデーション
+    if (!data.description) {
+      throw new InvalidRequestError('説明は必須です');
+    }
+    if (!data.date) {
+      throw new InvalidRequestError('日付は必須です');
+    }
+    
+    // 一括水やり記録を作成
+    const result = await workRecordService.createBulkWateringRecords(userId, data);
+    
+    // 成功レスポンスを返す（201 Created）
+    return createSuccessResponse(result, 201);
   } catch (error) {
     // エラーレスポンスを返す
     return createErrorResponse(error as Error);
