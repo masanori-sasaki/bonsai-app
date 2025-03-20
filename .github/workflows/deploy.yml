@@ -50,10 +50,6 @@ jobs:
         working-directory: ./client
         run: npm test -- --no-watch --no-progress --browsers=ChromeHeadlessCI
       
-      - name: Build client
-        working-directory: ./client
-        run: npm run build -- --configuration=production
-      
       # Deploy
       - name: Setup AWS CLI
         uses: aws-actions/configure-aws-credentials@v1
@@ -71,6 +67,21 @@ jobs:
             echo "::set-output name=environment::dev"
           fi
       
+      - name: Upload CloudFormation templates to S3
+        run: |
+          ENV=${{ steps.set-env.outputs.environment }}
+          S3_BUCKET=bonsai-app-templates-171278323216
+          REGION=${{ secrets.AWS_REGION }}
+          
+          # Upload templates to S3
+          aws s3 cp infrastructure/cloudformation/main.yml s3://${S3_BUCKET}/main.yml
+          aws s3 cp infrastructure/cloudformation/api.yml s3://${S3_BUCKET}/api.yml
+          aws s3 cp infrastructure/cloudformation/auth.yml s3://${S3_BUCKET}/auth.yml
+          aws s3 cp infrastructure/cloudformation/storage.yml s3://${S3_BUCKET}/storage.yml
+          aws s3 cp infrastructure/cloudformation/monthly-report-scheduler.yml s3://${S3_BUCKET}/monthly-report-scheduler.yml
+          
+          echo "Templates uploaded to S3 bucket: ${S3_BUCKET}"
+      
       - name: Deploy CloudFormation stacks
         run: |
           ENV=${{ steps.set-env.outputs.environment }}
@@ -79,20 +90,46 @@ jobs:
           # Deploy main stack
           aws cloudformation deploy \
             --template-file infrastructure/cloudformation/main.yml \
-            --stack-name bonsai-app-${ENV} \
+            --stack-name BonsaiAppStack-${ENV} \
             --parameter-overrides \
               Environment=${ENV} \
               AdminEmail=${ADMIN_EMAIL} \
             --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND \
             --no-fail-on-empty-changeset
       
+      - name: Install infrastructure scripts dependencies
+        working-directory: ./infrastructure/scripts
+        run: npm install
+      
+      - name: Update frontend configuration
+        working-directory: ./infrastructure/scripts
+        run: |
+          ENV=${{ steps.set-env.outputs.environment }}
+          export ENVIRONMENT=${ENV}
+          export STACK_NAME=BonsaiAppStack-${ENV}
+          export AWS_REGION=${{ secrets.AWS_REGION }}
+          node update-frontend-config.js
+      
+      - name: Build client
+        working-directory: ./client
+        run: npm run build -- --configuration=production
+      
       - name: Get CloudFormation outputs
         id: cf-outputs
         run: |
           ENV=${{ steps.set-env.outputs.environment }}
-          OUTPUTS=$(aws cloudformation describe-stacks --stack-name bonsai-app-${ENV} --query "Stacks[0].Outputs" --output json)
-          echo "::set-output name=frontend-bucket::$(echo $OUTPUTS | jq -r '.[] | select(.OutputKey=="FrontendBucketName") | .OutputValue')"
-          echo "::set-output name=api-function::$(echo $OUTPUTS | jq -r '.[] | select(.OutputKey=="LambdaArn") | .OutputValue')"
+          REGION=${{ secrets.AWS_REGION }}
+          ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)
+          
+          # Set frontend bucket name directly
+          echo "::set-output name=frontend-bucket::bonsai-app-${ENV}-${ACCOUNT_ID}-${REGION}"
+          
+          # Get API Stack name
+          API_STACK_NAME=$(aws cloudformation list-stack-resources --stack-name BonsaiAppStack-${ENV} --query "StackResourceSummaries[?ResourceType=='AWS::CloudFormation::Stack' && LogicalResourceId=='ApiStack'].PhysicalResourceId" --output text)
+          
+          # Get Lambda ARN from API Stack
+          API_OUTPUTS=$(aws cloudformation describe-stacks --stack-name $API_STACK_NAME --query "Stacks[0].Outputs" --output json)
+          echo "::set-output name=api-function::$(echo $API_OUTPUTS | jq -r '.[] | select(.OutputKey=="LambdaArn") | .OutputValue')"
       
       - name: Deploy Lambda function
         run: |

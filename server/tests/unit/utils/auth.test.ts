@@ -47,7 +47,15 @@ describe('認証ユーティリティ', () => {
   });
 
   describe('verifyToken', () => {
-    it('有効なトークンを検証して、デコードされたペイロードを返すこと', () => {
+    beforeEach(() => {
+      // 環境変数をリセット
+      process.env.ENVIRONMENT = undefined;
+    });
+
+    it('開発環境では有効なトークンを検証して、デコードされたペイロードを返すこと', () => {
+      // 開発環境を設定
+      process.env.ENVIRONMENT = 'dev';
+      
       // モックの設定
       const mockPayload = { sub: 'user123', email: 'user@example.com' };
       (jwt.verify as jest.Mock).mockReturnValue(mockPayload);
@@ -60,7 +68,26 @@ describe('認証ユーティリティ', () => {
       expect(jwt.verify).toHaveBeenCalledWith('valid-token', expect.any(String));
     });
 
-    it('無効なトークンの場合はUnauthorizedErrorをスローすること', () => {
+    it('本番環境ではトークンをデコードするだけで、デコードされたペイロードを返すこと', () => {
+      // 本番環境を設定
+      process.env.ENVIRONMENT = 'prod';
+      
+      // モックの設定
+      const mockPayload = { sub: 'user123', email: 'user@example.com' };
+      (jwt.decode as jest.Mock).mockReturnValue(mockPayload);
+      
+      // テスト対象の関数を実行
+      const result = verifyToken('valid-token');
+      
+      // 結果の検証
+      expect(result).toEqual(mockPayload);
+      expect(jwt.decode).toHaveBeenCalledWith('valid-token');
+    });
+
+    it('開発環境で無効なトークンの場合はUnauthorizedErrorをスローすること', () => {
+      // 開発環境を設定
+      process.env.ENVIRONMENT = 'dev';
+      
       // モックの設定
       (jwt.verify as jest.Mock).mockImplementation(() => {
         throw new Error('Invalid token');
@@ -179,6 +206,12 @@ describe('認証ユーティリティ', () => {
   });
 
   describe('getUserIdFromRequest', () => {
+    beforeEach(() => {
+      // 環境変数をリセット
+      process.env.ENVIRONMENT = undefined;
+      jest.clearAllMocks();
+    });
+
     it('認証情報からユーザーIDを取得すること', () => {
       // モックイベントの作成
       const mockEvent = {
@@ -188,7 +221,8 @@ describe('認証ユーティリティ', () => {
               sub: 'user123'
             }
           }
-        }
+        },
+        headers: {}
       } as unknown as APIGatewayProxyEvent;
       
       // テスト対象の関数を実行
@@ -199,8 +233,13 @@ describe('認証ユーティリティ', () => {
     });
 
     it('開発環境では固定のユーザーIDを返すこと', () => {
+      // 開発環境を設定
+      process.env.ENVIRONMENT = 'dev';
+      
       // モックイベントの作成（認証情報なし）
-      const mockEvent = {} as APIGatewayProxyEvent;
+      const mockEvent = {
+        headers: {}
+      } as unknown as APIGatewayProxyEvent;
       
       // テスト対象の関数を実行
       const userId = getUserIdFromRequest(mockEvent);
@@ -209,18 +248,41 @@ describe('認証ユーティリティ', () => {
       expect(userId).toBe('dev-user-123');
     });
 
-    it('認証情報が不足している場合はUnauthorizedErrorをスローすること', () => {
+    it('本番環境で認証情報が不足している場合はUnauthorizedErrorをスローすること', () => {
+      // 本番環境を設定
+      process.env.ENVIRONMENT = 'prod';
+      
       // モックイベントの作成（認証情報が不完全）
       const mockEvent = {
         requestContext: {
           authorizer: {
             claims: {}
           }
-        }
+        },
+        headers: {}
       } as unknown as APIGatewayProxyEvent;
       
       // テスト対象の関数を実行して例外をキャッチ
       expect(() => getUserIdFromRequest(mockEvent)).toThrow(UnauthorizedError);
+    });
+
+    it('Lambda Function URLの場合、認証ヘッダーからユーザーIDを取得すること', () => {
+      // モックの設定
+      const mockPayload = { sub: 'user123', email: 'user@example.com' };
+      (jwt.verify as jest.Mock).mockReturnValue(mockPayload);
+      
+      // モックイベントの作成（認証ヘッダーあり）
+      const mockEvent = {
+        headers: {
+          Authorization: 'Bearer valid-token'
+        }
+      } as unknown as APIGatewayProxyEvent;
+      
+      // テスト対象の関数を実行
+      const userId = getUserIdFromRequest(mockEvent);
+      
+      // 結果の検証
+      expect(userId).toBe('user123');
     });
   });
 
@@ -279,6 +341,12 @@ describe('認証ユーティリティ', () => {
   });
 
   describe('getUserEmailFromRequest', () => {
+    beforeEach(() => {
+      // 環境変数をリセット
+      process.env.ENVIRONMENT = undefined;
+      jest.clearAllMocks();
+    });
+
     it('認証情報からメールアドレスを取得すること', () => {
       // モックイベントの作成
       const mockEvent = {
@@ -288,7 +356,8 @@ describe('認証ユーティリティ', () => {
               email: 'user@example.com'
             }
           }
-        }
+        },
+        headers: {}
       } as unknown as APIGatewayProxyEvent;
       
       // テスト対象の関数を実行
@@ -299,8 +368,13 @@ describe('認証ユーティリティ', () => {
     });
 
     it('開発環境では固定のメールアドレスを返すこと', () => {
+      // 開発環境を設定
+      process.env.ENVIRONMENT = 'dev';
+      
       // モックイベントの作成（認証情報なし）
-      const mockEvent = {} as APIGatewayProxyEvent;
+      const mockEvent = {
+        headers: {}
+      } as unknown as APIGatewayProxyEvent;
       
       // テスト対象の関数を実行
       const email = getUserEmailFromRequest(mockEvent);
@@ -309,18 +383,41 @@ describe('認証ユーティリティ', () => {
       expect(email).toBe('dev-user@example.com');
     });
 
-    it('認証情報が不足している場合はUnauthorizedErrorをスローすること', () => {
+    it('本番環境で認証情報が不足している場合はUnauthorizedErrorをスローすること', () => {
+      // 本番環境を設定
+      process.env.ENVIRONMENT = 'prod';
+      
       // モックイベントの作成（認証情報が不完全）
       const mockEvent = {
         requestContext: {
           authorizer: {
             claims: {}
           }
-        }
+        },
+        headers: {}
       } as unknown as APIGatewayProxyEvent;
       
       // テスト対象の関数を実行して例外をキャッチ
       expect(() => getUserEmailFromRequest(mockEvent)).toThrow(UnauthorizedError);
+    });
+
+    it('Lambda Function URLの場合、認証ヘッダーからメールアドレスを取得すること', () => {
+      // モックの設定
+      const mockPayload = { sub: 'user123', email: 'user@example.com' };
+      (jwt.verify as jest.Mock).mockReturnValue(mockPayload);
+      
+      // モックイベントの作成（認証ヘッダーあり）
+      const mockEvent = {
+        headers: {
+          Authorization: 'Bearer valid-token'
+        }
+      } as unknown as APIGatewayProxyEvent;
+      
+      // テスト対象の関数を実行
+      const email = getUserEmailFromRequest(mockEvent);
+      
+      // 結果の検証
+      expect(email).toBe('user@example.com');
     });
   });
 });

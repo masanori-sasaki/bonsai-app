@@ -101,7 +101,7 @@ infrastructure/package/*
 prompts/
 
 # Angular環境設定
-client/src/environments/environment.prod.ts
+# client/src/environments/environment.prod.ts
 
 # その他
 .cache/

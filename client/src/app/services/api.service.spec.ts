@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { HttpClient } from '@angular/common/http';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { ApiService } from './api.service';
 import { environment } from '../../environments/environment';
@@ -6,7 +7,8 @@ import { environment } from '../../environments/environment';
 describe('ApiService', () => {
   let service: ApiService;
   let httpMock: HttpTestingController;
-  const apiUrl = 'https://api.example.com';
+  // 環境設定からapiUrlを取得
+  const apiUrl = environment.apiUrl;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -38,7 +40,7 @@ describe('ApiService', () => {
         expect(data).toEqual(testData);
       });
       
-      const req = httpMock.expectOne(`${apiUrl}/api/${path}?param1=value1&param2=value2`);
+      const req = httpMock.expectOne(`${apiUrl}/${path}?param1=value1&param2=value2`);
       expect(req.request.method).toBe('GET');
       expect(req.request.headers.get('Content-Type')).toBe('application/json');
       expect(req.request.headers.get('Authorization')).toBe('Bearer test-token');
@@ -57,7 +59,7 @@ describe('ApiService', () => {
         expect(data).toEqual(testData);
       });
       
-      const req = httpMock.expectOne(`${apiUrl}/api/${path}`);
+      const req = httpMock.expectOne(`${apiUrl}/${path}`);
       expect(req.request.method).toBe('GET');
       expect(req.request.headers.get('Content-Type')).toBe('application/json');
       expect(req.request.headers.get('Authorization')).toBeNull();
@@ -71,9 +73,14 @@ describe('ApiService', () => {
       const apiUrlWithSlash = 'https://api.example.com/';
       
       // 環境変数のモックを上書き
-      spyOnProperty(environment, 'apiUrl', 'get').and.returnValue(apiUrlWithSlash);
+      // apiUrlはgetterではなく通常のプロパティなので、直接上書きする
+      const originalApiUrl = environment.apiUrl;
+      environment.apiUrl = apiUrlWithSlash;
       
-      service.get(path).subscribe(data => {
+      // テスト後に元の値に戻すために新しいサービスインスタンスを作成
+      const testService = new ApiService(TestBed.inject(HttpClient));
+      
+      testService.get(path).subscribe(data => {
         expect(data).toEqual(testData);
       });
       
@@ -81,6 +88,9 @@ describe('ApiService', () => {
       expect(req.request.method).toBe('GET');
       
       req.flush(testData);
+      
+      // テスト後に環境変数を元に戻す
+      environment.apiUrl = originalApiUrl;
     });
   });
 
@@ -97,7 +107,7 @@ describe('ApiService', () => {
         expect(data).toEqual(testData);
       });
       
-      const req = httpMock.expectOne(`${apiUrl}/api/${path}`);
+      const req = httpMock.expectOne(`${apiUrl}/${path}`);
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual(body);
       expect(req.request.headers.get('Content-Type')).toBe('application/json');
@@ -120,7 +130,7 @@ describe('ApiService', () => {
         expect(data).toEqual(testData);
       });
       
-      const req = httpMock.expectOne(`${apiUrl}/api/${path}`);
+      const req = httpMock.expectOne(`${apiUrl}/${path}`);
       expect(req.request.method).toBe('PUT');
       expect(req.request.body).toEqual(body);
       expect(req.request.headers.get('Content-Type')).toBe('application/json');
@@ -142,7 +152,7 @@ describe('ApiService', () => {
         expect(data).toEqual(testData);
       });
       
-      const req = httpMock.expectOne(`${apiUrl}/api/${path}`);
+      const req = httpMock.expectOne(`${apiUrl}/${path}`);
       expect(req.request.method).toBe('DELETE');
       expect(req.request.headers.get('Content-Type')).toBe('application/json');
       expect(req.request.headers.get('Authorization')).toBe('Bearer test-token');

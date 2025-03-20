@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
-import { Router } from '@angular/router';
+import { Router, RouterStateSnapshot } from '@angular/router';
 import { AuthGuard } from './auth.guard';
 import { AuthService } from '../services/auth.service';
 
@@ -39,7 +39,12 @@ describe('AuthGuard', () => {
       // 認証済みユーザーの場合
       authService.isAuthenticated.and.returnValue(true);
       
-      const result = guard.canActivate(null!, null!);
+      // RouterStateSnapshotのモックを作成
+      const mockRouterStateSnapshot = {
+        url: '/protected-route'
+      };
+      
+      const result = guard.canActivate(null!, mockRouterStateSnapshot as RouterStateSnapshot);
       
       expect(result).toBeTrue();
       expect(authService.isAuthenticated).toHaveBeenCalled();
@@ -50,11 +55,18 @@ describe('AuthGuard', () => {
       // 未認証ユーザーの場合
       authService.isAuthenticated.and.returnValue(false);
       
-      const result = guard.canActivate(null!, null!);
+      // RouterStateSnapshotのモックを作成
+      const mockRouterStateSnapshot = {
+        url: '/protected-route'
+      };
+      
+      const result = guard.canActivate(null!, mockRouterStateSnapshot as RouterStateSnapshot);
       
       expect(result).toBeFalse();
       expect(authService.isAuthenticated).toHaveBeenCalled();
-      expect(router.navigate).toHaveBeenCalledWith(['/auth/login']);
+      expect(router.navigate).toHaveBeenCalledWith(['/auth/login'], {
+        queryParams: { returnUrl: '/protected-route' }
+      });
     });
   });
 
