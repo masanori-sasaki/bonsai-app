@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "aws-amplify": "^5.3.10",
+    "aws-sdk": "^2.1450.0",
     "axios": "^1.5.0",
     "uuid": "^9.0.0"
   }
