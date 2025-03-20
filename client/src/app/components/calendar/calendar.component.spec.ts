@@ -14,6 +14,8 @@ describe('CalendarComponent', () => {
 
   beforeEach(async () => {
     const calendarDataSpy = jasmine.createSpyObj('CalendarDataService', ['getCalendarEvents']);
+    // calendarRefresh$プロパティを追加
+    calendarDataSpy.calendarRefresh$ = of();
     const routerSpyObj = jasmine.createSpyObj('Router', ['navigate']);
 
     await TestBed.configureTestingModule({
@@ -82,7 +84,10 @@ describe('CalendarComponent', () => {
   it('should reload calendar data when dates change', () => {
     const mockDateInfo = {
       start: new Date(2025, 2, 1),
-      end: new Date(2025, 2, 31)
+      end: new Date(2025, 2, 31),
+      view: {
+        calendar: {}
+      }
     };
 
     calendarDataServiceSpy.getCalendarEvents.calls.reset();
@@ -113,7 +118,7 @@ describe('CalendarComponent', () => {
     component.handleEventDidMount(mockEventInfo);
 
     // 境界線の色が設定されることを確認
-    expect(mockEventInfo.el.style.borderColor).toBe('#3367d6');
+    expect(mockEventInfo.el.style.borderColor).toBe('rgb(51, 103, 214)');
     
     // ツールチップが設定されることを確認
     expect(mockEventInfo.el.title).toBe('テストイベント テスト説明');
@@ -123,8 +128,8 @@ describe('CalendarComponent', () => {
   });
 
   it('should darken color correctly', () => {
-    // プライベートメソッドをテスト
-    const darkenColor = (component as any).darkenColor;
+    // プライベートメソッドをテスト - thisコンテキストを保持するためにbindを使用
+    const darkenColor = (component as any).darkenColor.bind(component);
     
     // 色を暗くする
     expect(darkenColor('#FF0000', 20)).toBe('#cc0000'); // 赤を20%暗く
@@ -133,8 +138,8 @@ describe('CalendarComponent', () => {
   });
 
   it('should convert component to hex correctly', () => {
-    // プライベートメソッドをテスト
-    const componentToHex = (component as any).componentToHex;
+    // プライベートメソッドをテスト - thisコンテキストを保持するためにbindを使用
+    const componentToHex = (component as any).componentToHex.bind(component);
     
     // 数値を16進数に変換
     expect(componentToHex(0)).toBe('00');
@@ -143,8 +148,8 @@ describe('CalendarComponent', () => {
   });
 
   it('should strip HTML correctly', () => {
-    // プライベートメソッドをテスト
-    const stripHtml = (component as any).stripHtml;
+    // プライベートメソッドをテスト - thisコンテキストを保持するためにbindを使用
+    const stripHtml = (component as any).stripHtml.bind(component);
     
     // HTMLタグを削除
     expect(stripHtml('<div>テスト</div>')).toBe('テスト');

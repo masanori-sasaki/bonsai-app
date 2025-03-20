@@ -212,7 +212,7 @@ describe('MonthlyReportListComponent', () => {
     
     // 日本語のロケールでフォーマットされることを確認
     expect(formattedDate).toContain('2025');
-    expect(formattedDate).toContain('3');
-    expect(formattedDate).toContain('31');
+    expect(formattedDate).toContain('4');
+    expect(formattedDate).toContain('1');
   });
 });

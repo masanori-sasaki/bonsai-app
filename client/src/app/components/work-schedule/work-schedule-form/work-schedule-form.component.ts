@@ -398,8 +398,8 @@ export class WorkScheduleFormComponent implements OnInit {
         .subscribe({
           next: (createdSchedule) => {
             this.saving = false;
-            // 作業予定一覧ページに遷移
-            this.router.navigate(['/bonsai', this.bonsaiId, 'schedules']);
+            // 作業予定詳細ページに遷移
+            this.router.navigate(['/schedules', createdSchedule.id]);
           },
           error: (error) => {
             this.saving = false;
@@ -413,8 +413,8 @@ export class WorkScheduleFormComponent implements OnInit {
         .subscribe({
           next: (updatedSchedule) => {
             this.saving = false;
-            // 作業予定一覧ページに遷移
-            this.router.navigate(['/bonsai', this.bonsaiId, 'schedules']);
+            // 作業予定詳細ページに遷移
+            this.router.navigate(['/schedules', this.scheduleId]);
           },
           error: (error) => {
             this.saving = false;

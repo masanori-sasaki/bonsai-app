@@ -36,10 +36,9 @@ export class MonthlyReportDetailComponent implements OnInit {
       
       if (isNaN(this.year) || isNaN(this.month) || this.month < 1 || this.month > 12) {
         this.error = '無効な年月です';
-        return;
+      } else {
+        this.loadReport();
       }
-      
-      this.loadReport();
     });
   }
 

@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
 import { RouterTestingModule } from '@angular/router/testing';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
@@ -114,7 +114,7 @@ describe('WorkRecordFormComponent', () => {
     // フォームの初期値を確認
     const today = new Date();
     const formattedDate = today.toISOString().split('T')[0];
-    expect(component.recordForm.get('workType')?.value).toBe('pruning');
+    expect(component.recordForm.get('workTypes')?.value).toEqual([]);
     expect(component.recordForm.get('date')?.value).toBe(formattedDate);
     expect(component.recordForm.get('description')?.value).toBe('');
   });
@@ -137,7 +137,7 @@ describe('WorkRecordFormComponent', () => {
     expect(component.workRecord).toEqual(mockWorkRecord);
     
     // フォームに値が設定されることを確認
-    expect(component.recordForm.get('workType')?.value).toBe('pruning');
+    expect(component.recordForm.get('workTypes')?.value).toEqual(['pruning']);
     expect(component.recordForm.get('description')?.value).toBe('剪定作業を行いました。');
     
     // 作業記録取得が呼ばれることを確認
@@ -185,10 +185,13 @@ describe('WorkRecordFormComponent', () => {
     // FileReaderのモック
     const mockFileReader = {
       onload: null,
+      result: 'data:image/jpeg;base64,test',
       readAsDataURL: function(file: File) {
+        // resultプロパティを設定
+        this.result = 'data:image/jpeg;base64,test';
         // onloadを呼び出す
         if (this.onload) {
-          (this.onload as any)({ target: { result: 'data:image/jpeg;base64,test' } });
+          (this.onload as any)();
         }
       }
     };
@@ -262,7 +265,7 @@ describe('WorkRecordFormComponent', () => {
 
   it('should create work record without images', () => {
     // フォームに値を設定
-    component.recordForm.get('workType')?.setValue('pruning');
+    component.toggleWorkType('pruning'); // toggleWorkTypeメソッドを使用して作業タイプを選択
     component.recordForm.get('date')?.setValue('2025-03-15');
     component.recordForm.get('description')?.setValue('剪定作業を行いました。');
     
@@ -301,7 +304,7 @@ describe('WorkRecordFormComponent', () => {
     component.workRecord = mockWorkRecord;
     
     // フォームに値を設定
-    component.recordForm.get('workType')?.setValue('pruning');
+    component.toggleWorkType('pruning'); // toggleWorkTypeメソッドを使用して作業タイプを選択
     component.recordForm.get('date')?.setValue('2025-03-15');
     component.recordForm.get('description')?.setValue('剪定作業を行いました。（更新）');
     
@@ -326,9 +329,9 @@ describe('WorkRecordFormComponent', () => {
     expect(router.navigate).toHaveBeenCalledWith(['/records', 'record1']);
   });
 
-  it('should create work record with images', () => {
+  it('should create work record with images', fakeAsync(() => {
     // フォームに値を設定
-    component.recordForm.get('workType')?.setValue('pruning');
+    component.toggleWorkType('pruning'); // toggleWorkTypeメソッドを使用して作業タイプを選択
     component.recordForm.get('date')?.setValue('2025-03-15');
     component.recordForm.get('description')?.setValue('剪定作業を行いました。');
     
@@ -356,6 +359,9 @@ describe('WorkRecordFormComponent', () => {
     // 保存
     component.saveWorkRecord();
     
+    // 非同期処理の完了を待つ
+    tick();
+    
     // uploadImageが呼ばれることを確認
     expect(imageUploadService.uploadImage).toHaveBeenCalledWith(mockFile);
     
@@ -366,11 +372,11 @@ describe('WorkRecordFormComponent', () => {
       description: '剪定作業を行いました。',
       imageUrls: ['https://example.com/images/uploaded.jpg']
     }));
-  });
+  }));
 
   it('should handle error when creating work record', () => {
     // フォームに値を設定
-    component.recordForm.get('workType')?.setValue('pruning');
+    component.toggleWorkType('pruning'); // toggleWorkTypeメソッドを使用して作業タイプを選択
     component.recordForm.get('date')?.setValue('2025-03-15');
     component.recordForm.get('description')?.setValue('剪定作業を行いました。');
     
@@ -386,6 +392,12 @@ describe('WorkRecordFormComponent', () => {
   });
 
   it('should toggle all day event flag', () => {
+    // フォームの初期値を設定
+    component.recordForm.patchValue({
+      startTime: '',
+      endTime: ''
+    });
+
     // 初期状態は終日イベント
     expect(component.isAllDay).toBeTrue();
     expect(component.recordForm.get('startTime')?.value).toBe('');
