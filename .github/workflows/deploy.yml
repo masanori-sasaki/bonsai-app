@@ -105,8 +105,11 @@ jobs:
         id: cf-outputs
         run: |
           ENV=${{ steps.set-env.outputs.environment }}
-          MAIN_OUTPUTS=$(aws cloudformation describe-stacks --stack-name BonsaiAppStack-${ENV} --query "Stacks[0].Outputs" --output json)
-          echo "::set-output name=frontend-bucket::$(echo $MAIN_OUTPUTS | jq -r '.[] | select(.OutputKey=="FrontendURL") | .OutputValue' | sed 's|http://||' | sed 's|/||')"
+          REGION=${{ secrets.AWS_REGION }}
+          ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)
+          
+          # Set frontend bucket name directly
+          echo "::set-output name=frontend-bucket::bonsai-app-${ENV}-${ACCOUNT_ID}-${REGION}"
           
           # Get API Stack name
           API_STACK_NAME=$(aws cloudformation list-stack-resources --stack-name BonsaiAppStack-${ENV} --query "StackResourceSummaries[?ResourceType=='AWS::CloudFormation::Stack' && LogicalResourceId=='ApiStack'].PhysicalResourceId" --output text)
