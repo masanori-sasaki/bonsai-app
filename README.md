@@ -77,55 +77,6 @@ npm install
 cd ..
 ```
 
-#### 3. 環境設定ファイルの作成
-
-セキュリティ上の理由から、`client/src/environments/environment.prod.ts`ファイルはGitリポジトリに含まれていません。このファイルは各開発者が自分の環境で作成する必要があります。
-
-以下の手順に従って、環境設定ファイルを作成してください：
-
-1. `client/src/environments/`ディレクトリに移動します：
-
-```bash
-cd client/src/environments/
-```
-
-2. `environment.prod.ts`ファイルを作成します：
-
-```bash
-# Windowsの場合（PowerShell）
-New-Item -ItemType File -Path environment.prod.ts
-# または
-echo $null > environment.prod.ts
-
-# Windowsの場合（コマンドプロンプト）
-type nul > environment.prod.ts
-
-# macOS/Linuxの場合
-touch environment.prod.ts
-```
-
-3. お好みのテキストエディタで`environment.prod.ts`ファイルを開き、以下のテンプレートを貼り付けます：
-
-```typescript
-export const environment = {
-  production: true,
-  apiUrl: 'https://your-api-endpoint.lambda-url.ap-northeast-1.on.aws/',
-  cognito: {
-    userPoolId: 'ap-northeast-1_XXXXXXXXX',
-    userPoolWebClientId: 'xxxxxxxxxxxxxxxxxxxxxxxxxx',
-    domain: 'your-app-domain.auth.ap-northeast-1.amazoncognito.com'
-  }
-};
-```
-
-4. テンプレート内の値を、実際の値に置き換えます：
-
-- `apiUrl`: 本番環境のAPIエンドポイントURL
-- `userPoolId`: AWS CognitoのユーザープールID
-- `userPoolWebClientId`: AWS CognitoのウェブクライアントアプリケーションクライアントID
-- `domain`: AWS Cognitoのドメイン
-
-これらの値は、デプロイ手順セクションの「フロントエンドの設定を更新」で自動的に置き換えられます。
 
 ### 開発サーバーの起動
 
