@@ -125,6 +125,6 @@ Outputs:
 
   UserPoolDomainName:
     Description: Cognito User Pool Domain
-    Value: !Sub bonsai-${Environment}-${AWS::AccountId}.auth.${AWS::Region}.amazoncognito.com
+    Value: !Sub bonsai-app-${Environment}-${AWS::AccountId}.auth.${AWS::Region}.amazoncognito.com
     Export:
       Name: !Sub ${AWS::StackName}-UserPoolDomainName
