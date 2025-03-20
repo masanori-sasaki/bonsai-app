@@ -1,16 +1,28 @@
 import { TestBed } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { AppComponent } from './app.component';
+import { AuthService } from './services/auth.service';
+
+// AuthServiceのモック
+class MockAuthService {
+  signOut() {}
+  isAuthenticated() { return false; }
+}
 
 describe('AppComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [
-        RouterTestingModule
+        RouterTestingModule,
+        HttpClientTestingModule
       ],
       declarations: [
         AppComponent
       ],
+      providers: [
+        { provide: AuthService, useClass: MockAuthService }
+      ]
     }).compileComponents();
   });
 

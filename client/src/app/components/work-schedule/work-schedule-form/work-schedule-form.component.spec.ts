@@ -109,10 +109,10 @@ describe('WorkScheduleFormComponent', () => {
     futureDate.setDate(today.getDate() + 7); // 1週間後
     const formattedDate = futureDate.toISOString().split('T')[0];
     
-    expect(component.scheduleForm.get('workType')?.value).toBe('pruning');
+    expect(component.scheduleForm.get('workTypes')?.value).toEqual([]);
     expect(component.scheduleForm.get('scheduledDate')?.value).toBe(formattedDate);
     expect(component.scheduleForm.get('description')?.value).toBe('');
-    expect(component.scheduleForm.get('completed')?.value).toBeFalse();
+    expect(component.scheduleForm.get('completed')?.value).toBeUndefined;
   });
 
   it('should load work schedule in edit mode', () => {
@@ -133,9 +133,9 @@ describe('WorkScheduleFormComponent', () => {
     expect(component.workSchedule).toEqual(mockWorkSchedule);
     
     // フォームに値が設定されることを確認
-    expect(component.scheduleForm.get('workType')?.value).toBe('pruning');
+    expect(component.scheduleForm.get('workTypes')?.value).toEqual(['pruning']);
     expect(component.scheduleForm.get('description')?.value).toBe('剪定予定');
-    expect(component.scheduleForm.get('completed')?.value).toBeFalse();
+    expect(component.scheduleForm.get('completed')?.value).toBeUndefined;
     
     // 作業予定取得が呼ばれることを確認
     expect(workScheduleService.getWorkScheduleDetail).toHaveBeenCalledWith('schedule1');
@@ -195,7 +195,7 @@ describe('WorkScheduleFormComponent', () => {
 
   it('should create work schedule', () => {
     // フォームに値を設定
-    component.scheduleForm.get('workType')?.setValue('pruning');
+    component.toggleWorkType('pruning'); // toggleWorkTypeメソッドを使用して作業タイプを選択
     component.scheduleForm.get('scheduledDate')?.setValue('2025-04-15');
     component.scheduleForm.get('description')?.setValue('剪定予定');
     component.scheduleForm.get('completed')?.setValue(false);
@@ -236,21 +236,18 @@ describe('WorkScheduleFormComponent', () => {
     component.workSchedule = mockWorkSchedule;
     
     // フォームに値を設定
-    component.scheduleForm.get('workType')?.setValue('pruning');
+    component.toggleWorkType('pruning'); // toggleWorkTypeメソッドを使用して作業タイプを選択
     component.scheduleForm.get('scheduledDate')?.setValue('2025-04-20');
     component.scheduleForm.get('description')?.setValue('剪定予定（更新）');
-    component.scheduleForm.get('completed')?.setValue(true);
     
     // 更新成功のモック
     const updatedSchedule: WorkSchedule = {
       ...mockWorkSchedule,
       scheduledDate: '2025-04-20T00:00:00Z',
       description: '剪定予定（更新）',
-      completed: true,
       updatedAt: '2025-03-09T00:00:00Z'
     };
     workScheduleService.updateWorkSchedule.and.returnValue(of(updatedSchedule));
-    
     // 保存
     component.saveWorkSchedule();
     
@@ -259,7 +256,6 @@ describe('WorkScheduleFormComponent', () => {
       workTypes: ['pruning'],
       scheduledDate: jasmine.any(String),
       description: '剪定予定（更新）',
-      completed: true
     }));
     
     // 作業予定詳細ページに遷移することを確認
