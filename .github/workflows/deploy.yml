@@ -105,9 +105,15 @@ jobs:
         id: cf-outputs
         run: |
           ENV=${{ steps.set-env.outputs.environment }}
-          OUTPUTS=$(aws cloudformation describe-stacks --stack-name BonsaiAppStack-${ENV} --query "Stacks[0].Outputs" --output json)
-          echo "::set-output name=frontend-bucket::$(echo $OUTPUTS | jq -r '.[] | select(.OutputKey=="FrontendBucketName") | .OutputValue')"
-          echo "::set-output name=api-function::$(echo $OUTPUTS | jq -r '.[] | select(.OutputKey=="LambdaArn") | .OutputValue')"
+          MAIN_OUTPUTS=$(aws cloudformation describe-stacks --stack-name BonsaiAppStack-${ENV} --query "Stacks[0].Outputs" --output json)
+          echo "::set-output name=frontend-bucket::$(echo $MAIN_OUTPUTS | jq -r '.[] | select(.OutputKey=="FrontendURL") | .OutputValue' | sed 's|http://||' | sed 's|/||')"
+          
+          # Get API Stack name
+          API_STACK_NAME=$(aws cloudformation list-stack-resources --stack-name BonsaiAppStack-${ENV} --query "StackResourceSummaries[?ResourceType=='AWS::CloudFormation::Stack' && LogicalResourceId=='ApiStack'].PhysicalResourceId" --output text)
+          
+          # Get Lambda ARN from API Stack
+          API_OUTPUTS=$(aws cloudformation describe-stacks --stack-name $API_STACK_NAME --query "Stacks[0].Outputs" --output json)
+          echo "::set-output name=api-function::$(echo $API_OUTPUTS | jq -r '.[] | select(.OutputKey=="LambdaArn") | .OutputValue')"
       
       - name: Deploy Lambda function
         run: |
