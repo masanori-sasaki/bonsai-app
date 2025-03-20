@@ -99,7 +99,7 @@ jobs:
       
       - name: Install infrastructure scripts dependencies
         working-directory: ./infrastructure/scripts
-        run: npm ci
+        run: npm install
       
       - name: Update frontend configuration
         working-directory: ./infrastructure/scripts
