@@ -90,12 +90,10 @@ jobs:
         run: |
           ENV=${{ steps.set-env.outputs.environment }}
           ADMIN_EMAIL=${{ secrets.ADMIN_EMAIL }}
-          S3_BUCKET=bonsai-app-templates-171278323216
-          REGION=${{ secrets.AWS_REGION }}
           
-          # Deploy main stack using S3 URL
+          # Deploy main stack
           aws cloudformation deploy \
-            --template-url https://${S3_BUCKET}.s3.${REGION}.amazonaws.com/main.yml \
+            --template-file infrastructure/cloudformation/main.yml \
             --stack-name BonsaiAppStack-${ENV} \
             --parameter-overrides \
               Environment=${ENV} \
