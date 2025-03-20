@@ -67,20 +67,32 @@ jobs:
             echo "::set-output name=environment::dev"
           fi
       
-      - name: Upload CloudFormation templates to S3
+      - name: Upload Lambda package and CloudFormation templates to S3
         run: |
           ENV=${{ steps.set-env.outputs.environment }}
           S3_BUCKET=bonsai-app-templates-171278323216
           REGION=${{ secrets.AWS_REGION }}
+          TIMESTAMP=$(date +%Y%m%d%H%M%S)
+          
+          # Upload Lambda package to S3
+          aws s3 cp server/lambda-package.zip s3://${S3_BUCKET}/${ENV}/lambda-package.zip
           
           # Upload templates to S3
           aws s3 cp infrastructure/cloudformation/main.yml s3://${S3_BUCKET}/main.yml
-          aws s3 cp infrastructure/cloudformation/api.yml s3://${S3_BUCKET}/api.yml
+          
+          # Update api.yml with timestamp and Lambda package S3 key
+          cat infrastructure/cloudformation/api.yml | \
+            sed "s/#{Timestamp}/${TIMESTAMP}/g" | \
+            sed "s|S3Key: !Sub \${Environment}/lambda-package.zip|S3Key: \"${ENV}/lambda-package.zip\"|g" \
+            > /tmp/api.yml
+          aws s3 cp /tmp/api.yml s3://${S3_BUCKET}/api.yml
+          
+          # Upload other templates
           aws s3 cp infrastructure/cloudformation/auth.yml s3://${S3_BUCKET}/auth.yml
           aws s3 cp infrastructure/cloudformation/storage.yml s3://${S3_BUCKET}/storage.yml
           aws s3 cp infrastructure/cloudformation/monthly-report-scheduler.yml s3://${S3_BUCKET}/monthly-report-scheduler.yml
           
-          echo "Templates uploaded to S3 bucket: ${S3_BUCKET}"
+          echo "Lambda package and templates uploaded to S3 bucket: ${S3_BUCKET}"
       
       - name: Deploy CloudFormation stacks
         run: |
