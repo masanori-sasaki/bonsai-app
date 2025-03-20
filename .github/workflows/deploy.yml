@@ -50,23 +50,6 @@ jobs:
         working-directory: ./client
         run: npm test -- --no-watch --no-progress --browsers=ChromeHeadlessCI
       
-      - name: Install infrastructure scripts dependencies
-        working-directory: ./infrastructure/scripts
-        run: npm ci
-      
-      - name: Update frontend configuration
-        working-directory: ./infrastructure/scripts
-        run: |
-          ENV=${{ steps.set-env.outputs.environment }}
-          export ENVIRONMENT=${ENV}
-          export STACK_NAME=BonsaiAppStack-${ENV}
-          export AWS_REGION=${{ secrets.AWS_REGION }}
-          node update-frontend-config.js
-      
-      - name: Build client
-        working-directory: ./client
-        run: npm run build -- --configuration=production
-      
       # Deploy
       - name: Setup AWS CLI
         uses: aws-actions/configure-aws-credentials@v1
@@ -113,6 +96,23 @@ jobs:
               AdminEmail=${ADMIN_EMAIL} \
             --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND \
             --no-fail-on-empty-changeset
+      
+      - name: Install infrastructure scripts dependencies
+        working-directory: ./infrastructure/scripts
+        run: npm ci
+      
+      - name: Update frontend configuration
+        working-directory: ./infrastructure/scripts
+        run: |
+          ENV=${{ steps.set-env.outputs.environment }}
+          export ENVIRONMENT=${ENV}
+          export STACK_NAME=BonsaiAppStack-${ENV}
+          export AWS_REGION=${{ secrets.AWS_REGION }}
+          node update-frontend-config.js
+      
+      - name: Build client
+        working-directory: ./client
+        run: npm run build -- --configuration=production
       
       - name: Get CloudFormation outputs
         id: cf-outputs
