@@ -108,6 +108,26 @@ jobs:
               AdminEmail=${ADMIN_EMAIL} \
             --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND \
             --no-fail-on-empty-changeset
+            
+      - name: Wait for CloudFormation stack to complete
+        run: |
+          ENV=${{ steps.set-env.outputs.environment }}
+          STACK_NAME=BonsaiAppStack-${ENV}
+          
+          echo "CloudFormationスタックの完了を待機しています..."
+          aws cloudformation wait stack-create-complete --stack-name ${STACK_NAME} || true
+          aws cloudformation wait stack-update-complete --stack-name ${STACK_NAME} || true
+          
+          # StorageStackの正確な名前を取得
+          STORAGE_STACK_NAME=$(aws cloudformation list-stack-resources --stack-name ${STACK_NAME} --query "StackResourceSummaries[?ResourceType=='AWS::CloudFormation::Stack' && LogicalResourceId=='StorageStack'].PhysicalResourceId" --output text)
+          
+          if [ -n "$STORAGE_STACK_NAME" ]; then
+            echo "StorageStackの完了を待機しています: ${STORAGE_STACK_NAME}"
+            aws cloudformation wait stack-create-complete --stack-name ${STORAGE_STACK_NAME} || true
+            aws cloudformation wait stack-update-complete --stack-name ${STORAGE_STACK_NAME} || true
+          else
+            echo "StorageStackが見つかりません。スキップします。"
+          fi
       
       - name: Install infrastructure scripts dependencies
         working-directory: ./infrastructure/scripts
@@ -152,3 +172,29 @@ jobs:
       - name: Deploy frontend to S3
         run: |
           aws s3 sync client/dist/bonsai-app-client s3://${{ steps.cf-outputs.outputs.frontend-bucket }} --delete
+
+      - name: Invalidate CloudFront cache
+        run: |
+          ENV=${{ steps.set-env.outputs.environment }}
+          REGION=${{ secrets.AWS_REGION }}
+          STACK_NAME=BonsaiAppStack-${ENV}
+          
+          # StorageStackの正確な名前を取得
+          STORAGE_STACK_NAME=$(aws cloudformation list-stack-resources --stack-name ${STACK_NAME} --query "StackResourceSummaries[?ResourceType=='AWS::CloudFormation::Stack' && LogicalResourceId=='StorageStack'].PhysicalResourceId" --output text)
+          
+          if [ -n "$STORAGE_STACK_NAME" ]; then
+            echo "StorageStackから CloudFront Distribution IDを取得します: ${STORAGE_STACK_NAME}"
+            # StorageStackの出力からCloudFront Distribution IDを取得
+            DISTRIBUTION_ID=$(aws cloudformation describe-stacks --stack-name ${STORAGE_STACK_NAME} --query "Stacks[0].Outputs[?OutputKey=='CloudFrontDistributionId'].OutputValue" --output text)
+          else
+            # フォールバック: メインスタックの出力からCloudFront Distribution IDを取得
+            echo "StorageStackが見つかりません。メインスタックから CloudFront Distribution IDを取得します。"
+            DISTRIBUTION_ID=$(aws cloudformation describe-stacks --stack-name ${STACK_NAME} --query "Stacks[0].Outputs[?OutputKey=='CloudFrontDistributionId'].OutputValue" --output text)
+          fi
+          
+          if [ -n "$DISTRIBUTION_ID" ]; then
+            echo "CloudFrontキャッシュを無効化します (Distribution ID: ${DISTRIBUTION_ID})"
+            aws cloudfront create-invalidation --distribution-id ${DISTRIBUTION_ID} --paths "/*"
+          else
+            echo "CloudFront Distribution IDが見つかりません。キャッシュ無効化をスキップします。"
+          fi

@@ -36,14 +36,14 @@ export function generateToken(payload: any): string {
  */
 export function verifyToken(token: string): any {
   try {
-    // 開発環境かどうかを判断
-    const isDevelopment = process.env.ENVIRONMENT !== 'prod';
+    // ローカル環境かどうかを判断
+    const isLocalhost = process.env.IS_OFFLINE === 'true' || process.env.IS_LOCAL === 'true';
     
-    if (isDevelopment) {
-      // 開発環境では単純なJWT検証
+    if (isLocalhost) {
+      // ローカル開発環境では単純なJWT検証
       return jwt.verify(token, JWT_SECRET);
     } else {
-      // 本番環境ではトークンをデコードするだけ（署名検証はスキップ）
+      // dev環境と本番環境ではトークンをデコードするだけ（署名検証はスキップ）
       // Cognitoトークンの場合、署名検証は複雑なため、ここではスキップ
       return jwt.decode(token);
     }
@@ -118,8 +118,10 @@ export function getUserIdFromRequest(event: APIGatewayProxyEvent): string {
   }
   
   // 開発環境の場合のみ、認証情報がない場合に固定のユーザーIDを返す
-  if (isDevelopment && (!claims || !claims.sub)) {
-    console.log('開発環境用の固定ユーザーIDを使用します');
+  // ただし、ローカル環境（localhost）の場合のみ
+  const isLocalhost = process.env.IS_OFFLINE === 'true' || process.env.IS_LOCAL === 'true';
+  if (isDevelopment && isLocalhost && (!claims || !claims.sub)) {
+    console.log('ローカル開発環境用の固定ユーザーIDを使用します');
     return 'dev-user-123';
   }
   
@@ -188,8 +190,10 @@ export function getUserEmailFromRequest(event: APIGatewayProxyEvent): string {
   }
   
   // 開発環境の場合のみ、認証情報がない場合に固定のメールアドレスを返す
-  if (isDevelopment && (!claims || !claims.email)) {
-    console.log('開発環境用の固定メールアドレスを使用します');
+  // ただし、ローカル環境（localhost）の場合のみ
+  const isLocalhost = process.env.IS_OFFLINE === 'true' || process.env.IS_LOCAL === 'true';
+  if (isDevelopment && isLocalhost && (!claims || !claims.email)) {
+    console.log('ローカル開発環境用の固定メールアドレスを使用します');
     return 'dev-user@example.com';
   }
   

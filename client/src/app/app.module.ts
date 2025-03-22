@@ -45,6 +45,9 @@ import { MonthlyReportDetailComponent } from './components/monthly-report/monthl
 // ダイアログコンポーネント
 import { BulkWateringDialogComponent } from './components/dialogs/bulk-watering-dialog/bulk-watering-dialog.component';
 
+// 共通コンポーネント
+import { EmptyComponent } from './components/shared/empty/empty.component';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -61,7 +64,8 @@ import { BulkWateringDialogComponent } from './components/dialogs/bulk-watering-
     CalendarComponent,
     MonthlyReportListComponent,
     MonthlyReportDetailComponent,
-    BulkWateringDialogComponent
+    BulkWateringDialogComponent,
+    EmptyComponent
   ],
   imports: [
     BrowserModule,

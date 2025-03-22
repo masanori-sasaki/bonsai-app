@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/server.js",
-    "dev": "ts-node-dev --respawn src/server.ts",
+    "dev": "cross-env IS_LOCAL=true ts-node-dev --respawn src/server.ts",
     "lambda:build": "tsc",
     "lambda:start": "node dist/index.js",
     "test": "jest",
@@ -32,6 +32,7 @@
     "@types/uuid": "^8.3.3",
     "@typescript-eslint/eslint-plugin": "^5.6.0",
     "@typescript-eslint/parser": "^5.6.0",
+    "cross-env": "^7.0.3",
     "eslint": "^8.4.1",
     "jest": "^29.7.0",
     "ts-jest": "^29.2.6",

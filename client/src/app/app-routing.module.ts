@@ -15,6 +15,7 @@ import { WorkScheduleFormComponent } from './components/work-schedule/work-sched
 import { WorkScheduleDetailComponent } from './components/work-schedule/work-schedule-detail/work-schedule-detail.component';
 import { MonthlyReportListComponent } from './components/monthly-report/monthly-report-list/monthly-report-list.component';
 import { MonthlyReportDetailComponent } from './components/monthly-report/monthly-report-detail/monthly-report-detail.component';
+import { EmptyComponent } from './components/shared/empty/empty.component';
 
 const routes: Routes = [
   // 認証関連
@@ -103,8 +104,11 @@ const routes: Routes = [
   // デフォルトルート
   { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
   
-  // ワイルドカードルート
-  { path: '**', redirectTo: '/dashboard' }
+// 画像パスは除外（CloudFrontからの画像アクセス用）
+{ path: 'images/**', component: EmptyComponent },
+
+// ワイルドカードルート
+{ path: '**', redirectTo: '/dashboard' }
 ];
 
 @NgModule({

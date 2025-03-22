@@ -67,8 +67,8 @@ export class AuthService {
    * @returns Observable<User>
    */
   signIn(request: SignInRequest): Observable<User> {
-    // 本番環境ではCognitoを使用
-    if (environment.production && environment.cognito) {
+    // 本番環境と開発環境の両方でCognitoを使用
+    if (environment.cognito && environment.cognito.userPoolId) {
       return new Observable<User>(observer => {
         try {
           Auth.signIn(request.email, request.password)
@@ -201,8 +201,8 @@ export class AuthService {
    * @returns Observable<void>
    */
   signUp(request: SignUpRequest): Observable<void> {
-    // 本番環境ではCognitoを使用
-    if (environment.production && environment.cognito) {
+    // 本番環境と開発環境の両方でCognitoを使用
+    if (environment.cognito && environment.cognito.userPoolId) {
       return new Observable<void>(observer => {
         Auth.signUp({
           username: request.email,
@@ -248,8 +248,8 @@ export class AuthService {
    * @returns Observable<void>
    */
   confirmSignUp(request: ConfirmSignUpRequest): Observable<void> {
-    // 本番環境ではCognitoを使用
-    if (environment.production && environment.cognito) {
+    // 本番環境と開発環境の両方でCognitoを使用
+    if (environment.cognito && environment.cognito.userPoolId) {
       return new Observable<void>(observer => {
         Auth.confirmSignUp(request.email, request.code)
           .then(() => {
@@ -288,8 +288,8 @@ export class AuthService {
    * @returns Observable<void>
    */
   forgotPassword(request: ForgotPasswordRequest): Observable<void> {
-    // 本番環境ではCognitoを使用
-    if (environment.production && environment.cognito) {
+    // 本番環境と開発環境の両方でCognitoを使用
+    if (environment.cognito && environment.cognito.userPoolId) {
       return new Observable<void>(observer => {
         Auth.forgotPassword(request.email)
           .then(() => {
@@ -328,8 +328,8 @@ export class AuthService {
    * @returns Observable<void>
    */
   confirmForgotPassword(request: ConfirmForgotPasswordRequest): Observable<void> {
-    // 本番環境ではCognitoを使用
-    if (environment.production && environment.cognito) {
+    // 本番環境と開発環境の両方でCognitoを使用
+    if (environment.cognito && environment.cognito.userPoolId) {
       return new Observable<void>(observer => {
         Auth.forgotPasswordSubmit(request.email, request.code, request.newPassword)
           .then(() => {
@@ -365,8 +365,8 @@ export class AuthService {
    * サインアウト
    */
   signOut(): void {
-    // 本番環境ではCognitoを使用
-    if (environment.production && environment.cognito) {
+    // 本番環境と開発環境の両方でCognitoを使用
+    if (environment.cognito && environment.cognito.userPoolId) {
       Auth.signOut()
         .then(() => {
           // ローカルストレージをクリア

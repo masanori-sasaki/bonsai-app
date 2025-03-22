@@ -11,6 +11,7 @@ sequenceDiagram
     participant ImageService as 画像処理サービス
     participant API as API Gateway/Lambda
     participant S3 as S3バケット
+    participant CloudFront as CloudFront
 
     User->>Client: 画像ファイル選択
     Client->>ImageService: 画像ファイル渡し
@@ -41,10 +42,11 @@ sequenceDiagram
         Client->>API: 署名付きURL取得リクエスト
         API->>S3: 署名付きURL生成
         S3->>API: 署名付きURL
-        API->>Client: 署名付きURLと公開URL返却
+        API->>Client: 署名付きURLとCloudFront経由のURL返却
         Client->>S3: 署名付きURLを使用して画像を直接アップロード
         S3->>Client: アップロード完了
-        Client->>Client: 公開URLをデータモデルに設定
+        Client->>Client: CloudFront経由のURLをデータモデルに設定
+        Note over Client,CloudFront: 画像表示時はCloudFront経由でアクセス
     end
 ```
 
@@ -87,5 +89,14 @@ sequenceDiagram
 2. サイズ超過（圧縮後も2MBを超える場合）
 3. アップロード失敗（ネットワークエラーなど）
 4. S3バケットへのアクセス権限エラー
+5. CloudFrontキャッシュの問題（新しい画像が即時に反映されない場合）
+6. CloudFrontディストリビューションの設定エラー
 
 各エラーケースに対して、ユーザーフレンドリーなエラーメッセージを表示します。
+
+### CloudFrontに関する考慮事項
+
+1. **キャッシュ無効化**: 画像が更新された場合、CloudFrontのキャッシュを無効化する必要があります。
+2. **URL形式**: CloudFront経由のURLは、S3の直接URLとは異なる形式になります。
+3. **エラーレスポンス**: CloudFrontでエラーが発生した場合（403、404など）のカスタムエラーレスポンスを設定します。
+4. **セキュリティ**: CloudFrontを使用してHTTPS通信を強制し、S3バケットへの直接アクセスを制限します。

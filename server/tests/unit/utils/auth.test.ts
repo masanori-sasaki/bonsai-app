@@ -50,11 +50,13 @@ describe('認証ユーティリティ', () => {
     beforeEach(() => {
       // 環境変数をリセット
       process.env.ENVIRONMENT = undefined;
+      process.env.IS_LOCAL = undefined;
+      process.env.IS_OFFLINE = undefined;
     });
 
-    it('開発環境では有効なトークンを検証して、デコードされたペイロードを返すこと', () => {
-      // 開発環境を設定
-      process.env.ENVIRONMENT = 'dev';
+    it('ローカル環境では有効なトークンを検証して、デコードされたペイロードを返すこと', () => {
+      // ローカル環境を設定
+      process.env.IS_LOCAL = 'true';
       
       // モックの設定
       const mockPayload = { sub: 'user123', email: 'user@example.com' };
@@ -66,6 +68,23 @@ describe('認証ユーティリティ', () => {
       // 結果の検証
       expect(result).toEqual(mockPayload);
       expect(jwt.verify).toHaveBeenCalledWith('valid-token', expect.any(String));
+    });
+
+    it('開発環境ではトークンをデコードするだけで、デコードされたペイロードを返すこと', () => {
+      // 開発環境を設定（ローカルではない）
+      process.env.ENVIRONMENT = 'dev';
+      process.env.IS_LOCAL = 'false';
+      
+      // モックの設定
+      const mockPayload = { sub: 'user123', email: 'user@example.com' };
+      (jwt.decode as jest.Mock).mockReturnValue(mockPayload);
+      
+      // テスト対象の関数を実行
+      const result = verifyToken('valid-token');
+      
+      // 結果の検証
+      expect(result).toEqual(mockPayload);
+      expect(jwt.decode).toHaveBeenCalledWith('valid-token');
     });
 
     it('本番環境ではトークンをデコードするだけで、デコードされたペイロードを返すこと', () => {
@@ -84,9 +103,9 @@ describe('認証ユーティリティ', () => {
       expect(jwt.decode).toHaveBeenCalledWith('valid-token');
     });
 
-    it('開発環境で無効なトークンの場合はUnauthorizedErrorをスローすること', () => {
-      // 開発環境を設定
-      process.env.ENVIRONMENT = 'dev';
+    it('ローカル環境で無効なトークンの場合はUnauthorizedErrorをスローすること', () => {
+      // ローカル環境を設定
+      process.env.IS_LOCAL = 'true';
       
       // モックの設定
       (jwt.verify as jest.Mock).mockImplementation(() => {
@@ -209,6 +228,8 @@ describe('認証ユーティリティ', () => {
     beforeEach(() => {
       // 環境変数をリセット
       process.env.ENVIRONMENT = undefined;
+      process.env.IS_LOCAL = undefined;
+      process.env.IS_OFFLINE = undefined;
       jest.clearAllMocks();
     });
 
@@ -232,9 +253,10 @@ describe('認証ユーティリティ', () => {
       expect(userId).toBe('user123');
     });
 
-    it('開発環境では固定のユーザーIDを返すこと', () => {
-      // 開発環境を設定
+    it('ローカル開発環境では固定のユーザーIDを返すこと', () => {
+      // ローカル開発環境を設定
       process.env.ENVIRONMENT = 'dev';
+      process.env.IS_LOCAL = 'true';
       
       // モックイベントの作成（認証情報なし）
       const mockEvent = {
@@ -246,6 +268,25 @@ describe('認証ユーティリティ', () => {
       
       // 結果の検証
       expect(userId).toBe('dev-user-123');
+    });
+
+    it('開発環境（ローカルではない）で認証情報が不足している場合はUnauthorizedErrorをスローすること', () => {
+      // 開発環境を設定（ローカルではない）
+      process.env.ENVIRONMENT = 'dev';
+      process.env.IS_LOCAL = 'false';
+      
+      // モックイベントの作成（認証情報が不完全）
+      const mockEvent = {
+        requestContext: {
+          authorizer: {
+            claims: {}
+          }
+        },
+        headers: {}
+      } as unknown as APIGatewayProxyEvent;
+      
+      // テスト対象の関数を実行して例外をキャッチ
+      expect(() => getUserIdFromRequest(mockEvent)).toThrow(UnauthorizedError);
     });
 
     it('本番環境で認証情報が不足している場合はUnauthorizedErrorをスローすること', () => {
@@ -344,6 +385,8 @@ describe('認証ユーティリティ', () => {
     beforeEach(() => {
       // 環境変数をリセット
       process.env.ENVIRONMENT = undefined;
+      process.env.IS_LOCAL = undefined;
+      process.env.IS_OFFLINE = undefined;
       jest.clearAllMocks();
     });
 
@@ -367,9 +410,10 @@ describe('認証ユーティリティ', () => {
       expect(email).toBe('user@example.com');
     });
 
-    it('開発環境では固定のメールアドレスを返すこと', () => {
-      // 開発環境を設定
+    it('ローカル開発環境では固定のメールアドレスを返すこと', () => {
+      // ローカル開発環境を設定
       process.env.ENVIRONMENT = 'dev';
+      process.env.IS_LOCAL = 'true';
       
       // モックイベントの作成（認証情報なし）
       const mockEvent = {
@@ -381,6 +425,25 @@ describe('認証ユーティリティ', () => {
       
       // 結果の検証
       expect(email).toBe('dev-user@example.com');
+    });
+
+    it('開発環境（ローカルではない）で認証情報が不足している場合はUnauthorizedErrorをスローすること', () => {
+      // 開発環境を設定（ローカルではない）
+      process.env.ENVIRONMENT = 'dev';
+      process.env.IS_LOCAL = 'false';
+      
+      // モックイベントの作成（認証情報が不完全）
+      const mockEvent = {
+        requestContext: {
+          authorizer: {
+            claims: {}
+          }
+        },
+        headers: {}
+      } as unknown as APIGatewayProxyEvent;
+      
+      // テスト対象の関数を実行して例外をキャッチ
+      expect(() => getUserEmailFromRequest(mockEvent)).toThrow(UnauthorizedError);
     });
 
     it('本番環境で認証情報が不足している場合はUnauthorizedErrorをスローすること', () => {
