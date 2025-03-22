@@ -9,7 +9,6 @@
 
 - URL: http://localhost:4200
 - ログインID: example@example.com
-- ログインパスワード: P@ssw0rd
 
 ## 3. 因子と水準の定義
 

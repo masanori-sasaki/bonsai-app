@@ -44,6 +44,7 @@ Resources:
       Parameters:
         Environment: !Ref Environment
         CognitoUserPoolArn: !GetAtt AuthStack.Outputs.UserPoolArn
+        CloudFrontDomainName: !GetAtt StorageStack.Outputs.CloudFrontDomainName
         
   # Monthly Report Scheduler Stack (CloudWatch Events)
   MonthlyReportSchedulerStack:
@@ -62,8 +63,12 @@ Outputs:
     Value: !GetAtt ApiStack.Outputs.LambdaFunctionUrl
 
   FrontendURL:
-    Description: S3 Website URL for the frontend
-    Value: !GetAtt StorageStack.Outputs.FrontendBucketWebsiteURL
+    Description: CloudFront URL for the frontend
+    Value: !Sub https://${StorageStack.Outputs.CloudFrontDomainName}
+
+  CloudFrontDistributionId:
+    Description: CloudFront Distribution ID
+    Value: !GetAtt StorageStack.Outputs.CloudFrontDistributionId
 
   UserPoolId:
     Description: Cognito User Pool ID

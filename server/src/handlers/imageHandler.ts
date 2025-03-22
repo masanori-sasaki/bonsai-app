@@ -63,8 +63,20 @@ export async function generatePresignedUrl(event: APIGatewayProxyEvent): Promise
       Expires: 300 // 5分
     });
     
-    // 公開URLを生成
-    const publicUrl = `https://${BUCKET_NAME}.s3.amazonaws.com/${key}`;
+    // 公開URLを生成（CloudFront経由）
+    const cloudFrontDomain = process.env.CLOUDFRONT_DOMAIN_NAME;
+    let publicUrl;
+    
+    if (cloudFrontDomain) {
+      // CloudFrontのOriginPathが/imagesに設定されているため、
+      // keyからimagesプレフィックスを除去して重複を避ける
+      const keyWithoutPrefix = key.replace(`${IMAGE_FOLDER}/`, '');
+      publicUrl = `https://${cloudFrontDomain}/images/${keyWithoutPrefix}`;
+      console.log(`Generated CloudFront URL: ${publicUrl} for key: ${key}`);
+    } else {
+      publicUrl = `https://${BUCKET_NAME}.s3.amazonaws.com/${key}`;
+      console.log(`Generated S3 URL: ${publicUrl} for key: ${key}`);
+    }
     
     // 成功レスポンスを返す
     return createSuccessResponse({

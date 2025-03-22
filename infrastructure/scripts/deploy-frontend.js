@@ -33,10 +33,105 @@ const cloudformation = new AWS.CloudFormation({ region: config.region });
 const s3 = new AWS.S3({ region: config.region });
 
 /**
+ * 指定した時間（ミリ秒）待機する
+ */
+async function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+/**
+ * CloudFormationスタックの状態を確認
+ */
+async function checkStackStatus(stackName) {
+  try {
+    const response = await cloudformation.describeStacks({
+      StackName: stackName
+    }).promise();
+    
+    if (response.Stacks && response.Stacks.length > 0) {
+      return response.Stacks[0].StackStatus;
+    }
+    return null;
+  } catch (error) {
+    if (error.message.includes('does not exist')) {
+      return 'DOES_NOT_EXIST';
+    }
+    throw error;
+  }
+}
+
+/**
+ * CloudFormationスタックが完了するまで待機
+ */
+async function waitForStackCompletion(stackName) {
+  console.log(`CloudFormationスタック ${stackName} の完了を待機しています...`);
+  
+  let stackStatus = await checkStackStatus(stackName);
+  let retryCount = 0;
+  const maxRetries = 60; // 最大60回（10分）試行
+  
+  while (retryCount < maxRetries) {
+    console.log(`現在のスタック状態: ${stackStatus} (試行: ${retryCount + 1}/${maxRetries})`);
+    
+    if (stackStatus === 'CREATE_COMPLETE' || stackStatus === 'UPDATE_COMPLETE') {
+      console.log(`スタック ${stackName} が正常に完了しました`);
+      return true;
+    } else if (stackStatus && (
+        stackStatus.includes('FAILED') || 
+        stackStatus.includes('ROLLBACK_COMPLETE') ||
+        stackStatus === 'DOES_NOT_EXIST'
+      )) {
+      console.error(`スタック ${stackName} が異常な状態です: ${stackStatus}`);
+      return false;
+    }
+    
+    // 10秒待機
+    await sleep(10000);
+    retryCount++;
+    
+    try {
+      stackStatus = await checkStackStatus(stackName);
+    } catch (error) {
+      console.warn('スタック状態の確認中にエラーが発生しました:', error.message);
+    }
+  }
+  
+  console.error(`スタック ${stackName} の待機がタイムアウトしました。現在の状態: ${stackStatus}`);
+  return false;
+}
+
+/**
  * CloudFormationスタックの出力を取得
  */
 async function getStackOutputs() {
   console.log(`CloudFormationスタック ${config.stackName} の出力を取得しています...`);
+  
+  // まず、メインスタックが完了するまで待機
+  const mainStackCompleted = await waitForStackCompletion(config.stackName);
+  if (!mainStackCompleted) {
+    throw new Error(`メインスタック ${config.stackName} が正常に完了していません。デプロイを中止します。`);
+  }
+  
+  // StorageStackの正確な名前を取得
+  console.log('StorageStackの正確な名前を取得しています...');
+  const listStacksResponse = await cloudformation.listStacks({
+    StackStatusFilter: ['CREATE_COMPLETE', 'UPDATE_COMPLETE']
+  }).promise();
+  
+  const storageStackPrefix = `${config.stackName}-StorageStack`;
+  const storageStack = listStacksResponse.StackSummaries.find(
+    stack => stack.StackName.startsWith(storageStackPrefix)
+  );
+  
+  if (storageStack) {
+    console.log(`StorageStackの正確な名前を見つけました: ${storageStack.StackName}`);
+    
+    // StorageStackが完了するまで待機
+    const storageStackCompleted = await waitForStackCompletion(storageStack.StackName);
+    if (!storageStackCompleted) {
+      throw new Error(`StorageStack ${storageStack.StackName} が正常に完了していません。デプロイを中止します。`);
+    }
+  }
   
   try {
     const response = await cloudformation.describeStacks({
@@ -173,6 +268,102 @@ async function deployFrontend(bucketName) {
 }
 
 /**
+ * CloudFrontキャッシュを無効化
+ */
+async function invalidateCloudFrontCache(distributionId) {
+  console.log(`CloudFrontキャッシュを無効化しています... (Distribution ID: ${distributionId})`);
+  
+  try {
+    const cloudfront = new AWS.CloudFront({ region: config.region });
+    
+    const params = {
+      DistributionId: distributionId,
+      InvalidationBatch: {
+        CallerReference: `deploy-${Date.now()}`,
+        Paths: {
+          Quantity: 1,
+          Items: ['/*']
+        }
+      }
+    };
+    
+    const response = await cloudfront.createInvalidation(params).promise();
+    console.log('CloudFrontキャッシュの無効化を開始しました:', response.Invalidation.Id);
+    return true;
+  } catch (error) {
+    console.error('CloudFrontキャッシュ無効化エラー:', error);
+    return false;
+  }
+}
+
+/**
+ * CloudFrontディストリビューションIDを取得
+ */
+async function getCloudFrontDistributionId() {
+  console.log('CloudFrontディストリビューションIDを取得しています...');
+  
+  try {
+    // まず、メインスタックからStorageStackの正確な名前を取得
+    console.log('StorageStackの正確な名前を取得しています...');
+    const listStacksResponse = await cloudformation.listStacks({
+      StackStatusFilter: ['CREATE_COMPLETE', 'UPDATE_COMPLETE']
+    }).promise();
+    
+    const storageStackPrefix = `${config.stackName}-StorageStack`;
+    const storageStack = listStacksResponse.StackSummaries.find(
+      stack => stack.StackName.startsWith(storageStackPrefix)
+    );
+    
+    if (storageStack) {
+      console.log(`StorageStackの正確な名前を見つけました: ${storageStack.StackName}`);
+      
+      // 正確なStorageStack名を使用して出力を取得
+      const storageStackResponse = await cloudformation.describeStacks({
+        StackName: storageStack.StackName
+      }).promise();
+      
+      if (storageStackResponse.Stacks && storageStackResponse.Stacks.length > 0) {
+        const storageOutputs = {};
+        storageStackResponse.Stacks[0].Outputs.forEach(output => {
+          storageOutputs[output.OutputKey] = output.OutputValue;
+        });
+        
+        console.log('StorageStack出力:', storageOutputs);
+        
+        if (storageOutputs.CloudFrontDistributionId) {
+          console.log(`StorageStackからCloudFrontディストリビューションIDを取得しました: ${storageOutputs.CloudFrontDistributionId}`);
+          return storageOutputs.CloudFrontDistributionId;
+        }
+      }
+    }
+    
+    // StorageStackから取得できなかった場合、メインスタックから取得を試みる
+    console.log('メインスタックからCloudFrontディストリビューションIDを取得しています...');
+    const mainStackResponse = await cloudformation.describeStacks({
+      StackName: config.stackName
+    }).promise();
+    
+    if (mainStackResponse.Stacks && mainStackResponse.Stacks.length > 0) {
+      const outputs = {};
+      mainStackResponse.Stacks[0].Outputs.forEach(output => {
+        outputs[output.OutputKey] = output.OutputValue;
+      });
+      
+      if (outputs.CloudFrontDistributionId) {
+        console.log(`メインスタックからCloudFrontディストリビューションIDを取得しました: ${outputs.CloudFrontDistributionId}`);
+        return outputs.CloudFrontDistributionId;
+      }
+    }
+    
+    console.warn('CloudFrontディストリビューションIDが見つかりませんでした');
+    return null;
+  } catch (error) {
+    console.error('CloudFrontディストリビューションID取得エラー:', error);
+    return null;
+  }
+}
+
+/**
  * メイン処理
  */
 async function main() {
@@ -182,7 +373,6 @@ async function main() {
     console.log('スタック出力:', outputs);
     
     // フロントエンドバケット名を取得
-    // FrontendURLからバケット名を抽出（例：http://bonsai-app-dev-123456789012-ap-northeast-1.s3-website-ap-northeast-1.amazonaws.com/）
     let bucketName = '';
     
     if (outputs.FrontendBucketName) {
@@ -264,8 +454,21 @@ async function main() {
     // フロントエンドをデプロイ
     await deployFrontend(bucketName);
     
+    // CloudFrontキャッシュを無効化
+    if (outputs.CloudFrontDistributionId) {
+      await invalidateCloudFrontCache(outputs.CloudFrontDistributionId);
+    } else {
+      console.warn('CloudFront Distribution IDが見つかりません。キャッシュ無効化をスキップします。');
+    }
+    
     console.log('フロントエンドのデプロイが完了しました');
-    console.log(`ウェブサイトURL: ${outputs.FrontendURL}`);
+    
+    // CloudFrontのURLを表示
+    if (outputs.CloudFrontDomainName) {
+      console.log(`ウェブサイトURL: https://${outputs.CloudFrontDomainName}`);
+    } else {
+      console.log(`ウェブサイトURL: ${outputs.FrontendURL}`);
+    }
   } catch (error) {
     console.error('フロントエンドデプロイエラー:', error);
     process.exit(1);
