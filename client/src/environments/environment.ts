@@ -16,7 +16,7 @@ export interface Environment {
 export const environment: Environment = {
   production: false,
   apiUrl: 'http://localhost:3000/api',
-  // 開発環境ではCognitoを使用しないが、型定義のために空のオブジェクトを設定
+  // ローカル環境ではCognitoを使用しないが、型定義のために空のオブジェクトを設定
   cognito: {
     userPoolId: '',
     userPoolWebClientId: '',

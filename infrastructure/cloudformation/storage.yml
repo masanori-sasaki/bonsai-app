@@ -16,15 +16,12 @@ Resources:
     Type: AWS::S3::Bucket
     Properties:
       BucketName: !Sub bonsai-app-${Environment}-${AWS::AccountId}-${AWS::Region}
-      # AccessControl: PublicRead  # For static website hosting (removed due to potential block public access settings)
-      WebsiteConfiguration:
-        IndexDocument: index.html
-        ErrorDocument: index.html
+      # WebsiteConfigurationを削除（CloudFrontを使用するため）
       PublicAccessBlockConfiguration:
-        BlockPublicAcls: false
-        BlockPublicPolicy: false
-        IgnorePublicAcls: false
-        RestrictPublicBuckets: false
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
       CorsConfiguration:
         CorsRules:
           - AllowedHeaders:
@@ -42,7 +39,7 @@ Resources:
         - Key: Environment
           Value: !Ref Environment
 
-  # Bucket policy (allow public access)
+  # Bucket policy (allow CloudFront access)
   FrontendBucketPolicy:
     Type: AWS::S3::BucketPolicy
     Properties:
@@ -51,9 +48,78 @@ Resources:
         Version: '2012-10-17'
         Statement:
           - Effect: Allow
-            Principal: '*'
+            Principal:
+              CanonicalUser: !GetAtt CloudFrontOAI.S3CanonicalUserId
             Action: s3:GetObject
             Resource: !Sub ${FrontendBucket.Arn}/*
+
+  # CloudFront OAI
+  CloudFrontOAI:
+    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+    Properties:
+      CloudFrontOriginAccessIdentityConfig:
+        Comment: !Sub OAI for ${AWS::StackName}
+
+  # 注意: ResponseHeadersPolicyはサポートされていないため削除
+
+  # CloudFront Distribution
+  CloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        DefaultRootObject: index.html
+        HttpVersion: http2
+        PriceClass: PriceClass_100  # 最も安価なオプション（北米、欧州、アジアの一部）
+        Origins:
+          - Id: S3Origin
+            DomainName: !GetAtt FrontendBucket.RegionalDomainName
+            S3OriginConfig:
+              OriginAccessIdentity: !Sub origin-access-identity/cloudfront/${CloudFrontOAI}
+          - Id: S3ImagesOrigin
+            DomainName: !GetAtt FrontendBucket.RegionalDomainName
+            S3OriginConfig:
+              OriginAccessIdentity: !Sub origin-access-identity/cloudfront/${CloudFrontOAI}
+        DefaultCacheBehavior:
+          TargetOriginId: S3Origin
+          ViewerProtocolPolicy: redirect-to-https
+          Compress: true
+          AllowedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+          CachedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+          ForwardedValues:
+            QueryString: false
+            Cookies:
+              Forward: none
+        CacheBehaviors:
+          - PathPattern: /images/*
+            TargetOriginId: S3ImagesOrigin
+            ViewerProtocolPolicy: redirect-to-https
+            Compress: true
+            AllowedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+            CachedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+            ForwardedValues:
+              QueryString: false
+              Cookies:
+                Forward: none
+        CustomErrorResponses:
+          - ErrorCode: 404
+            ResponseCode: 200
+            ResponsePagePath: /index.html
+          - ErrorCode: 403
+            ResponseCode: 200
+            ResponsePagePath: /index.html
 
   # DynamoDB table (provisioned capacity)
   BonsaiTable:
@@ -114,6 +180,18 @@ Outputs:
     Value: !GetAtt FrontendBucket.WebsiteURL
     Export:
       Name: !Sub ${AWS::StackName}-FrontendBucketWebsiteURL
+
+  CloudFrontDistributionId:
+    Description: CloudFront Distribution ID
+    Value: !Ref CloudFrontDistribution
+    Export:
+      Name: !Sub ${AWS::StackName}-CloudFrontDistributionId
+
+  CloudFrontDomainName:
+    Description: CloudFront Domain Name
+    Value: !GetAtt CloudFrontDistribution.DomainName
+    Export:
+      Name: !Sub ${AWS::StackName}-CloudFrontDomainName
 
   BonsaiTableName:
     Description: DynamoDB table name

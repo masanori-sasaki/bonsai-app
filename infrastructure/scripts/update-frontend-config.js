@@ -61,7 +61,7 @@ async function getStackOutputs() {
 /**
  * 環境設定ファイルを更新
  */
-function updateEnvironmentFile(apiUrl, userPoolId, userPoolClientId, userPoolDomain) {
+function updateEnvironmentFile(apiUrl, userPoolId, userPoolClientId, userPoolDomain, cdnUrl) {
   console.log('フロントエンド環境設定を更新しています...');
   
   // 現在の環境設定を読み込み
@@ -72,7 +72,8 @@ function updateEnvironmentFile(apiUrl, userPoolId, userPoolClientId, userPoolDom
     apiUrl: '',
     userPoolId: '',
     userPoolClientId: '',
-    userPoolDomain: ''
+    userPoolDomain: '',
+    cdnUrl: ''
   };
   
   try {
@@ -95,6 +96,11 @@ function updateEnvironmentFile(apiUrl, userPoolId, userPoolClientId, userPoolDom
     if (userPoolDomainMatch && userPoolDomainMatch[1]) {
       currentSettings.userPoolDomain = userPoolDomainMatch[1];
     }
+    
+    const cdnUrlMatch = currentContent.match(/cdnUrl: '([^']+)'/);
+    if (cdnUrlMatch && cdnUrlMatch[1]) {
+      currentSettings.cdnUrl = cdnUrlMatch[1];
+    }
   } catch (error) {
     console.warn('既存の設定の解析中にエラーが発生しました:', error);
   }
@@ -104,11 +110,13 @@ function updateEnvironmentFile(apiUrl, userPoolId, userPoolClientId, userPoolDom
   const finalUserPoolId = userPoolId || currentSettings.userPoolId;
   const finalUserPoolClientId = userPoolClientId || currentSettings.userPoolClientId;
   const finalUserPoolDomain = userPoolDomain || currentSettings.userPoolDomain;
+  const finalCdnUrl = cdnUrl || currentSettings.cdnUrl;
   
   // 新しい環境設定を作成
   const newContent = `export const environment = {
   production: true,
   apiUrl: '${finalApiUrl}',
+  cdnUrl: '${finalCdnUrl}',
   cognito: {
     userPoolId: '${finalUserPoolId}',
     userPoolWebClientId: '${finalUserPoolClientId}',
@@ -137,7 +145,7 @@ function buildFrontend() {
 async function main() {
   try {
     let outputs = {};
-    let apiUrl, userPoolId, userPoolClientId, userPoolDomain;
+    let apiUrl, userPoolId, userPoolClientId, userPoolDomain, cdnUrl;
     
     try {
       // スタック出力を取得
@@ -149,13 +157,22 @@ async function main() {
       userPoolId = outputs.UserPoolId;
       userPoolClientId = outputs.UserPoolClientId;
       userPoolDomain = outputs.UserPoolDomainName || outputs.UserPoolDomain;
+      
+      // CloudFront URLを取得
+      if (outputs.CloudFrontDomainName) {
+        cdnUrl = `https://${outputs.CloudFrontDomainName}`;
+        console.log(`CloudFront URLを取得しました: ${cdnUrl}`);
+      } else if (outputs.FrontendURL && outputs.FrontendURL.startsWith('https://')) {
+        cdnUrl = outputs.FrontendURL;
+        console.log(`FrontendURLからCloudFront URLを取得しました: ${cdnUrl}`);
+      }
     } catch (error) {
       console.warn('CloudFormationスタックからの出力取得に失敗しました:', error.message);
       console.warn('既存の設定を使用します。');
     }
     
     // 環境設定ファイルを更新
-    updateEnvironmentFile(apiUrl, userPoolId, userPoolClientId, userPoolDomain);
+    updateEnvironmentFile(apiUrl, userPoolId, userPoolClientId, userPoolDomain, cdnUrl);
     
     // フロントエンドをビルド
     try {
